@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<head>
+<title>Comparison Site</title>
+  <link rel="stylesheet" href="css/bootstrap.min.css" />
+  <link rel="stylesheet" href="css/app.css" />
+</head>
+<body ng-cloak>
+  <div class="navbar navbar-inverse">
+    <div class="navbar-inner">
+      <a class="brand" href="group.html">Group 08</a>
+      <ul class="nav">
+		<li><a href="go.html">Go</a></li>
+        <li><a href="tornade.html">Tornado</a></li>
+		<li><a href="php.html">PHP</a></li>
+		<li><a href="apache.html">Apache</a></li>
+		<li><a href="ruby.html">Ruby</a></li>
+		
+      </ul>
+    </div>
+  </div>
+  
+  <div class="container-fluid" ng-view>
+	<div>
+		<h3>Apache HTTP Server</h3>
+	</div>
+		
+		<p>Apache HTTP Server (further referred to as Apache) is a server developed and maintained by the Apache Software Foundation. The goal of the project is to provide the world with an open-source HTTP server that works across platforms. Apache was the first server deployed to over a 100 million servers and is the most commonly used server technology. Additionally, Apache has the edge on node.js (further referred to as node) in comparing the number of platforms supported. Both node and Apache have a guiding principle to be friendly to beginners and allow for quick adoption and utilization.</p>
+
+    <p>The feature set of Apache includes authentication, SSL and TLS, configuration of logs, caching, gzip,url rewrite and more.</p>
+
+    <p>The distinct difference between node and Apache is node’s ability to act as both server and web application gives it a distinct advantage over competing server technologies. Apache is simply an HTTP server and is typically heavily reliant on a scripting language (conventionally PHP). Apache utilizes a multi process model with multiple threads and processes activate. Node however handles all requests in a single thread, single process model. Apache is non-blocking due to its MPM whereas non-blocking in node is an implementation detail. This could imply that vanilla Apache will offer better CPU utilization.  </p>
+  </div>
+
+  <div class="footer">
+    
+  </div>
+
+</body>
+</html>
