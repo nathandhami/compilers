@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<head>
+<title>Comparison Site</title>
+  <link rel="stylesheet" href="css/bootstrap.min.css" />
+  <link rel="stylesheet" href="css/app.css" />
+</head>
+<body ng-cloak>
+  <div class="navbar navbar-inverse">
+    <div class="navbar-inner">
+      <a class="brand" href="group.html">Group 08</a>
+      <ul class="nav">
+		<li><a href="go.html">Go</a></li>
+        <li><a href="http.html">HTTP</a></li>
+		<li><a href="php.html">PHP</a></li>
+		<li><a href="apache.html">Apache</a></li>
+		<li><a href="ruby.html">Ruby</a></li>
+		
+      </ul>
+    </div>
+  </div>
+  
+  <div class="container-fluid" ng-view>
+	<div>
+		<h3>Golang</h3>
+	</div>
+		
+	<p><b>Golang vs Node.js Comparison of Features</b><br><br>
+
+	&nbsp;&nbsp;&nbsp;&nbsp;<b>Performance: </b>Go has similar performance characteristics with C or C++, which is very good. Due to JavaScript’s dynamically-typed nature, Node can not reach the raw performance of CPU or memory bound tasks that Go can achieve in many tests. However, in the common use cases where network communication or database interaction are involved, the performance of Node and Go are often equal.
+
+	<br><br>&nbsp;&nbsp;&nbsp;&nbsp;<b>Concurrency: </b>Go uses goroutines, which are lightweight threads managed by the Go runtime. Communication between goroutines is done using channels, which allow goroutines to communicate with each other and synchronize their execution. Node suffers from JavaScript’s concurrency support using the event-callback mechanism. However node does have some framework support for an async generator approach.
+
+	<br><br>&nbsp;&nbsp;&nbsp;&nbsp;<b>Scalability: </b>While both Go and Node.js scale well, Node has some problems in environments that scale massively.
+
+	<br><br>&nbsp;&nbsp;&nbsp;&nbsp;<b>Ease of Development: </b>Node.js is really easy to get into for a JS programmer and can be run at the client and server side. However, someone with a JS background will need to learn some new programming concepts to begin working with Go. And Go is aimed at developing high-performance concurrent services on the server-side, and is not often used at the client.
+
+	<br><br>&nbsp;&nbsp;&nbsp;&nbsp;<b>Packagers and Tooling: </b>Node.js has many, many more packages available. Though Go’s package support is steadily growing.
+
+	<br><br>&nbsp;&nbsp;&nbsp;&nbsp;<b>Error Handling: </b>Go requires you to implement explicit error checking, which can make error difficult to troubleshoot. Node can be inconsistent at times, but it does offer the familiar throw/catch mechanism that developers are used to from other languages.
+	</p>
+  </div>
+
+  <div class="footer">
+    
+  </div>
+
+</body>
+</html>
