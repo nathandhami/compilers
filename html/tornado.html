@@ -1,17 +1,41 @@
-<html>
+<!DOCTYPE html>
 <head>
-<title> The simplest HTML example 
-</title>
+<title>Comparison Site</title>
+  <link rel="stylesheet" href="css/bootstrap.min.css" />
+  <link rel="stylesheet" href="css/app.css" />
 </head>
-<body>
-<h1>Test? Success!</h1>
-<p>
-A similar web application to node.js is Tornado, which is a non-blocking web application framework written in python. Facebook acquired a company called FriendFeed, which was the company that Tornado was actually developed for.</p>
-<p>It is implemented in a very similar way to node.js. It uses one primary thread of execution, and all other processes are asynchronously non-blocking, by way of a callback function. This makes Tornado and node.js very similar in terms of use styles and required experience.
-<p>When used to solve the problem of handling 10000 concurrent connections, Tornado performs quite well compared to other Python based servers, handling between 3500 per second on a single thread, and up to 8000 using for nginx frontends. Node.js is, however, still better. </p>
-<p>The main benefit of using Tornado is if your specialty is in python, or the majority of your intended application is in python. There are fewer modules available for Tornado, than there are for node.js however. This is likely due to the massive popularity of node.js and JavaScript in general, in web application development circles. </p>
-<p>Tornado is support by Python 2.6 – 3.4, though there are a few additional packages are required for Python 2. This means that Tornado can be used for a wide range of already-made python applications. However, again, this is so far the only main advantage of Tornado over Node.js</p>
-<p>In summation, since Tornado is implemented using python, whereas node is implemented using javascript. Therefore, if you intend to implement everything else using python, Tornado allows you to do the full stack design in python. Node is this same concept, but with Javascript. </p>
+<body ng-cloak>
+  <div class="navbar navbar-inverse">
+    <div class="navbar-inner">
+      <a class="brand" href="group.html">Group 08</a>
+      <ul class="nav">
+		<li><a href="go.html">Go</a></li>
+        <li><a href="tornado.html">Tornado</a></li>
+		<li><a href="php.html">PHP</a></li>
+		<li><a href="apache.html">Apache</a></li>
+		<li><a href="ruby.html">Ruby</a></li>
+		
+      </ul>
+    </div>
+  </div>
+  
+  <div class="container-fluid" ng-view>
+	<div>
+		<h3>Tornado</h3>
+	</div>
+		
+	<p>
+	A similar web application to node.js is Tornado, which is a non-blocking web application framework written in python. Facebook acquired a company called FriendFeed, which was the company that Tornado was actually developed for.</p>
+	<p>It is implemented in a very similar way to node.js. It uses one primary thread of execution, and all other processes are asynchronously non-blocking, by way of a callback function. This makes Tornado and node.js very similar in terms of use styles and required experience.
+	<p>When used to solve the problem of handling 10000 concurrent connections, Tornado performs quite well compared to other Python based servers, handling between 3500 per second on a single thread, and up to 8000 using for nginx frontends. Node.js is, however, still better. 	</p>
+	<p>The main benefit of using Tornado is if your specialty is in python, or the majority of your intended application is in python. There are fewer modules available for Tornado, than there are for node.js however. This is likely due to the massive popularity of node.js and 	JavaScript in general, in web application development circles. </p>
+	<p>Tornado is support by Python 2.6 – 3.4, though there are a few additional packages are required for Python 2. This means that Tornado can be used for a wide range of already-made python applications. However, again, this is so far the only main advantage of Tornado over 	Node.js</p>
+	<p>In summation, since Tornado is implemented using python, whereas node is implemented using javascript. Therefore, if you intend to implement everything else using python, Tornado allows you to do the full stack design in python. Node is this same concept, but with	 Javascript. </p>
+  </div>
+
+  <div class="footer">
+    
+  </div>
+
 </body>
 </html>
-
