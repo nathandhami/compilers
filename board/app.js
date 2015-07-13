@@ -28,19 +28,19 @@ app.get('/', function (req, res) {
 });
 
 app.get('/login', function (req, res) {
-  res.render('login', {
+  res.render('login.html', {
     title: "Login"
   });
 });
 
 app.get('/profile', function (req, res) {
-  res.render('profile', {
+  res.render('profile.html', {
     title: "Profile"
   });
 });
 
 app.get('/createevent', function (req, res) {
-  res.render('createevent', {
+  res.render('createevent.html', {
     title: "Crate Event"
   });
 });
