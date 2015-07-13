@@ -1,0 +1,138 @@
+{% extends 'outer.html' %}
+ {% block body %}
+    <div class="container-fluid">
+    {% include 'components/navbar.html' %}
+    <div class="row">
+      <div class="col-md-12">
+        <h1>
+          Profile
+        </h1>
+        <p>First Name: John</p>
+        <p>Last Name: Doe</p>
+        <p>Email: john.doe@gmail.com</p>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-12">
+        <h3>Events you have created</h3>
+        <table class="table">
+          <thead>
+            <tr>
+              <th>
+                Event Name
+              </th>
+              <th>
+                Event Date
+              </th>
+              <th>
+                Location
+              </th>
+              <th>
+                Description
+              </th>
+              <th>
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>
+                Coffee Date
+              </td>
+              <td>
+                Date
+              </td>
+              <td>
+                <a href="#">111 A St</a>
+              </td>
+              <td>
+                Please someone come on a date with me. I am so alone.
+              </td>
+              <td>
+                Edit
+              </td>
+            </tr>
+            <tr>
+              <td>
+                Laser Tag
+              </td>
+              <td>
+                Date
+              </td>
+              <td>
+                <a href="#">Lazer Company, Inc LTD</a>
+              </td>
+              <td>
+                I have nobody to play lazer tag with.
+              </td>
+              <td>
+                Edit
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-12">
+        <h3>Events you are attending</h3>
+        <table class="table">
+          <thead>
+            <tr>
+              <th>
+                Event Name
+              </th>
+              <th>
+                Event Date
+              </th>
+              <th>
+                Event Created By
+              </th>
+              <th>
+                Location
+              </th>
+              <th>
+                Description
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>
+                Garage Sale
+              </td>
+              <td>
+                Date
+              </td>
+              <td>
+                <a href="#">@coolguy123</a>
+              </td>
+              <td>
+                <a href="#">333 Pender St</a>
+              </td>
+              <td>
+                This is a garage sale at my house. Please come on out!
+              </td>
+            </tr>
+            <tr>
+              <td>
+                Book Sale
+              </td>
+              <td>
+                Date
+              </td>
+              <td>
+                <a href="#">@peterson1120</a>
+              </td>
+              <td>
+                <a href="#">AAA Book Store</a>
+              </td>
+              <td>
+                Come out to my charity book sale supporting starving African children!
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+{% endblock %}

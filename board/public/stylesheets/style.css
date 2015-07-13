@@ -1,0 +1,14 @@
+body{
+    padding:20px;
+}
+
+.container-fluid{
+    max-width:1300px;
+    border-radius:15px;
+}
+
+#map-canvas {
+width: 600px;
+height: 500px;
+background-color: #CCC;
+}
