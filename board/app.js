@@ -5,6 +5,7 @@ var app = express();
 var expressSession = require('express-session');
 var nunjucks = require('nunjucks');
 var users = require('./models/users.js');
+var scripts = require('./scripts/scripts.js');
 
 
 app.use(express.urlencoded());
