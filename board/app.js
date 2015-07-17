@@ -4,12 +4,17 @@ var express = require("express");
 var app = express();
 var expressSession = require('express-session');
 var bodyParser = require('body-parser');
+var mongoose = require('mongoose');
 var nunjucks = require('nunjucks');
 var passport = require('passport');
 var LocalStrategy = require('passport-local').Strategy;
-// var users = require('./models/users.js');
 require('./scripts/scripts.js');
-require('./routes/login.js');
+
+//connect to mongoDB
+mongoose.connect('mongodb://board:secur1ty@ds047632.mongolab.com:47632/board');
+
+//require mongoose schema for User
+var User = require('./models/users');
 
 app.use(bodyParser.urlencoded({
   extended: true
@@ -69,6 +74,7 @@ passport.serializeUser(function (user, done) {
 });
 
 passport.deserializeUser(function (id, done) {
+  console.log(arguments);
   done(null, {
     username: 'test'
   });
@@ -83,6 +89,19 @@ app.use(express.static(__dirname + '/public'));
 nunjucks.configure('views', {
   autoescape: true,
   express: app
+});
+
+app.all('*', function (req, res, next) {
+  console.log(req.isAuthenticated());
+  if (req.isAuthenticated && req.isAuthenticated() === true) {
+    res.locals.user = req.user.username;
+    //mongo id bits
+    //res.locals.user_id = req.user._id;
+  } else {
+    res.locals.user = null;
+    //res.locals.user_id = null;
+  }
+  next();
 });
 
 // Routes
@@ -108,6 +127,32 @@ app.post('/login',
     failureRedirect: '/'
   })
 );
+
+//post to register a user
+app.post('/register', function (req, res) {
+
+  //create newUser object
+  var newUser = new User({
+    username: req.body.registerusername,
+    email: req.body.registeremail,
+    password: req.body.registerpassword
+  });
+
+  //and attempt to save it
+  newUser.save(function (err) {
+    if (!err) {
+      console.log('You just created a new user.');
+      res.render('login.html', {
+        title: "Login"
+      });
+    } else {
+      console.log(err);
+      res.render('login.html', {
+        title: "Login"
+      });
+    }
+  });
+});
 
 //logout and redirect to home
 app.get('/logout', function (req, res) {

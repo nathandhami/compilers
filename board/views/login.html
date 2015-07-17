@@ -14,21 +14,21 @@
           <h3>
             Register Here
           </h3>
-          <form class="form-horizontal" role="form">
+          <form class="form-horizontal" method="POST" action="/register">
             <div class="form-group">
             <div class="form-group">
-              <label for="username" class="col-sm-2 control-label">
+              <label for="registerusername" class="col-sm-2 control-label">
                 Username
               </label>
               <div class="col-sm-10">
-                <input class="form-control" id="username" type="text">
+                <input name="registerusername" class="form-control" id="registerusername" type="text">
               </div>
             </div>
               <label for="registeremail" class="col-sm-2 control-label">
               Email
               </label>
               <div class="col-sm-10">
-                <input class="form-control" id="registeremail" type="email">
+                <input name="registeremail" class="form-control" id="registeremail" type="email">
               </div>
             </div>
             <div class="form-group">
@@ -36,7 +36,7 @@
               Password
               </label>
               <div class="col-sm-10">
-                <input class="form-control" id="registerpassword" type="password">
+                <input name="registerpassword" class="form-control" id="registerpassword" type="password">
               </div>
             </div>
             <div class="form-group">
@@ -44,7 +44,7 @@
               Confirm Password
               </label>
               <div class="col-sm-10">
-                <input class="form-control" id="registerpassword2" type="password">
+                <input name="registerpassword2" class="form-control" id="registerpassword2" type="password">
               </div>
             </div>
             <div class="form-group">
@@ -63,7 +63,7 @@
           <form class="form-horizontal" method="POST" action="/login">
             <div class="form-group">
               <label for="loginusername" class="col-sm-2 control-label">
-              username
+              Username
               </label>
               <div class="col-sm-10">
                 <input name="loginusername" class="form-control" id="loginusername" type="text">
@@ -75,15 +75,6 @@
               </label>
               <div class="col-sm-10">
                 <input name="loginpass" class="form-control" id="loginpass" type="password">
-              </div>
-            </div>
-            <div class="form-group">
-              <div class="col-sm-offset-2 col-sm-10">
-                <div class="checkbox">
-                  <label>
-                  <input type="checkbox"> Remember me
-                  </label>
-                </div>
               </div>
             </div>
             <div class="form-group">
