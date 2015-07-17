@@ -80,7 +80,8 @@ nunjucks.configure('views', {
 });
 
 //For now, check if user is authenticated on EVERY route.
-//It will come in handy during development
+//It will make life easier during development
+//later on we can change this to only check on profile/create event/buddy pages
 app.all('*', function (req, res, next) {
   console.log(req.isAuthenticated());
   if (req.isAuthenticated && req.isAuthenticated() === true) {
