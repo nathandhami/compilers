@@ -1,26 +1,28 @@
 // Module dependencies
-
-var express = require("express");
-var app = express();
-var expressSession = require('express-session');
-var bodyParser = require('body-parser');
-var mongoose = require('mongoose');
-var nunjucks = require('nunjucks');
-var passport = require('passport');
-var LocalStrategy = require('passport-local').Strategy;
+var express = require("express"),
+  app = express(),
+  expressSession = require('express-session'),
+  bodyParser = require('body-parser'),
+  mongoose = require('mongoose'),
+  nunjucks = require('nunjucks'),
+  passport = require('passport'),
+  LocalStrategy = require('passport-local').Strategy;
 require('./scripts/scripts.js');
 
-//connect to mongoDB
-mongoose.connect('mongodb://board:secur1ty@ds047632.mongolab.com:47632/board');
-
-//require mongoose schema for User
-var User = require('./models/users');
-
+//middleware
 app.use(bodyParser.urlencoded({
   extended: true
 }));
 
-//passport stuff
+//connect to mongoDB
+mongoose.connect('mongodb://board:secur1ty@ds047632.mongolab.com:47632/board');
+
+//grab all the models
+var User = require('./models/users');
+
+
+//Passport is used to handle sessions
+
 app.use(passport.initialize());
 app.use(passport.session());
 
@@ -32,57 +34,43 @@ passport.use(new LocalStrategy({
   usernameField: 'loginusername',
   passwordField: 'loginpass'
 }, function (username, password, done) {
-  console.log(arguments);
-
-  //ONCE REGISTRATION IS DONE, UNCOMMENT THIS BIT
-  //THIS BIT IS FOR CHECKING FOR MONGO USER
-
-  // models.users.findOne({
-  //   username: username
-  // }, function (err, user) {
-  //   if (err) {
-  //     return done(err);
-  //   }
-  //   if (!user) {
-  //     return done(null, false, {
-  //       message: 'Incorrect username or password.'
-  //     });
-  //   }
-  //   if (user.password !== password) {
-  //     return done(null, false, {
-  //       message: 'Incorrect username or password.'
-  //     });
-  //   }
-  //   return done(null, user);
-  // });
-
-
-  //AND THE REST OF THIS BIT IS THE HARDCODED
-  //BIT FOR TESTING OF PASSPORT SO DELETE IT AFTER
-
-  var usernametest = "test";
-  var passwordtest = "test";
-  if (username === usernametest && password === passwordtest) {
-    done(null, {
-      username: username
-    });
-  }
+  User.findOne({
+    username: username
+  }, function (err, user) {
+    if (err) {
+      return done(err);
+    }
+    if (!user) {
+      return done(null, false, {
+        message: 'Incorrect username or password.'
+      });
+    }
+    if (user.password !== password) {
+      return done(null, false, {
+        message: 'Incorrect username or password.'
+      });
+    }
+    return done(null, user);
+  });
 }));
 
+
+//store session
 passport.serializeUser(function (user, done) {
   done(null, user.username);
 });
 
+//delete session on logout
 passport.deserializeUser(function (id, done) {
-  console.log(arguments);
-  done(null, {
-    username: 'test'
+  User.findById(id, function (err, user) {
+    done(err, user);
   });
 });
 
-//end passport stuff
+//end Passport stuff
 
-// Configuration
+
+//App configuration stuff
 
 app.set('view engine', 'html');
 app.use(express.static(__dirname + '/public'));
@@ -91,18 +79,21 @@ nunjucks.configure('views', {
   express: app
 });
 
+//For now, check if user is authenticated on EVERY route.
+//It will come in handy during development
 app.all('*', function (req, res, next) {
   console.log(req.isAuthenticated());
   if (req.isAuthenticated && req.isAuthenticated() === true) {
     res.locals.user = req.user.username;
-    //mongo id bits
-    //res.locals.user_id = req.user._id;
+    res.locals.user_id = req.user._id;
   } else {
     res.locals.user = null;
-    //res.locals.user_id = null;
+    res.locals.user_id = null;
   }
   next();
 });
+
+// End App configuration
 
 // Routes
 
@@ -129,6 +120,7 @@ app.post('/login',
 );
 
 //post to register a user
+//TODO - proper callbacks
 app.post('/register', function (req, res) {
 
   //create newUser object
@@ -146,6 +138,9 @@ app.post('/register', function (req, res) {
         title: "Login"
       });
     } else {
+      //if it didn't save, read your console to find out why
+      //probably because you didn't pick a unique username
+      //TODO - handle this properly (ie alert user instead of trying to post it)
       console.log(err);
       res.render('login.html', {
         title: "Login"
