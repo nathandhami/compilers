@@ -1,191 +1,84 @@
 0 info it worked if it ends with ok
-1 verbose cli [ '/usr/bin/node', '/usr/bin/npm', 'install', '-g', 'body-parser' ]
+1 verbose cli [ '/usr/bin/node', '/usr/bin/npm', 'install', 'bodyparser' ]
 2 info using npm@1.4.28
 3 info using node@v0.10.37
 4 verbose node symlink /usr/bin/node
-5 verbose cache add [ 'body-parser', null ]
-6 verbose cache add name=undefined spec="body-parser" args=["body-parser",null]
-7 verbose parsed url { protocol: null,
-7 verbose parsed url   slashes: null,
-7 verbose parsed url   auth: null,
-7 verbose parsed url   host: null,
-7 verbose parsed url   port: null,
-7 verbose parsed url   hostname: null,
-7 verbose parsed url   hash: null,
-7 verbose parsed url   search: null,
-7 verbose parsed url   query: null,
-7 verbose parsed url   pathname: 'body-parser',
-7 verbose parsed url   path: 'body-parser',
-7 verbose parsed url   href: 'body-parser' }
-8 silly lockFile 14cf125c-body-parser body-parser
-9 verbose lock body-parser /home/matt/.npm/14cf125c-body-parser.lock
-10 silly lockFile 14cf125c-body-parser body-parser
-11 silly lockFile 14cf125c-body-parser body-parser
-12 verbose addNamed [ 'body-parser', '' ]
-13 verbose addNamed [ null, '*' ]
-14 silly lockFile 9f665704-body-parser body-parser@
-15 verbose lock body-parser@ /home/matt/.npm/9f665704-body-parser.lock
-16 silly addNameRange { name: 'body-parser', range: '*', hasData: false }
-17 verbose request where is /body-parser
-18 verbose request registry https://registry.npmjs.org/
-19 verbose request id 99b00fd292d3b072
-20 verbose url raw /body-parser
-21 verbose url resolving [ 'https://registry.npmjs.org/', './body-parser' ]
-22 verbose url resolved https://registry.npmjs.org/body-parser
-23 verbose request where is https://registry.npmjs.org/body-parser
-24 info trying registry request attempt 1 at 21:58:45
-25 verbose etag "DQHPHO6Q3JLQW3ZITVRBGYPE8"
-26 http GET https://registry.npmjs.org/body-parser
-27 http 304 https://registry.npmjs.org/body-parser
-28 silly registry.get cb [ 304,
-28 silly registry.get   { date: 'Mon, 13 Jul 2015 04:58:46 GMT',
-28 silly registry.get     via: '1.1 varnish',
-28 silly registry.get     'cache-control': 'max-age=60',
-28 silly registry.get     etag: '"DQHPHO6Q3JLQW3ZITVRBGYPE8"',
-28 silly registry.get     age: '41',
-28 silly registry.get     connection: 'keep-alive',
-28 silly registry.get     'x-served-by': 'cache-lax1425-LAX',
-28 silly registry.get     'x-cache': 'HIT',
-28 silly registry.get     'x-cache-hits': '1',
-28 silly registry.get     'x-timer': 'S1436763526.267233,VS0,VE1',
-28 silly registry.get     vary: 'Accept' } ]
-29 verbose etag https://registry.npmjs.org/body-parser from cache
-30 silly addNameRange number 2 { name: 'body-parser', range: '*', hasData: true }
-31 silly addNameRange versions [ 'body-parser',
-31 silly addNameRange   [ '1.0.0',
-31 silly addNameRange     '1.0.1',
-31 silly addNameRange     '1.0.2',
-31 silly addNameRange     '1.1.0',
-31 silly addNameRange     '1.1.1',
-31 silly addNameRange     '1.1.2',
-31 silly addNameRange     '1.2.0',
-31 silly addNameRange     '1.2.1',
-31 silly addNameRange     '1.2.2',
-31 silly addNameRange     '1.3.0',
-31 silly addNameRange     '1.3.1',
-31 silly addNameRange     '1.4.0',
-31 silly addNameRange     '1.4.1',
-31 silly addNameRange     '1.4.2',
-31 silly addNameRange     '1.4.3',
-31 silly addNameRange     '1.5.0',
-31 silly addNameRange     '1.5.1',
-31 silly addNameRange     '1.5.2',
-31 silly addNameRange     '1.6.0',
-31 silly addNameRange     '1.6.1',
-31 silly addNameRange     '1.6.2',
-31 silly addNameRange     '1.6.3',
-31 silly addNameRange     '1.6.4',
-31 silly addNameRange     '1.6.5',
-31 silly addNameRange     '1.6.6',
-31 silly addNameRange     '1.6.7',
-31 silly addNameRange     '1.7.0',
-31 silly addNameRange     '1.8.0',
-31 silly addNameRange     '1.8.1',
-31 silly addNameRange     '1.8.2',
-31 silly addNameRange     '1.8.3',
-31 silly addNameRange     '1.8.4',
-31 silly addNameRange     '1.9.0',
-31 silly addNameRange     '1.9.1',
-31 silly addNameRange     '1.9.2',
-31 silly addNameRange     '1.9.3',
-31 silly addNameRange     '1.10.0',
-31 silly addNameRange     '1.10.1',
-31 silly addNameRange     '1.10.2',
-31 silly addNameRange     '1.11.0',
-31 silly addNameRange     '1.12.0',
-31 silly addNameRange     '1.12.1',
-31 silly addNameRange     '1.12.2',
-31 silly addNameRange     '1.12.3',
-31 silly addNameRange     '1.12.4',
-31 silly addNameRange     '1.13.0',
-31 silly addNameRange     '1.13.1',
-31 silly addNameRange     '1.13.2' ] ]
-32 verbose addNamed [ 'body-parser', '1.13.2' ]
-33 verbose addNamed [ '1.13.2', '1.13.2' ]
-34 silly lockFile 958b9a66-body-parser-1-13-2 body-parser@1.13.2
-35 verbose lock body-parser@1.13.2 /home/matt/.npm/958b9a66-body-parser-1-13-2.lock
-36 silly lockFile 958b9a66-body-parser-1-13-2 body-parser@1.13.2
-37 silly lockFile 958b9a66-body-parser-1-13-2 body-parser@1.13.2
-38 silly lockFile 9f665704-body-parser body-parser@
-39 silly lockFile 9f665704-body-parser body-parser@
-40 silly resolved [ { name: 'body-parser',
-40 silly resolved     description: 'Node.js body parsing middleware',
-40 silly resolved     version: '1.13.2',
-40 silly resolved     contributors: [ [Object], [Object] ],
-40 silly resolved     license: 'MIT',
-40 silly resolved     repository: { type: 'git', url: 'https://github.com/expressjs/body-parser' },
-40 silly resolved     dependencies:
-40 silly resolved      { bytes: '2.1.0',
-40 silly resolved        'content-type': '~1.0.1',
-40 silly resolved        debug: '~2.2.0',
-40 silly resolved        depd: '~1.0.1',
-40 silly resolved        'http-errors': '~1.3.1',
-40 silly resolved        'iconv-lite': '0.4.11',
-40 silly resolved        'on-finished': '~2.3.0',
-40 silly resolved        qs: '4.0.0',
-40 silly resolved        'raw-body': '~2.1.2',
-40 silly resolved        'type-is': '~1.6.4' },
-40 silly resolved     devDependencies:
-40 silly resolved      { istanbul: '0.3.17',
-40 silly resolved        methods: '~1.1.1',
-40 silly resolved        mocha: '2.2.5',
-40 silly resolved        supertest: '1.0.1' },
-40 silly resolved     files: [ 'lib/', 'LICENSE', 'HISTORY.md', 'index.js' ],
-40 silly resolved     engines: { node: '>= 0.8' },
-40 silly resolved     scripts:
-40 silly resolved      { test: 'mocha --require test/support/env --reporter spec --check-leaks --bail test/',
-40 silly resolved        'test-cov': 'istanbul cover node_modules/mocha/bin/_mocha -- --require test/support/env --reporter dot --check-leaks test/',
-40 silly resolved        'test-travis': 'istanbul cover node_modules/mocha/bin/_mocha --report lcovonly -- --require test/support/env --reporter spec --check-leaks test/' },
-40 silly resolved     gitHead: 'b31df3e7550c6fadef6823a020f527ab73bfec33',
-40 silly resolved     bugs: { url: 'https://github.com/expressjs/body-parser/issues' },
-40 silly resolved     homepage: 'https://github.com/expressjs/body-parser',
-40 silly resolved     _id: 'body-parser@1.13.2',
-40 silly resolved     _shasum: '229262a4fd2e402dfb88d99bc27d8be31307e7e9',
-40 silly resolved     _from: 'body-parser@',
-40 silly resolved     _npmVersion: '1.4.28',
-40 silly resolved     _npmUser: { name: 'dougwilson', email: 'doug@somethingdoug.com' },
-40 silly resolved     maintainers: [ [Object], [Object], [Object], [Object], [Object], [Object] ],
-40 silly resolved     dist:
-40 silly resolved      { shasum: '229262a4fd2e402dfb88d99bc27d8be31307e7e9',
-40 silly resolved        tarball: 'http://registry.npmjs.org/body-parser/-/body-parser-1.13.2.tgz' },
-40 silly resolved     directories: {},
-40 silly resolved     _resolved: 'https://registry.npmjs.org/body-parser/-/body-parser-1.13.2.tgz',
-40 silly resolved     readme: 'ERROR: No README data found!' } ]
-41 info install body-parser@1.13.2 into /usr/lib
-42 info installOne body-parser@1.13.2
-43 verbose lib/node_modules/body-parser unbuild
-44 verbose tar unpack /home/matt/.npm/body-parser/1.13.2/package.tgz
-45 silly lockFile f7a0b414-usr-lib-node-modules-body-parser tar:///usr/lib/node_modules/body-parser
-46 verbose lock tar:///usr/lib/node_modules/body-parser /home/matt/.npm/f7a0b414-usr-lib-node-modules-body-parser.lock
-47 silly lockFile 4a9168a1-m-body-parser-1-13-2-package-tgz tar:///home/matt/.npm/body-parser/1.13.2/package.tgz
-48 verbose lock tar:///home/matt/.npm/body-parser/1.13.2/package.tgz /home/matt/.npm/4a9168a1-m-body-parser-1-13-2-package-tgz.lock
-49 silly gunzTarPerm modes [ '775', '664' ]
-50 error Error: EACCES, mkdir '/usr/lib/node_modules/body-parser'
-50 error  { [Error: EACCES, mkdir '/usr/lib/node_modules/body-parser']
-50 error   errno: 3,
-50 error   code: 'EACCES',
-50 error   path: '/usr/lib/node_modules/body-parser',
-50 error   fstream_type: 'Directory',
-50 error   fstream_path: '/usr/lib/node_modules/body-parser',
-50 error   fstream_class: 'DirWriter',
-50 error   fstream_stack:
-50 error    [ '/usr/lib/node_modules/npm/node_modules/fstream/lib/dir-writer.js:36:23',
-50 error      '/usr/lib/node_modules/npm/node_modules/mkdirp/index.js:46:53',
-50 error      'Object.oncomplete (fs.js:108:15)' ] }
-51 error Please try running this command again as root/Administrator.
-52 error System Linux 3.16.0-43-generic
-53 error command "/usr/bin/node" "/usr/bin/npm" "install" "-g" "body-parser"
-54 error cwd /home/matt/projects/boardio
-55 error node -v v0.10.37
-56 error npm -v 1.4.28
-57 error path /usr/lib/node_modules/body-parser
-58 error fstream_path /usr/lib/node_modules/body-parser
-59 error fstream_type Directory
-60 error fstream_class DirWriter
-61 error code EACCES
-62 error errno 3
-63 error stack Error: EACCES, mkdir '/usr/lib/node_modules/body-parser'
-64 error fstream_stack /usr/lib/node_modules/npm/node_modules/fstream/lib/dir-writer.js:36:23
-64 error fstream_stack /usr/lib/node_modules/npm/node_modules/mkdirp/index.js:46:53
-64 error fstream_stack Object.oncomplete (fs.js:108:15)
-65 verbose exit [ 3, true ]
+5 warn package.json Board.io@0.0.1 No repository field.
+6 verbose readDependencies using package.json deps
+7 verbose cache add [ 'bodyparser', null ]
+8 verbose cache add name=undefined spec="bodyparser" args=["bodyparser",null]
+9 verbose parsed url { protocol: null,
+9 verbose parsed url   slashes: null,
+9 verbose parsed url   auth: null,
+9 verbose parsed url   host: null,
+9 verbose parsed url   port: null,
+9 verbose parsed url   hostname: null,
+9 verbose parsed url   hash: null,
+9 verbose parsed url   search: null,
+9 verbose parsed url   query: null,
+9 verbose parsed url   pathname: 'bodyparser',
+9 verbose parsed url   path: 'bodyparser',
+9 verbose parsed url   href: 'bodyparser' }
+10 silly lockFile 981361c8-bodyparser bodyparser
+11 verbose lock bodyparser /home/matt/.npm/981361c8-bodyparser.lock
+12 silly lockFile 981361c8-bodyparser bodyparser
+13 silly lockFile 981361c8-bodyparser bodyparser
+14 verbose addNamed [ 'bodyparser', '' ]
+15 verbose addNamed [ null, '*' ]
+16 silly lockFile 6c35f799-bodyparser bodyparser@
+17 verbose lock bodyparser@ /home/matt/.npm/6c35f799-bodyparser.lock
+18 silly addNameRange { name: 'bodyparser', range: '*', hasData: false }
+19 verbose request where is /bodyparser
+20 verbose request registry https://registry.npmjs.org/
+21 verbose request id 05d36064e5e39db0
+22 verbose url raw /bodyparser
+23 verbose url resolving [ 'https://registry.npmjs.org/', './bodyparser' ]
+24 verbose url resolved https://registry.npmjs.org/bodyparser
+25 verbose request where is https://registry.npmjs.org/bodyparser
+26 info trying registry request attempt 1 at 01:40:41
+27 http GET https://registry.npmjs.org/bodyparser
+28 http 404 https://registry.npmjs.org/bodyparser
+29 verbose headers { server: 'CouchDB/1.5.0 (Erlang OTP/R16B03)',
+29 verbose headers   'content-type': 'application/json',
+29 verbose headers   'cache-control': 'max-age=0',
+29 verbose headers   'content-length': '51',
+29 verbose headers   'accept-ranges': 'bytes',
+29 verbose headers   date: 'Thu, 16 Jul 2015 08:40:41 GMT',
+29 verbose headers   via: '1.1 varnish',
+29 verbose headers   age: '0',
+29 verbose headers   connection: 'keep-alive',
+29 verbose headers   'x-served-by': 'cache-lax1422-LAX',
+29 verbose headers   'x-cache': 'MISS',
+29 verbose headers   'x-cache-hits': '0',
+29 verbose headers   'x-timer': 'S1437036041.365628,VS0,VE90' }
+30 silly registry.get cb [ 404,
+30 silly registry.get   { server: 'CouchDB/1.5.0 (Erlang OTP/R16B03)',
+30 silly registry.get     'content-type': 'application/json',
+30 silly registry.get     'cache-control': 'max-age=0',
+30 silly registry.get     'content-length': '51',
+30 silly registry.get     'accept-ranges': 'bytes',
+30 silly registry.get     date: 'Thu, 16 Jul 2015 08:40:41 GMT',
+30 silly registry.get     via: '1.1 varnish',
+30 silly registry.get     age: '0',
+30 silly registry.get     connection: 'keep-alive',
+30 silly registry.get     'x-served-by': 'cache-lax1422-LAX',
+30 silly registry.get     'x-cache': 'MISS',
+30 silly registry.get     'x-cache-hits': '0',
+30 silly registry.get     'x-timer': 'S1437036041.365628,VS0,VE90' } ]
+31 silly lockFile 6c35f799-bodyparser bodyparser@
+32 silly lockFile 6c35f799-bodyparser bodyparser@
+33 error 404 404 Not Found: bodyparser
+33 error 404
+33 error 404 'bodyparser' is not in the npm registry.
+33 error 404 You should bug the author to publish it
+33 error 404 It was specified as a dependency of 'Board.io'
+33 error 404
+33 error 404 Note that you can also install from a
+33 error 404 tarball, folder, or http url, or git url.
+34 error System Linux 3.16.0-43-generic
+35 error command "/usr/bin/node" "/usr/bin/npm" "install" "bodyparser"
+36 error cwd /home/matt/projects/group8/board
+37 error node -v v0.10.37
+38 error npm -v 1.4.28
+39 error code E404
+40 verbose exit [ 1, true ]

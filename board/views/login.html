@@ -28,7 +28,7 @@
               Email
               </label>
               <div class="col-sm-10">
-                <input class="form-control" id="inputEmail3" type="email">
+                <input class="form-control" id="registeremail" type="email">
               </div>
             </div>
             <div class="form-group">
@@ -60,21 +60,21 @@
           <h3>
             Already a member? Log in here.
           </h3>
-          <form class="form-horizontal" role="form">
+          <form class="form-horizontal" method="POST" action="/login">
             <div class="form-group">
-              <label for="inputEmail3" class="col-sm-2 control-label">
-              Email
+              <label for="loginusername" class="col-sm-2 control-label">
+              username
               </label>
               <div class="col-sm-10">
-                <input class="form-control" id="inputEmail3" type="email">
+                <input name="loginusername" class="form-control" id="loginusername" type="text">
               </div>
             </div>
             <div class="form-group">
-              <label for="inputPassword3" class="col-sm-2 control-label">
+              <label for="loginpass" class="col-sm-2 control-label">
               Password
               </label>
               <div class="col-sm-10">
-                <input class="form-control" id="inputPassword3" type="password">
+                <input name="loginpass" class="form-control" id="loginpass" type="password">
               </div>
             </div>
             <div class="form-group">

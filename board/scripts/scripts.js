@@ -2,6 +2,9 @@ function checkAuth(req, res, next) {
   if (!req.session.user_id) {
     res.send('You are not authorized to view this page');
   } else {
+    //for security purposes, explicitly tell the browser not to cache "restricted" 
+    //pages by editing the response header
+    res.header('Cache-Control', 'no-cache, private, no-store, must-revalidate, max-stale=0, post-check=0, pre-check=0');
     next();
   }
 }
