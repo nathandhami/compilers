@@ -7,7 +7,7 @@ var express = require("express"),
   nunjucks = require('nunjucks'),
   passport = require('passport'),
   LocalStrategy = require('passport-local').Strategy;
-require('./scripts/scripts.js');
+  require('./scripts/scripts.js');
 
 //middleware
 app.use(bodyParser.urlencoded({
@@ -19,7 +19,7 @@ mongoose.connect('mongodb://board:secur1ty@ds047632.mongolab.com:47632/board');
 
 //grab all the models
 var User = require('./models/users');
-
+var Event = require('./models/event');
 
 //Passport is used to handle sessions
 
@@ -125,12 +125,13 @@ app.post('/login',
 app.post('/register', function (req, res) {
 
   //create newUser object
+  console.log(req.body);
   var newUser = new User({
     username: req.body.registerusername,
     email: req.body.registeremail,
     password: req.body.registerpassword
   });
-
+	console.log(newUser.username + ' '+ newUser.email + ' '+ newUser.password);
   //and attempt to save it
   newUser.save(function (err) {
     if (!err) {
@@ -168,6 +169,28 @@ app.get('/createevent', function (req, res) {
   res.render('createevent.html', {
     title: "Crate Event"
   });
+});
+
+app.post('/createevent', function (req, res) {
+	//create new event
+	var newEvent = new Event();
+	newEvent.name = req.body.eventName;
+	newEvent.description = req.body.eventDescription;
+	newEvent.location = req.body.location;
+	newEvent.date = req.body.datepicker;
+
+	console.log(newEvent.name + " " + newEvent.description);
+	newEvent.save(function(err){
+		if(!err){
+			console.log("New Event: " + newEvent.name + " " + newEvent.description);
+			res.render('createevent.html', {title: "Create Event"});
+		}
+		else{
+			console.log('Error creating event.');	
+			res.render('createevent.html', {title: "Create Event"});
+		}
+	});
+	
 });
 
 app.listen(3000, function () {
