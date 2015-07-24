@@ -23,12 +23,17 @@ var Event = require('./models/event');
 
 //Passport is used to handle sessions
 
-app.use(passport.initialize());
-app.use(passport.session());
 
-app.use(express.urlencoded());
-app.use(express.json());
-app.use(app.router);
+  app.use(express.cookieParser());
+  app.use(express.bodyParser());
+  app.use(expressSession({
+    secret: 'keyboard cat'
+  }))
+  app.use(passport.initialize());
+  app.use(passport.session());
+  app.use(express.urlencoded());
+  app.use(express.json());
+  app.use(app.router);
 
 passport.use(new LocalStrategy({
   usernameField: 'loginusername',
@@ -193,6 +198,6 @@ app.post('/createevent', function (req, res) {
 	
 });
 
-app.listen(3000, function () {
+app.listen(8080, function () {
   console.log("Express server listening on port 3000");
 });
