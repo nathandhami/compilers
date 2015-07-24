@@ -2,13 +2,6 @@
 <items version="2" >
 
     <item
-        jar="C:\Users\Joseph\AndroidStudioProjects\board.io\app\build\intermediates\exploded-aar\com.google.android.gms\play-services\6.5.87\classes.jar"
-        jumboMode="false"
-        revision="21.1.2"
-        sha1="dd9247ea0fabe8ee479638c4b4a23e93752be256">
-        <dex dex="C:\Users\Joseph\AndroidStudioProjects\board.io\app\build\intermediates\pre-dexed\debug\classes-230e5965f174f41a7f570803b385f7878b2fd201.jar" />
-    </item>
-    <item
         jar="C:\Users\Joseph\AppData\Local\Android\sdk\extras\android\m2repository\com\android\support\support-annotations\21.0.3\support-annotations-21.0.3.jar"
         jumboMode="false"
         revision="21.1.2"
@@ -35,6 +28,13 @@
         revision="21.1.2"
         sha1="01ec05bfbafcc07646ba813000bf2ef11742dd03">
         <dex dex="C:\Users\Joseph\AndroidStudioProjects\board.io\app\build\intermediates\pre-dexed\debug\internal_impl-21.0.3-2f629343bad2c30ce2fbd095c2338420c7273d1d.jar" />
+    </item>
+    <item
+        jar="C:\Users\Joseph\AndroidStudioProjects\board.io\app\build\intermediates\exploded-aar\com.google.android.gms\play-services\6.5.87\classes.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="dd9247ea0fabe8ee479638c4b4a23e93752be256">
+        <dex dex="C:\Users\Joseph\AndroidStudioProjects\board.io\app\build\intermediates\pre-dexed\debug\classes-230e5965f174f41a7f570803b385f7878b2fd201.jar" />
     </item>
 
 </items>

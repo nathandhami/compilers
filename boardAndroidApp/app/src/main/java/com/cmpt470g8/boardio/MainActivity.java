@@ -6,6 +6,8 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.EditText;
+import android.widget.TextView;
 
 
 public class MainActivity extends ActionBarActivity {
@@ -41,14 +43,15 @@ public class MainActivity extends ActionBarActivity {
 
     public void login(View view){
         Intent intent = new Intent(this,LandingPage.class);
-        int message = 1;
+        EditText username = (EditText) findViewById(R.id.usernameBox);
+        String message = username.getText().toString();
         intent.putExtra(EXTRA_MESSAGE, message);
         startActivity(intent);
     }
 
     public void skip(View view){
         Intent intent = new Intent(this,LandingPage.class);
-        int message = 0;
+        String message = "Guest";
         intent.putExtra(EXTRA_MESSAGE, message);
         startActivity(intent);
     }

@@ -16,6 +16,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import java.net.UnknownHostException;
 
 import java.util.ArrayList;
 
@@ -34,6 +35,7 @@ public class LandingPage extends ActionBarActivity
     ListView list;
     ArrayList<String> listItems;
     ArrayAdapter<String> adapter;
+    public String username;
 
     /**
      * Used to store the last screen title. For use in {@link #restoreActionBar()}.
@@ -55,7 +57,11 @@ public class LandingPage extends ActionBarActivity
         list = (ListView)findViewById(R.id.activityList);
         listItems = new ArrayList<>();
         Intent intent = getIntent();
-        loggedIn = intent.getIntExtra(EXTRA_MESSAGE, 0);
+        username = intent.getStringExtra(EXTRA_MESSAGE);
+        if (username == "Guest")
+            loggedIn = 0;
+        else
+            loggedIn = 1;
         adapter = new ArrayAdapter<>(getApplicationContext(), android.R.layout.simple_list_item_1, listItems);
         list.setAdapter(adapter);
         loadActivities(loggedIn);
@@ -82,6 +88,7 @@ public class LandingPage extends ActionBarActivity
     public void onSectionAttached(int number) {
         Intent intent;
         int message;
+        String user;
         switch (number) {
             case 1:
                 intent = new Intent(this, MapsActivity.class);
@@ -91,8 +98,7 @@ public class LandingPage extends ActionBarActivity
                 break;
             case 2:
                 intent = new Intent(this, CreateEvent.class);
-                message = 0;
-                intent.putExtra(EXTRA_MESSAGE, message);
+                intent.putExtra(EXTRA_MESSAGE, username);
                 startActivity(intent);
                 break;
             case 3:
@@ -202,10 +208,9 @@ public class LandingPage extends ActionBarActivity
         adapter.notifyDataSetChanged();
     }
 
-    public void create(View view){
+    public void create(View view)throws UnknownHostException{
         Intent intent = new Intent(this, CreateEvent.class);
-        int message = 0;
-        intent.putExtra(EXTRA_MESSAGE, message);
+        intent.putExtra(EXTRA_MESSAGE, username);
         startActivity(intent);
     }
 }
