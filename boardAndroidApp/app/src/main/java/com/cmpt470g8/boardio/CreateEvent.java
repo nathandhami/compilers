@@ -1,24 +1,14 @@
 package com.cmpt470g8.boardio;
 
 import android.content.Intent;
-import android.os.AsyncTask;
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.EditText;
-import android.widget.TextView;
-import java.util.Calendar;
 import android.widget.DatePicker;
+import android.widget.EditText;
 import java.net.UnknownHostException;
-
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.w3c.dom.Text;
+import java.util.Calendar;
 
 
 public class CreateEvent extends LandingPage {
@@ -27,75 +17,7 @@ public class CreateEvent extends LandingPage {
     public final static String EXTRA_MESSAGE = "com.cmpt470g8.boardio.message";
     public String user;
     public String date;
-    public class Event {
-        public String name;
-        public String date;
-        public String location;
-        public String description;
-    }
 
-    public class QueryBuilder {
-        public String getDataBaseName(){
-            return "board";
-        }
-        public String getAPIKey(){
-            return "S0DeU0yPg3419W2mT-L7z5mEtVzmhcKO";
-        }
-        public String getBaseURL(){
-            return "https://api.mongolab.com/api/1/databases/"+getDataBaseName()+"/collections/";
-        }
-        public String docApiKeyUrl()
-        {
-            return "?apiKey="+getAPIKey();
-        }
-        public String documentRequest()
-        {
-            return "events";
-        }
-        public String buildEventsSaveURL()
-        {
-            return getBaseURL()+documentRequest()+docApiKeyUrl();
-        }
-        public String createEvent(Event event)
-        {
-            return String
-                    .format("{\"event\" : {\"date\": \"%s\", "
-                                    + "\"location\": \"%s\", \"description\": \"%s\", "
-                                    + "\"name\": \"%s\"}, \"safe\" : true}",
-                            event.date, event.location, event.description, event.name);
-        }
-    }
-
-    public class SaveAsyncTask extends AsyncTask<Event, Void, Boolean> {
-
-        @Override
-        protected Boolean doInBackground(Event... arg0) {
-            try {
-                Event event = arg0[0];
-
-                QueryBuilder qb = new QueryBuilder();
-
-                HttpClient httpClient = new DefaultHttpClient();
-                HttpPost request = new HttpPost(qb.buildEventsSaveURL());
-
-                StringEntity params = new StringEntity(qb.createEvent(event));
-                request.addHeader("content-type", "application/json");
-                request.setEntity(params);
-                HttpResponse response = httpClient.execute(request);
-
-                if (response.getStatusLine().getStatusCode() < 205) {
-                    return true;
-                } else {
-                    return false;
-                }
-            } catch (Exception e) {
-                //e.getCause();
-                String val = e.getMessage();
-                String val2 = val;
-                return false;
-            }
-        }
-    }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -160,6 +82,7 @@ public class CreateEvent extends LandingPage {
         myEvent.location = eventLocation.getText().toString();
         myEvent.date = date;
         myEvent.description = eventDescription.getText().toString();
+        myEvent.__v = 0;
         SaveAsyncTask tsk = new SaveAsyncTask();
         tsk.execute(myEvent);
 

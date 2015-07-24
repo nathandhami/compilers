@@ -1,6 +1,5 @@
 package com.cmpt470g8.boardio;
 
-import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 
 import com.google.android.gms.maps.GoogleMap;
