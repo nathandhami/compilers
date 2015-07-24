@@ -19,11 +19,12 @@
         android:id="@+id/editEventName"
         android:textSize="25sp"
         android:hint="Event name"
-        android:layout_above="@+id/editEventDescription"
+        android:layout_below="@+id/lblNewEvent"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
-        android:layout_alignLeft="@+id/editEventDescription"
-        android:layout_alignStart="@+id/editEventDescription" />
+        android:layout_marginTop="61dp"
+        android:layout_alignLeft="@+id/lblNewEvent"
+        android:layout_alignStart="@+id/lblNewEvent" />
 
     <EditText
         android:layout_width="wrap_content"
@@ -31,11 +32,11 @@
         android:id="@+id/editEventDescription"
         android:textSize="25sp"
         android:hint="Event description"
-        android:layout_centerVertical="true"
+        android:layout_below="@+id/editEventName"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
-        android:layout_alignLeft="@+id/lblNewEvent"
-        android:layout_alignStart="@+id/lblNewEvent" />
+        android:layout_alignLeft="@+id/editEventName"
+        android:layout_alignStart="@+id/editEventName" />
 
     <EditText
         android:layout_width="wrap_content"
@@ -62,6 +63,15 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:onClick="create"/>
+
+    <DatePicker
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/datePicker"
+        android:datePickerMode="spinner"
+        android:calendarViewShown="false"
+        android:layout_below="@+id/editLocation"
+        android:layout_centerHorizontal="true" />
 
 </RelativeLayout>
 <!-- From: file:/C:/Users/Joseph/AndroidStudioProjects/board.io/app/src/main/res/layout/activity_create_event.xml -->
