@@ -8,6 +8,7 @@ var express = require("express"),
   passport = require('passport'),
   LocalStrategy = require('passport-local').Strategy;
   require('./scripts/scripts.js');
+var geocoder = require('geocoder');
 
 //middleware
 app.use(bodyParser.urlencoded({
@@ -178,19 +179,29 @@ app.post('/createevent', function (req, res) {
 	newEvent.description = req.body.eventDescription;
 	newEvent.location = req.body.location;
 	newEvent.date = req.body.datepicker;
-
-	console.log(newEvent.name + " " + newEvent.description);
-	newEvent.save(function(err){
-		if(!err){
-			console.log("New Event: " + newEvent.name + " " + newEvent.description);
-			res.render('createevent.html', {title: "Create Event"});
+	
+	//get lat/long data, if no error then save 
+	geocoder.geocode(newEvent.location, function(err, data){
+		if(!err){	
+			newEvent.latitude = data.results[0].geometry.location.lat;
+			newEvent.longitude = data.results[0].geometry.location.lng;
+			newEvent.save(function(err){
+				if(!err){
+					console.log("New Event: " + newEvent.name + " " + newEvent.description);
+					res.render('createevent.html', {title: "Create Event"});
+				}
+				else{
+					console.log('Error creating event.');	
+					res.render('createevent.html', {title: "Create Event"});
+				}
+			});
 		}
 		else{
-			console.log('Error creating event.');	
+			console.log(err);
+			console.log('Error: ' + newEvent.location + ' does not exist.');
 			res.render('createevent.html', {title: "Create Event"});
-		}
-	});
-	
+		}	
+	});	
 });
 
 app.listen(3000, function () {

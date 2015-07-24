@@ -1,5 +1,6 @@
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
+var geocoder = require('geocoder');
 
 var eventSchema = new Schema({
 	//event name
@@ -33,6 +34,7 @@ var eventSchema = new Schema({
     	required: true
     }
 });	
+
 
 var Event = mongoose.model('Event', eventSchema);
 
