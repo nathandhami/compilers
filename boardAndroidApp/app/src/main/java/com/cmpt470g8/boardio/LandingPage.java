@@ -1,8 +1,11 @@
 package com.cmpt470g8.boardio;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.widget.DrawerLayout;
@@ -18,6 +21,9 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.concurrent.ExecutionException;
@@ -37,8 +43,8 @@ public class LandingPage extends ActionBarActivity
     ListView list;
     ArrayList<String> listItems;
     ArrayAdapter<String> adapter;
-    public String username;
     ArrayList<Event> events = new ArrayList<Event>();
+    public String currentUser ="";
 
     /**
      * Used to store the last screen title. For use in {@link #restoreActionBar()}.
@@ -60,11 +66,58 @@ public class LandingPage extends ActionBarActivity
         list = (ListView)findViewById(R.id.activityList);
         listItems = new ArrayList<String>();
         Intent intent = getIntent();
-        username = intent.getStringExtra(EXTRA_MESSAGE);
-        if (username == "Guest")
-            loggedIn = 0;
-        else
-            loggedIn = 1;
+        //Bundle bundle = intent.getBundleExtra(EXTRA_MESSAGE);
+        //loggedIn = bundle.getInt("loggedIn");
+        //if (loggedIn == 1)
+        //    currentUser = bundle.getString("username");
+        loggedIn = intent.getIntExtra(EXTRA_MESSAGE,0);
+
+        String root = Environment.getExternalStorageDirectory().toString();
+        File myDir = new File(root + "/board.io");
+        if (myDir.exists()) {
+            File file = new File(myDir, "session.txt");
+            if (file.exists()) {
+                //read file and login
+                try {
+                    StringBuilder text = new StringBuilder();
+                    BufferedReader br = new BufferedReader(new FileReader(file));
+                    String line;
+                    int lineNum = 0;
+                    while ((line = br.readLine()) != null) {
+                        text.append(line);
+                        text.append('\n');
+                        ++lineNum;
+                    }
+                    br.close();
+                    String body = text.toString();
+                    String username = "";
+                    String password = "";
+                    int comma = 0;
+                    for (int i = 0; i < body.length(); ++i) {
+                        if (body.charAt(i) == ',') {
+                            comma = 1;
+                            continue;
+                        }
+                        if (comma == 0) {
+                            username += body.charAt(i);
+                        } else
+                            password += body.charAt(i);
+                        currentUser = username;
+                    }
+                } catch (Exception exc) {
+                    new AlertDialog.Builder(this)
+                            .setIcon(android.R.drawable.ic_dialog_alert)
+                            .setTitle("Error")
+                            .setMessage("Logged in user could not be read")
+                            .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                }
+                            })
+                            .show();
+                }
+            }
+        }
         adapter = new ArrayAdapter<String>(getApplicationContext(), android.R.layout.simple_list_item_1, listItems);
         list.setAdapter(adapter);
         loadActivities(loggedIn);
@@ -96,7 +149,47 @@ public class LandingPage extends ActionBarActivity
                 .commit();
     }
 
-    public void onSectionAttached(int number) {
+    @Override
+    public void onSaveInstanceState(Bundle savedInstanceState) {
+        savedInstanceState.putInt("loggedIn", loggedIn);
+        savedInstanceState.putString("username", currentUser);
+        super.onSaveInstanceState(savedInstanceState);
+    }
+
+    @Override
+    public void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        loggedIn = savedInstanceState.getInt("loggedIn");
+        currentUser = savedInstanceState.getString("username");
+        listItems.clear();
+        loadActivities(loggedIn);
+    }
+
+    @Override
+    public void onBackPressed() {
+        new AlertDialog.Builder(this)
+                .setIcon(android.R.drawable.ic_dialog_alert)
+                .setTitle("Exit")
+                .setMessage("Are you sure you want to quit?\nYou will be logged out.")
+                .setPositiveButton("Quit", new DialogInterface.OnClickListener()
+                {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        String root = Environment.getExternalStorageDirectory().toString();
+                        File myDir = new File(root + "/board.io");
+                        File file = new File(myDir, "session.txt");
+                        boolean deleted = file.delete();
+                        if (deleted){
+                            finish();
+                        }
+                        finish();
+                    }
+                })
+                .setNegativeButton("No", null)
+                .show();
+    }
+
+        public void onSectionAttached(int number) {
         Intent intent;
         int message;
         String user;
@@ -108,14 +201,29 @@ public class LandingPage extends ActionBarActivity
                 startActivity(intent);
                 break;
             case 2:
-                intent = new Intent(this, CreateEvent.class);
-                intent.putExtra(EXTRA_MESSAGE, username);
-                startActivity(intent);
+                if (loggedIn == 1) {
+                    intent = new Intent(this, CreateEvent.class);
+                    intent.putExtra(EXTRA_MESSAGE, currentUser);
+                    startActivityForResult(intent, 1);
+                }else{
+                    new AlertDialog.Builder(this)
+                            .setIcon(android.R.drawable.ic_dialog_alert)
+                            .setTitle("Oops!")
+                            .setMessage("You must be logged in to create an event.")
+                            .setPositiveButton("Ok", new DialogInterface.OnClickListener()
+                            {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+
+                                }
+
+                            })
+                            .show();
+                }
                 break;
             case 3:
                 intent = new Intent(this, Profile.class);
-                message = 0;
-                intent.putExtra(EXTRA_MESSAGE, message);
+                intent.putExtra(EXTRA_MESSAGE, currentUser);
                 startActivity(intent);
                 break;
             case 4:
@@ -166,7 +274,20 @@ public class LandingPage extends ActionBarActivity
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
-            return true;
+            Intent intent = new Intent(this, SettingsActivity.class);
+            int message = 0;
+            intent.putExtra(EXTRA_MESSAGE, message);
+            startActivity(intent);
+        }
+
+        if (id == R.id.action_logout) {
+            String root = Environment.getExternalStorageDirectory().toString();
+            File myDir = new File(root + "/board.io");
+            File file = new File(myDir, "session.txt");
+            boolean deleted = file.delete();
+            if (deleted){
+                finish();
+            }
         }
 
         return super.onOptionsItemSelected(item);
@@ -212,7 +333,14 @@ public class LandingPage extends ActionBarActivity
         }
     }
 
-    public void loadActivities(int loggedIn){
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (resultCode == RESULT_OK) {
+            listItems.clear();
+            loadActivities(loggedIn);
+        }
+    }
+
+        public void loadActivities(int loggedIn){
         GetEvents tsk = new GetEvents();
         try{
             events = tsk.execute().get();
@@ -225,12 +353,29 @@ public class LandingPage extends ActionBarActivity
         for (int i=0; i<events.size(); ++i){
             listItems.add(events.get(i).name);
         }
+
         adapter.notifyDataSetChanged();
     }
 
     public void create(View view)throws UnknownHostException{
-        Intent intent = new Intent(this, CreateEvent.class);
-        intent.putExtra(EXTRA_MESSAGE, username);
-        startActivity(intent);
+        if (loggedIn == 1) {
+            Intent intent = new Intent(this, CreateEvent.class);
+            intent.putExtra(EXTRA_MESSAGE, currentUser);
+            startActivityForResult(intent,1);
+        }else{
+            new AlertDialog.Builder(this)
+                    .setIcon(android.R.drawable.ic_dialog_alert)
+                    .setTitle("Oops!")
+                    .setMessage("You must be logged in to create an event.")
+                    .setPositiveButton("Ok", new DialogInterface.OnClickListener()
+                    {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+
+                        }
+
+                    })
+                    .show();
+        }
     }
 }

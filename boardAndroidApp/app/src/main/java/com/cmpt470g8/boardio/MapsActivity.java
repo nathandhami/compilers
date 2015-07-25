@@ -1,6 +1,7 @@
 package com.cmpt470g8.boardio;
 
 import android.content.Context;
+import android.content.Intent;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -37,6 +38,11 @@ public class MapsActivity extends LandingPage {
     protected void onResume() {
         super.onResume();
         setUpMapIfNeeded();
+    }
+
+    @Override
+    public void onBackPressed() {
+        finish();
     }
 
     /**
@@ -88,7 +94,7 @@ public class MapsActivity extends LandingPage {
                 CameraUpdate center=
                         CameraUpdateFactory.newLatLng(new LatLng(location.getLatitude(),
                                 location.getLongitude()));
-                CameraUpdate zoom= CameraUpdateFactory.zoomTo(9);
+                CameraUpdate zoom= CameraUpdateFactory.zoomTo(12);
 
                 mMap.moveCamera(center);
                 mMap.animateCamera(zoom);

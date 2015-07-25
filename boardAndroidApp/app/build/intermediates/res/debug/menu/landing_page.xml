@@ -4,5 +4,7 @@
     tools:context="com.cmpt470g8.boardio.LandingPage">
     <item android:id="@+id/action_settings" android:title="@string/action_settings"
         android:orderInCategory="100" app:showAsAction="never" />
+    <item android:id="@+id/action_logout" android:title="@string/logout"
+        android:orderInCategory="100" app:showAsAction="never" />
 </menu>
 <!-- From: file:/C:/Users/Joseph/AndroidStudioProjects/board.io/app/src/main/res/menu/landing_page.xml -->

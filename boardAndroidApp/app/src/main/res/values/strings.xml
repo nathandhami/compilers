@@ -30,5 +30,7 @@
     <string name="newEvent">New Event</string>
     <string name="createdEvents">Events you have created</string>
     <string name="attendingEvents">Events you are attending</string>
+    <string name="logout">Log Out</string>
+    <string name="signUplbl">Create a new User</string>
 
 </resources>

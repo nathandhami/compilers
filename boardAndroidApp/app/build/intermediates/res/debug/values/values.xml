@@ -361,7 +361,7 @@
     <string name="decline">Decline</string>
     <!-- From: file:/C:/Users/Joseph/AndroidStudioProjects/board.io/app/src/debug/res/values/google_maps_api.xml -->
     <eat-comment/>
-    <string name="google_maps_key" templateMergeStrategy="preserve">AIzaSyAkjQTe2fws4MjN2u2OUGJhC_yuREC0tso</string>
+    <string name="google_maps_key" templateMergeStrategy="preserve">AIzaSyDPHckfWATTSqEhOwx2PHytTAEQG-S52jU</string>
     <string name="google_maps_key_instructions" templateMergeStrategy="replace"><!--
 
     TODO: Before you run your application, you need a Google Maps API key.
@@ -380,6 +380,7 @@ https://console.developers.google.com/flows/enableapi?apiid=maps_android_backend
     <eat-comment/>
     <string name="hello_world">Hello world!</string>
     <string name="login">Login</string>
+    <string name="logout">Log Out</string>
     <!-- From: file:/C:/Users/Joseph/AndroidStudioProjects/board.io/app/build/intermediates/exploded-aar/com.android.support/mediarouter-v7/22.0.0/res/values/values.xml -->
     <eat-comment/>
     <string name="mr_media_route_button_content_description">Cast</string>
@@ -419,6 +420,7 @@ https://console.developers.google.com/flows/enableapi?apiid=maps_android_backend
     <!-- From: file:/C:/Users/Joseph/AndroidStudioProjects/board.io/app/src/main/res/values/strings.xml -->
     <eat-comment/>
     <string name="signUp">Sign Up</string>
+    <string name="signUplbl">Create a new User</string>
     <string name="skip">Skip</string>
     <!-- From: file:/C:/Users/Joseph/AndroidStudioProjects/board.io/app/build/intermediates/exploded-aar/com.android.support/appcompat-v7/22.2.1/res/values/values.xml -->
     <eat-comment/>

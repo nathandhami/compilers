@@ -1,14 +1,37 @@
 package com.cmpt470g8.boardio;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.location.Address;
+import android.location.Geocoder;
 import android.os.Bundle;
+import android.os.Environment;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.DatePicker;
 import android.widget.EditText;
+
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
+import java.util.Locale;
 
 
 public class CreateEvent extends LandingPage {
@@ -17,6 +40,8 @@ public class CreateEvent extends LandingPage {
     public final static String EXTRA_MESSAGE = "com.cmpt470g8.boardio.message";
     public String user;
     public String date;
+    public double latitude;
+    public double longitude;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,8 +65,7 @@ public class CreateEvent extends LandingPage {
                             DatePicker view,
                             int year,
                             int monthOfYear,
-                            int dayOfMonth)
-                    {
+                            int dayOfMonth) {
                         //Display the changed date to app interface
                         date = monthOfYear + "/" + dayOfMonth + "/" + year;
                     }
@@ -71,6 +95,13 @@ public class CreateEvent extends LandingPage {
         return super.onOptionsItemSelected(item);
     }
 
+    @Override
+    public void onBackPressed() {
+        Intent returnIntent = new Intent();
+        setResult(RESULT_CANCELED, returnIntent);
+        finish();
+    }
+
     public void create(View view) throws UnknownHostException{
         EditText eventName = (EditText) findViewById(R.id.editEventName);
         EditText eventDescription = (EditText) findViewById(R.id.editEventDescription);
@@ -79,14 +110,32 @@ public class CreateEvent extends LandingPage {
         Event myEvent = new Event();
         myEvent.name = eventName.getText().toString();
 
+
         myEvent.location = eventLocation.getText().toString();
+
+        Geocoder coder = new Geocoder(this);
+        try {
+            ArrayList<Address> adresses = (ArrayList<Address>) coder.getFromLocationName(myEvent.location, 50);
+            for(Address add : adresses){
+                longitude = add.getLongitude();
+                latitude = add.getLatitude();
+
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
         myEvent.date = date;
         myEvent.description = eventDescription.getText().toString();
+        myEvent.creator = user;
+        myEvent.longitude = Double.toString(longitude);
+        myEvent.latitude = Double.toString(latitude);
         SaveAsyncTask tsk = new SaveAsyncTask();
         tsk.execute(myEvent);
 
         Intent returnIntent = new Intent();
-        setResult(RESULT_CANCELED, returnIntent);
+        setResult(RESULT_OK, returnIntent);
         finish();
     }
+
 }
