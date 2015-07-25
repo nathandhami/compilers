@@ -199,6 +199,7 @@ app.get('/createevent', function (req, res) {
 app.post('/createevent', function (req, res) {
 	//create new event
 	var newEvent = new Event();
+	newEvent.username = req.user.username;
 	newEvent.name = req.body.eventName;
 	newEvent.description = req.body.eventDescription;
 	newEvent.location = req.body.location;

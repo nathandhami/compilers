@@ -11,9 +11,10 @@ var eventSchema = new Schema({
     //name of creator	
     username:{
     	type: String,
-    	//required: true
+    	required: true
     	},
     date:{
+	// to do: Should definetly try to get this submitted as a "date-time" field or something, if possible. The date's are currently stored in two different formats, which would make searches on dates impossible
     	type: String,
     	required: true
     	},
