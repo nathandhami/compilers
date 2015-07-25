@@ -7,7 +7,7 @@
     <string name="password">Enter your password</string>
     <string name="login">Login</string>
     <string name="skip">Skip</string>
-    <string name="title_activity_landing_page">LandingPage</string>
+    <string name="title_activity_landing_page">Upcoming Events</string>
     <string name="hello_world">Hello world!</string>
     <string name="create">Create New Event</string>
     <string name="title_activity_maps">Map</string>

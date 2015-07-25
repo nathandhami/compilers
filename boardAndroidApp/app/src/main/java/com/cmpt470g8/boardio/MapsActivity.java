@@ -14,17 +14,23 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import java.util.ArrayList;
+import java.util.concurrent.ExecutionException;
+
 public class MapsActivity extends LandingPage {
 
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
     boolean init = false;
     public final static String EXTRA_MESSAGE = "com.cmpt470g8.boardio.message";
+    ArrayList<Event> events = new ArrayList<Event>();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
         setUpMapIfNeeded();
         center();
+        loadEvents();
     }
 
     @Override
@@ -106,5 +112,23 @@ public class MapsActivity extends LandingPage {
         }, 10000);
 
 
+    }
+
+    public void loadEvents(){
+        GetEvents tsk = new GetEvents();
+        try{
+            events = tsk.execute().get();
+        } catch(InterruptedException e){
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
+
+        for (int i=0; i<events.size(); ++i){
+            double lat, lng;
+            lat = Double.parseDouble(events.get(i).latitude);
+            lng = Double.parseDouble(events.get(i).longitude);
+            mMap.addMarker(new MarkerOptions().position(new LatLng(lat,lng)).title(events.get(i).name));
+        }
     }
 }

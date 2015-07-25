@@ -3,14 +3,23 @@ package com.cmpt470g8.boardio;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
 import android.widget.TextView;
 
+import java.util.ArrayList;
 
-public class Details extends ActionBarActivity {
+
+public class Details extends AppCompatActivity {
 
     public final static String EXTRA_MESSAGE = "com.cmpt470g8.boardio.message";
+    private ArrayAdapter<String> mAdapter;
+    ListView list;
+    ArrayList<String> listItems;
+    ArrayAdapter<String> adapter;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -20,6 +29,15 @@ public class Details extends ActionBarActivity {
         TextView activityName = (TextView) findViewById(R.id.activityName);
 
         activityName.setText(bundle.getString("name"));
+        list = (ListView)findViewById(R.id.listDetails);
+        listItems = new ArrayList<String>();
+        adapter = new ArrayAdapter<String>(getApplicationContext(), android.R.layout.simple_list_item_1, listItems);
+        list.setAdapter(adapter);
+        listItems.add("What: " + bundle.getString("description"));
+        listItems.add("When: " + bundle.getString("date"));
+        listItems.add("Where: " + bundle.getString("location"));
+
+        adapter.notifyDataSetChanged();
     }
 
 

@@ -1,7 +1,0 @@
-C:\Users\Joseph\AndroidStudioProjects\board.io\app\build\intermediates\classes\debug
-C:\Users\Joseph\AndroidStudioProjects\board.io\app\build\intermediates\pre-dexed\debug\support-annotations-21.0.3-20b1f72fb3fcfcf95f1e1d498c4ed3504f5a8202.jar
-C:\Users\Joseph\AndroidStudioProjects\board.io\app\build\intermediates\pre-dexed\debug\internal_impl-21.0.3-2f629343bad2c30ce2fbd095c2338420c7273d1d.jar
-C:\Users\Joseph\AndroidStudioProjects\board.io\app\build\intermediates\pre-dexed\debug\classes-449028be6bad8caf80002dcd19cccb5e1b15fb2a.jar
-C:\Users\Joseph\AndroidStudioProjects\board.io\app\build\intermediates\pre-dexed\debug\classes-d6cffe05e8a51b6738d0c3d6ef2606860680ad8d.jar
-C:\Users\Joseph\AndroidStudioProjects\board.io\app\build\intermediates\pre-dexed\debug\mongo-java-driver-3.0.0-2bae01f1f67624bc464139db1a3d2fb44ec4d8ee.jar
-C:\Users\Joseph\AndroidStudioProjects\board.io\app\build\intermediates\pre-dexed\debug\classes-230e5965f174f41a7f570803b385f7878b2fd201.jar
