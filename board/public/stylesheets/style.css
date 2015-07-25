@@ -1,5 +1,6 @@
 body{
-    padding:20px;
+	padding:20px;
+	font-family: 'Montserrat', sans-serif;
 }
 
 .container-fluid{
@@ -8,8 +9,32 @@ body{
 }
 
 #map-canvas {
-width: 100%;
-height: 500px;
-background-color: #CCC;
-margin:10px 0;
+	width: 100%;
+	height: 500px;
+	background-color: #CCC;
+	margin:10px 0;
+}
+
+.loginfield{
+	margin:20px 0px;
+}
+
+.loginfield h3{
+	text-align:center;
+}
+
+.loginfield .btn{
+	margin-right:15px;
+}
+
+.outerbox{
+	border-radius:15px;
+	background-color:#eaeaea;
+	padding:20px 70px;
+}
+
+
+/*** BUTTONS ***/
+.btn{
+
 }
