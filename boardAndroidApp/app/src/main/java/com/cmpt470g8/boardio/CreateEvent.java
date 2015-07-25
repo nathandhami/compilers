@@ -82,7 +82,6 @@ public class CreateEvent extends LandingPage {
         myEvent.location = eventLocation.getText().toString();
         myEvent.date = date;
         myEvent.description = eventDescription.getText().toString();
-        myEvent.__v = 0;
         SaveAsyncTask tsk = new SaveAsyncTask();
         tsk.execute(myEvent);
 

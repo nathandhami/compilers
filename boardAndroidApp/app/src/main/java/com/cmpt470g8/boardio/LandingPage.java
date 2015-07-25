@@ -58,14 +58,14 @@ public class LandingPage extends ActionBarActivity
         mNavigationDrawerFragment.setUp(R.id.navigation_drawer,(DrawerLayout) findViewById(R.id.drawer_layout));
         mDrawerList = (ListView) findViewById(R.id.navList);
         list = (ListView)findViewById(R.id.activityList);
-        listItems = new ArrayList<>();
+        listItems = new ArrayList<String>();
         Intent intent = getIntent();
         username = intent.getStringExtra(EXTRA_MESSAGE);
         if (username == "Guest")
             loggedIn = 0;
         else
             loggedIn = 1;
-        adapter = new ArrayAdapter<>(getApplicationContext(), android.R.layout.simple_list_item_1, listItems);
+        adapter = new ArrayAdapter<String>(getApplicationContext(), android.R.layout.simple_list_item_1, listItems);
         list.setAdapter(adapter);
         loadActivities(loggedIn);
 
@@ -73,7 +73,15 @@ public class LandingPage extends ActionBarActivity
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Intent intent = new Intent(LandingPage.this, Details.class);
-                intent.putExtra(EXTRA_MESSAGE, position);
+                Event selected = events.get(position);
+                Bundle bundle = new Bundle();
+                bundle.putString("name", selected.name);
+                bundle.putString("description", selected.description);
+                bundle.putString("location", selected.location);
+                bundle.putString("date", selected.date);
+                bundle.putString("latitude", selected.latitude);
+                bundle.putString("longitude", selected.longitude);
+                intent.putExtra(EXTRA_MESSAGE, bundle);
                 startActivity(intent);
             }
         });

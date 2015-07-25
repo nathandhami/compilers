@@ -1,7 +1,14 @@
 package com.cmpt470g8.boardio;
 
+import android.content.Context;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.Bundle;
+import android.os.Handler;
 
+import com.google.android.gms.maps.CameraUpdate;
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
@@ -10,12 +17,14 @@ import com.google.android.gms.maps.model.MarkerOptions;
 public class MapsActivity extends LandingPage {
 
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
+    boolean init = false;
     public final static String EXTRA_MESSAGE = "com.cmpt470g8.boardio.message";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
         setUpMapIfNeeded();
+        center();
     }
 
     @Override
@@ -58,7 +67,44 @@ public class MapsActivity extends LandingPage {
      * <p/>
      * This should only be called once and when we are sure that {@link #mMap} is not null.
      */
+    public void center() {
+        CameraUpdate center = CameraUpdateFactory.newLatLng(new LatLng(49.2827, -123.1207));
+        CameraUpdate zoom= CameraUpdateFactory.zoomTo(9);
+        mMap.moveCamera(center);
+        mMap.animateCamera(zoom);
+    }
+
     private void setUpMap() {
-        mMap.addMarker(new MarkerOptions().position(new LatLng(0, 0)).title("Marker"));
+        final LocationManager locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
+        final LocationListener locationListener = new LocationListener() {
+            public void onLocationChanged(Location location) {
+                // Called when a new location is found by the network location provider.
+                CameraUpdate center=
+                        CameraUpdateFactory.newLatLng(new LatLng(location.getLatitude(),
+                                location.getLongitude()));
+                CameraUpdate zoom= CameraUpdateFactory.zoomTo(9);
+
+                mMap.moveCamera(center);
+                mMap.animateCamera(zoom);
+                mMap.addMarker(new MarkerOptions().position(new LatLng(location.getLatitude(), location.getLongitude())).title("Marker"));
+            }
+
+            public void onStatusChanged(String provider, int status, Bundle extras) {}
+
+            public void onProviderEnabled(String provider) {}
+
+            public void onProviderDisabled(String provider) {}
+        };
+
+// Register the listener with the Location Manager to receive location updates
+        locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, locationListener);
+        Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            public void run() {
+                locationManager.removeUpdates(locationListener);
+            }
+        }, 10000);
+
+
     }
 }

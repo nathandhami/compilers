@@ -16,10 +16,10 @@ public class Details extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_details);
         Intent intent = getIntent();
-        int msg = intent.getIntExtra(EXTRA_MESSAGE,0);
+        Bundle bundle = intent.getBundleExtra(EXTRA_MESSAGE);
         TextView activityName = (TextView) findViewById(R.id.activityName);
-        ++msg;
-        activityName.setText("Test Activity " + msg);
+
+        activityName.setText(bundle.getString("name"));
     }
 
 

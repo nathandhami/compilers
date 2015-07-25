@@ -29,10 +29,10 @@ public class Profile extends ActionBarActivity  {
         email.setText("john.doe@gmail.com");
         listC = (ListView) findViewById(R.id.listCreatedEvents);
         listA = (ListView) findViewById(R.id.listAttending);
-        listCreated = new ArrayList<>();
-        listAttending = new ArrayList<>();
-        cAdapter = new ArrayAdapter<>(getApplicationContext(), android.R.layout.simple_list_item_1, listCreated);
-        aAdapter = new ArrayAdapter<>(getApplicationContext(), android.R.layout.simple_list_item_1, listAttending);
+        listCreated = new ArrayList<String>();
+        listAttending = new ArrayList<String>();
+        cAdapter = new ArrayAdapter<String>(getApplicationContext(), android.R.layout.simple_list_item_1, listCreated);
+        aAdapter = new ArrayAdapter<String>(getApplicationContext(), android.R.layout.simple_list_item_1, listAttending);
         listC.setAdapter(cAdapter);
         listA.setAdapter(aAdapter);
         getCreated();
