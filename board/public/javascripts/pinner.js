@@ -6,6 +6,26 @@ function init() {
         mapTypeId: google.maps.MapTypeId.ROADMAP
     };
     var map = new google.maps.Map(mapCanvas, mapOptions);
+    pinner();
+}
+
+function pinner() {
+	$.each($(".eventAddress"), function(index, value) {
+		pinAddress(value.innerText);
+	});
+}
+
+function pinAddress(parsedAddress){
+	geocoder = new google.maps.Geocoder();
+	geocoder.geocode({ 'address': parsedAddress }, function(results, status) {
+	  	if (status == google.maps.GeocoderStatus.OK) {
+		    var marker = new google.maps.Marker({
+		    map: map,
+		    title: "Event Here",
+		    position: results[0].geometry.location
+		  	});
+		}
+	});
 }
 
 
