@@ -7,7 +7,7 @@ var express = require("express"),
   nunjucks = require('nunjucks'),
   passport = require('passport'),
   LocalStrategy = require('passport-local').Strategy;
-  require('./scripts/scripts.js');
+require('./scripts/scripts.js');
 var geocoder = require('geocoder');
 
 //middleware
@@ -25,37 +25,37 @@ var Event = require('./models/event');
 //Passport is used to handle sessions
 
 
-  app.use(express.cookieParser());
-  app.use(express.bodyParser());
-  app.use(expressSession({
-    secret: 'keyboard cat'
-  }))
-  app.use(passport.initialize());
-  app.use(passport.session());
-  app.use(express.urlencoded());
-  app.use(express.json());
-  app.use(app.router);
+app.use(express.cookieParser());
+app.use(express.bodyParser());
+app.use(expressSession({
+  secret: 'keyboard cat'
+}))
+app.use(passport.initialize());
+app.use(passport.session());
+app.use(express.urlencoded());
+app.use(express.json());
+app.use(app.router);
 
 passport.use(new LocalStrategy({
   usernameField: 'loginusername',
   passwordField: 'loginpass'
-  }, function (username, password, done) {
-    User.findOne({
+}, function (username, password, done) {
+  User.findOne({
     username: username
-    }, function (err, user) {
-      if (err) {
-        return done(err);
-      }
-      if (!user) {
-        return done(null, false, {
+  }, function (err, user) {
+    if (err) {
+      return done(err);
+    }
+    if (!user) {
+      return done(null, false, {
         message: 'Incorrect username or password.'
-        });
-      }
-      if (user.password !== password) {
-        return done(null, false, {
-          message: 'Incorrect username or password.'
-        });
-      }
+      });
+    }
+    if (user.password !== password) {
+      return done(null, false, {
+        message: 'Incorrect username or password.'
+      });
+    }
     return done(null, user);
   });
 }));
@@ -68,7 +68,9 @@ passport.serializeUser(function (user, done) {
 
 //delete session on logout
 passport.deserializeUser(function (id, done) {
-  User.findOne({username: id}, function (err, user) {
+  User.findOne({
+    username: id
+  }, function (err, user) {
     if (err) {
       return done(err);
     }
@@ -140,7 +142,7 @@ app.post('/register', function (req, res) {
     email: req.body.registeremail,
     password: req.body.registerpassword
   });
-	console.log(newUser.username + ' '+ newUser.email + ' '+ newUser.password);
+  console.log(newUser.username + ' ' + newUser.email + ' ' + newUser.password);
   //and attempt to save it
   newUser.save(function (err) {
     if (!err) {
@@ -170,7 +172,9 @@ app.get('/logout', function (req, res) {
 app.get('/profile', function (req, res) {
   //***********// Matt Numsen Says: could someone look at this and see if I am doing the callbacks right? Do i have to return *anything at all*? is returning "null" okay? :S
   if (req.isAuthenticated && req.isAuthenticated() === true) {
-    Event.find({username: req.user.username}, function (err, eventList) {
+    Event.find({
+      username: req.user.username
+    }, function (err, eventList) {
       if (err) {
         return err;
       }
@@ -199,43 +203,47 @@ app.get('/createevent', function (req, res) {
   } else {
     res.render('login.html', {
       title: "Login"
-    }); 
+    });
   }
 });
 
 app.post('/createevent', function (req, res) {
-	//create new event
-	var newEvent = new Event();
-	newEvent.username = req.user.username;
-	newEvent.name = req.body.eventName;
-	newEvent.description = req.body.eventDescription;
-	newEvent.location = req.body.location;
-	newEvent.date = req.body.datepicker;
-	
-	//get lat/long data, if no error then save 
-	geocoder.geocode(newEvent.location, function(err, data){
-		if(!err){	
-			newEvent.latitude = data.results[0].geometry.location.lat;
-			newEvent.longitude = data.results[0].geometry.location.lng;
-			newEvent.save(function(err){
-				if(!err){
-					console.log("New Event: " + newEvent.name + " " + newEvent.description);
-					res.render('createevent.html', {title: "Create Event"});
-				}
-				else{
-					console.log('Error creating event.');	
-					res.render('createevent.html', {title: "Create Event"});
-				}
-			});
-		}
-		else{
-			console.log(err);
-			console.log('Error: ' + newEvent.location + ' does not exist.');
-			res.render('createevent.html', {title: "Create Event"});
-		}	
-	});	
+  //create new event
+  var newEvent = new Event();
+  newEvent.username = req.user.username;
+  newEvent.name = req.body.eventName;
+  newEvent.description = req.body.eventDescription;
+  newEvent.location = req.body.location;
+  newEvent.date = req.body.datepicker;
+
+  //get lat/long data, if no error then save 
+  geocoder.geocode(newEvent.location, function (err, data) {
+    if (!err) {
+      newEvent.latitude = data.results[0].geometry.location.lat;
+      newEvent.longitude = data.results[0].geometry.location.lng;
+      newEvent.save(function (err) {
+        if (!err) {
+          console.log("New Event: " + newEvent.name + " " + newEvent.description);
+          res.render('createevent.html', {
+            title: "Create Event"
+          });
+        } else {
+          console.log('Error creating event.');
+          res.render('createevent.html', {
+            title: "Create Event"
+          });
+        }
+      });
+    } else {
+      console.log(err);
+      console.log('Error: ' + newEvent.location + ' does not exist.');
+      res.render('createevent.html', {
+        title: "Create Event"
+      });
+    }
+  });
 });
 
 app.listen(8080, function () {
-  console.log("Express server listening on port 3000");
+  console.log("Express server listening on port 8080");
 });
