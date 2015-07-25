@@ -69,7 +69,10 @@ passport.serializeUser(function (user, done) {
 //delete session on logout
 passport.deserializeUser(function (id, done) {
   User.findOne({username: id}, function (err, user) {
-    done(err, user);
+    if (err) {
+      return done(err);
+    }
+    return done(null, user);
   });
 });
 
@@ -122,7 +125,7 @@ app.get('/login', function (req, res) {
 app.post('/login',
   passport.authenticate('local', {
     successRedirect: '/profile',
-    failureRedirect: '/'
+    failureRedirect: '/login'
   })
 );
 
@@ -165,16 +168,32 @@ app.get('/logout', function (req, res) {
 
 //profile page
 app.get('/profile', function (req, res) {
-  res.render('profile.html', {
-    title: "Profile"
-  });
+  if (req.isAuthenticated && req.isAuthenticated() === true) {
+    user = req.user;
+    res.render('profile.html', {
+      title: "Profile",
+      user: user
+    });
+  } else {
+    res.render('login.html', {
+      title: "Login"
+    });
+  }
 });
 
 //make a new event
 app.get('/createevent', function (req, res) {
-  res.render('createevent.html', {
-    title: "Crate Event"
-  });
+  if (req.isAuthenticated && req.isAuthenticated() === true) {
+    user = req.user;
+    res.render('createevent.html', {
+      title: "Create Event",
+      user: user
+    });
+  } else {
+    res.render('login.html', {
+      title: "Login"
+    }); 
+  }
 });
 
 app.post('/createevent', function (req, res) {
