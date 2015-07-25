@@ -14,62 +14,51 @@
     <div class="row">
       <div class="col-md-12">
         <h3>Events you have created</h3>
-        <table class="table">
-          <thead>
-            <tr>
-              <th>
-                Event Name
-              </th>
-              <th>
-                Event Date
-              </th>
-              <th>
-                Location
-              </th>
-              <th>
-                Description
-              </th>
-              <th>
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>
-                Coffee Date
-              </td>
-              <td>
-                Date
-              </td>
-              <td>
-                <a href="#">111 A St</a>
-              </td>
-              <td>
-                Please someone come on a date with me. I am so alone.
-              </td>
-              <td>
-                Edit
-              </td>
-            </tr>
-            <tr>
-              <td>
-                Laser Tag
-              </td>
-              <td>
-                Date
-              </td>
-              <td>
-                <a href="#">Lazer Company, Inc LTD</a>
-              </td>
-              <td>
-                I have nobody to play lazer tag with.
-              </td>
-              <td>
-                Edit
-              </td>
-            </tr>
-          </tbody>
-        </table>
+         {% if eventList|length %}
+ 	       <table class="table">
+ 	         <thead>
+ 	           <tr>
+ 	             <th>
+ 	               Event Name
+ 	             </th>
+ 	             <th>
+ 	               Event Date
+ 	             </th>
+ 	             <th>
+ 	               Location
+ 	             </th>
+ 	             <th>
+ 	               Description
+ 	             </th>
+ 	             <th>
+ 	             </th>
+ 	           </tr>
+ 	         </thead>
+		{% for event in eventList %}
+ 	         <tbody>
+ 	           <tr>
+ 	             <td>
+ 	               {{ event.name }}
+ 	             </td>
+ 	             <td>
+ 	               {{ event.date }}
+ 	             </td>
+ 	             <td>
+ 	               <a href="#">{{ event.location }}</a>
+ 	             </td>
+ 	             <td>
+	                {{ event.description }}
+	              </td>
+	              <td>
+	                Edit
+	              </td>
+	            </tr>
+		{% endfor %}
+	        </tbody>
+   	     </table>
+	{% else %}
+	<p>You aren't attending any events<p>
+	{% endif %}
       </div>
     </div>
     <div class="row">

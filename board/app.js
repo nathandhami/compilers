@@ -39,23 +39,23 @@ var Event = require('./models/event');
 passport.use(new LocalStrategy({
   usernameField: 'loginusername',
   passwordField: 'loginpass'
-}, function (username, password, done) {
-  User.findOne({
+  }, function (username, password, done) {
+    User.findOne({
     username: username
-  }, function (err, user) {
-    if (err) {
-      return done(err);
-    }
-    if (!user) {
-      return done(null, false, {
+    }, function (err, user) {
+      if (err) {
+        return done(err);
+      }
+      if (!user) {
+        return done(null, false, {
         message: 'Incorrect username or password.'
-      });
-    }
-    if (user.password !== password) {
-      return done(null, false, {
-        message: 'Incorrect username or password.'
-      });
-    }
+        });
+      }
+      if (user.password !== password) {
+        return done(null, false, {
+          message: 'Incorrect username or password.'
+        });
+      }
     return done(null, user);
   });
 }));
@@ -168,11 +168,18 @@ app.get('/logout', function (req, res) {
 
 //profile page
 app.get('/profile', function (req, res) {
+  //***********// Matt Numsen Says: could someone look at this and see if I am doing the callbacks right? Do i have to return *anything at all*? is returning "null" okay? :S
   if (req.isAuthenticated && req.isAuthenticated() === true) {
-    user = req.user;
-    res.render('profile.html', {
-      title: "Profile",
-      user: user
+    Event.find({username: req.user.username}, function (err, eventList) {
+      if (err) {
+        return err;
+      }
+      console.log(eventList);
+      res.render('profile.html', {
+        title: "Profile",
+        user: req.user, // Apparently, the templating should be able to access this already, but it wasn't working unless i sent it explicitly
+        eventList: eventList
+      });
     });
   } else {
     res.render('login.html', {
