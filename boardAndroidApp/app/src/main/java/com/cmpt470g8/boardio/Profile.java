@@ -5,6 +5,8 @@ import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -21,14 +23,18 @@ public class Profile extends ActionBarActivity  {
     ArrayList<String> listAttending;
     ArrayAdapter<String> cAdapter;
     ArrayAdapter<String> aAdapter;
-    ArrayList<User> users;
+    public ArrayList<User> users;
+    public ArrayList<Event> events = new ArrayList<Event>();
+    public ArrayList<Event> createdEvents = new ArrayList<Event>();
+    public String currentUser = "";
+
     public int i=0;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile);
         Intent intent = getIntent();
-        String currentUser = intent.getStringExtra(EXTRA_MESSAGE);
+        currentUser = intent.getStringExtra(EXTRA_MESSAGE);
         if (currentUser.length() == 0) {
             fillJoke();
             return;
@@ -62,6 +68,23 @@ public class Profile extends ActionBarActivity  {
         listA.setAdapter(aAdapter);
         getCreated();
         getAttending();
+
+        listC.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Intent intent = new Intent(Profile.this, Details.class);
+                Event selected = createdEvents.get(position);
+                Bundle bundle = new Bundle();
+                bundle.putString("name", selected.name);
+                bundle.putString("description", selected.description);
+                bundle.putString("location", selected.location);
+                bundle.putString("date", selected.date);
+                bundle.putString("latitude", selected.latitude);
+                bundle.putString("longitude", selected.longitude);
+                intent.putExtra(EXTRA_MESSAGE, bundle);
+                startActivity(intent);
+            }
+        });
     }
 
 
@@ -88,7 +111,24 @@ public class Profile extends ActionBarActivity  {
     }
 
     public void getCreated(){
-        listCreated.add("Created 1");
+        GetEvents tsk = new GetEvents();
+        try{
+            events = tsk.execute().get();
+        } catch(InterruptedException e){
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
+        for (int i=0; i<events.size();++i){
+            if (events.get(i).creator.equals(currentUser))
+            {
+                createdEvents.add(events.get(i));
+            }
+        }
+
+        for (int i=0; i<createdEvents.size(); ++i){
+            listCreated.add(createdEvents.get(i).name);
+        }
         cAdapter.notifyDataSetChanged();
     }
 

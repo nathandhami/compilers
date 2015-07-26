@@ -138,6 +138,7 @@ public class LandingPage extends ActionBarActivity
                 startActivity(intent);
             }
         });
+
     }
 
     @Override
@@ -292,6 +293,7 @@ public class LandingPage extends ActionBarActivity
 
         return super.onOptionsItemSelected(item);
     }
+
 
     /**
      * A placeholder fragment containing a simple view.

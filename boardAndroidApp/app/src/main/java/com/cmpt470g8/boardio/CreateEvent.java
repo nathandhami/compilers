@@ -1,37 +1,19 @@
 package com.cmpt470g8.boardio;
 
-import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.location.Address;
 import android.location.Geocoder;
 import android.os.Bundle;
-import android.os.Environment;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.DatePicker;
 import android.widget.EditText;
 
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.List;
-import java.util.Locale;
 
 
 public class CreateEvent extends LandingPage {
@@ -67,9 +49,10 @@ public class CreateEvent extends LandingPage {
                             int monthOfYear,
                             int dayOfMonth) {
                         //Display the changed date to app interface
-                        date = monthOfYear + "/" + dayOfMonth + "/" + year;
+                        date = monthOfYear+1 + "/" + dayOfMonth + "/" + year;
                     }
                 });
+        date = dp.getMonth()+1 + "/" + dp.getDayOfMonth() + "/" + dp.getYear();
     }
 
 
