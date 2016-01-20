@@ -78,9 +78,9 @@ def check_defaults(**args):
 
 checks = {
         "rmcomments": { 'stdout': diff_almost_exact },
-        "idtoken": {},
-        "tokenizer": {},
-        "decaflex": {},
+#        "idtoken": {},
+#        "tokenizer": {},
+#        "decaflex": {},
 #        "leftcontext": {},
 #        "reject": {},
 #        "bigram": {},
