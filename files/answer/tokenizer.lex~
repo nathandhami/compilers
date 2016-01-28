@@ -1,0 +1,7 @@
+%%
+
+
+a    { printf("T_A:%s", yytext); if(yyleng != yytext) printf("\n");}
+abb   { printf("T_B:%s", yytext); if(yyleng != yytext) printf("\n");}
+a*b+  { printf("T_C:%s", yytext); if(yyleng != yytext) printf("\n");}
+. { printf("ERROR %s", yytext); if(yyleng != yytext) printf("\n");}
