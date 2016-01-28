@@ -125,7 +125,7 @@ while			{ return T_WHILE; }
 [a-z|A-Z|_]*[a-z|A-Z|_|0-9]               { return T_ID; }
 (\n|\r|\v|\f|\t|" ")*(\n|\r|\v|\f|\t|" ") { return T_WHITESPACE; }
 \"[\"\n\\]\"                              { return T_ERR_NEWLINE_IN_STRING; }
-(\'..+\')|(\'\\[t|v|r|n|a|f|b|\\|'|"]\')  { return T_ERR_CHAR_LENGTH_GREATER_THAN_ONE; }
+\'([^\'][^\'])[^\']*\'  { return T_ERR_CHAR_LENGTH_GREATER_THAN_ONE; }
 ''                                        { return T_ERR_CHAR_ZERO_WIDTH; }
 .                                         { return T_ERR_UNEXPECTED_CHAR; }
 

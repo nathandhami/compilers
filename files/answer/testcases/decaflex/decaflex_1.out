@@ -78,8 +78,8 @@ T_ID y
 T_RPAREN )
 T_SEMICOLON ;
 T_WHITESPACE \n\n       
-T_COMMENT // print_int is part of the standard input-output library
-T_WHITESPACE \n       
+T_COMMENT // print_int is part of the standard input-output library\n
+T_WHITESPACE        
 T_ID print_int
 T_LPAREN (
 T_ID z
@@ -88,8 +88,8 @@ T_SEMICOLON ;
 T_WHITESPACE  \n    
 T_RCB }
 T_WHITESPACE \n\n    
-T_COMMENT // function that computes the greatest common divisor
-T_WHITESPACE \n    
+T_COMMENT // function that computes the greatest common divisor\n
+T_WHITESPACE     
 T_INTTYPE int
 T_WHITESPACE  
 T_ID gcd

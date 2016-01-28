@@ -70,15 +70,17 @@ using namespace std;
 
 %%
 
+"//".*|"//".*\n		{ return T_COMMENT; }
+
 &&			{ return T_AND; }
 =  			{ return T_ASSIGN; }
 bool  		{ return T_BOOL; }
 break  		{ return T_BREAK; }
 '\\'              { return T_ERR_UNT_CHAR_CONST; }
-\'.\'|\'\\[t|v|r|n|a|f|b|\\|'|"]\'        { return T_CHARCONSTANT;}
+ \'[^\/]'|\'\\[t|v|r|n|a|f|b|\\|'|"]\'        { return T_CHARCONSTANT;}
 class			{ return T_CLASS; }
 ,			{ return T_COMMA; }
-"//".*		{ return T_COMMENT; }
+
 continue		{ return T_CONTINUE; }
 \/			{ return T_DIV; }
 \.			{ return T_DOT; }
@@ -135,34 +137,44 @@ void createFile(string errorMessageString, int lineNumber, int position) {
   string strPosition  = "";
 
   stringstream ss;
+  stringstream ss2;
 
   ss << lineNumber;       
   strLineNumber = ss.str();
 
-  stringstream st;
-  st << position;
-  strPosition = st.str();
+  ss2 << position;
+  strPosition = ss2.str();
 
   errorMessageString = errorMessageString + "\n";
-  lexicalError = "Lexical error: line " + strLineNumber + ", position " + strPosition + " \n"; 
+  lexicalError = "Lexical error: line " + strLineNumber + ", position " + strPosition; 
 
   fprintf(stderr, "%s", errorMessageString.c_str());
   fprintf(stderr, "%s", lexicalError.c_str());
 
 }
 
+int calcpos(char* text, int currpos) {
+	for (int i = 0; i < yyleng; i++) {
+		if (text[i] == '\n') {
+                	// find a new line so set position back to 0
+                	currpos = 0;
+		} else {
+			currpos++;
+		}	
+	}
+	return currpos;
+}
+
 int main() {
 
   int token;
   int position = 0;
-  int lineposition = 0;
   int lineNumber = 0;
   string message = "";
 
   while ((token = yylex())) {
     lineNumber = yylineno;
-    lineposition = yy_user_action;
-    position = position + yyleng;
+    position = calcpos(yytext, position);
     
     switch (token) {
       case T_AND: printf("T_AND %s\n", yytext); break;
@@ -172,7 +184,6 @@ int main() {
       case T_CHARCONSTANT: printf("T_CHARCONSTANT %s\n", yytext); break;
       case T_CLASS: printf("T_CLASS %s\n", yytext); break;
       case T_COMMA: printf("T_COMMA %s\n", yytext); break;
-      case T_COMMENT: printf("T_COMMENT %s\n", yytext); break;
       case T_CONTINUE: printf("T_CONTINUE %s\n", yytext); break;
       case T_DIV: printf("T_DIV %s\n", yytext); break;
       case T_DOT: printf("T_DOT %s\n", yytext); break;
@@ -215,13 +226,23 @@ int main() {
       case T_VOID: printf("T_VOID %s\n", yytext); break;
       case T_WHILE: printf("T_WHILE %s\n", yytext); break;
 
+      case T_COMMENT:
+		printf("T_COMMENT ");
+		for (int i = 0; i < yyleng; i++) {
+			if (yytext[i] == '\n') {
+				printf("%s", "\\n");
+			} else {
+				printf("%c", yytext[i]);
+			}	
+		}
+		printf("\n");
+		break;
+
       case T_WHITESPACE: 
 		printf("T_WHITESPACE ");
 		for (int i = 0; i < yyleng; i++) {
 			if (yytext[i] == '\n') {
 				printf("%s", "\\n");
-                        // find a new line so set position back to 0
-                        position = 0;
 			} else {
 				printf("%c", yytext[i]);
 			}	
@@ -230,12 +251,32 @@ int main() {
 		break;
 
       // errors
-      case T_ERR_UNK_ESCAPE:                    createFile("Error: unknown escape sequence in string constant", lineNumber, lineposition); yytext; break;
-      case T_ERR_NEWLINE_IN_STRING:             createFile("Error: newline in string constant", lineNumber, lineposition); yytext; break;
-      case T_ERR_CHAR_LENGTH_GREATER_THAN_ONE:  createFile("Error: char constant length is greater than one", lineNumber, lineposition); yytext; break;
-      case T_ERR_UNT_CHAR_CONST:                createFile("Error: unterminated char constant", lineNumber, lineposition); yytext; break;
-      case T_ERR_CHAR_ZERO_WIDTH:               createFile("Error: char constant has zero width", lineNumber, lineposition); yytext; break;
-      default:                                  createFile("Error: unexpected character in input", lineNumber, lineposition); yytext;
+      case T_ERR_UNK_ESCAPE:                    
+	position = position - (yyleng - 1); 
+	createFile("Error: unknown escape sequence in string constant", lineNumber, position); 		yytext; 
+	exit(1);
+      case T_ERR_NEWLINE_IN_STRING:              
+	createFile("Error: newline in string constant", lineNumber, position);
+	 yytext;
+	 exit(1);
+      case T_ERR_CHAR_LENGTH_GREATER_THAN_ONE:  
+	position = position - (yyleng - 1); 
+	createFile("Error: char constant length is greater than one", lineNumber, position); 		yytext; 
+	exit(1);
+      case T_ERR_UNT_CHAR_CONST:
+	position = position - (yyleng - 1);                
+	createFile("Error: unterminated char constant", lineNumber, position); 
+	yytext; 
+	exit(1);
+      case T_ERR_CHAR_ZERO_WIDTH:               
+	position = position - (yyleng - 1); 
+	createFile("Error: char constant has zero width", lineNumber, position); 
+	yytext; 
+	exit(1);
+      default:                                  
+	createFile("Error: unexpected character in input", lineNumber, position); 
+	yytext; 
+	exit(1);
     }
   }
 
