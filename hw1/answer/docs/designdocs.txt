@@ -1,0 +1,29 @@
+Design Documentation
+
+Group Name - Drones
+Group Members
+- Nathan Dhami, nda24
+- Jeffrey Fung, jhf1
+- Alexander Michal, amichal
+- David Shiach, dshiach
+
+1) Overview
+- 1.Creating a lex program which properly parses comments
+- 2.Modify the IDENTIFIER lex token to include a-z or A-z followed by sequence of letters or numbers(possible empty)
+- 3.Define the set of tokens, T_A, T_B, and T_C, which will always pick the longest match
+- 4.Design a complete lexical analyzer for the language Decaf
+
+2) Design Plan
+- 1. Consider the characteristic of a comment line and comment block.
+	 Comment lines will always begin with "//", while comment blocks will always start with "/*" and end with "*/".
+	 Anything following "//" will be on the same line, so newlines need not be considered
+	 For comment blocks, there is chances of having "/*" or "*" within the block, so must try to find longest match instead of just finding all occurrence of "/*" or "*".
+	 Lastly, there much be a function that counts the whitespace for the length of the comment for both comment line and block.
+- 2. Consider that the IDENTIFIER token much start with only letters, therefore [a-zA-z].
+	 What follows could be empty or contains letters as well as numbers.
+- 3. As the definitions of the three tokens are give, the only concern for this problem would be the spacing of the output.
+- 4. First task for this problem is to identify all the necessary tokens from the decaf-token-names.txt file.
+	 For many of the tokens will be just "\" followed by the character itself.
+	 Trickier tokens includes, T_CHARCONSTANT, T_INTCONSTANT, T_ID, and T_WHITESPACE.
+	 Error handling must return the line number, position and the character causing the error.
+	 Different output for different type of error token.
