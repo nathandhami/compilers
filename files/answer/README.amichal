@@ -1,0 +1,12 @@
+Alexander Michal, amichal, 301151455
+
+Role: Testcases
+-Designed custom testcases for all questions
+	- q1: Made sure it the regular expression covered the case that the prof asked for on the discussion board.
+	- q2: Made sure it covered multiple unknown characters and that it was able to distinguish between numbers and identifiers when there are no spaces.
+	- q3: Made sure that it was able to handle multiple unknown characters and newlines.
+	- q4: Made sure it was able to handle large amounts of code. The other examples only had about 10-12 lines of code, so I made a testcase that used at least twice as many lines.
+
+Other:
+-Pair programming with Nate on questions 2 and 3
+-Programmed the error handling for question 4

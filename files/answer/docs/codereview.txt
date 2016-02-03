@@ -1,0 +1,58 @@
+Code Review Quality (https://wiki.openmrs.org/display/docs/Code+Review)
+---------------------------------------------------------------------------
+Finding bugs
+Bugs found in code review require much less effort to find & fix than bugs found in QA/testing.
+Coding style
+Improving code quality
+Teaching best practices
+Code consistency (can't tell the author from the code)
+Learning code
+What is missing
+Efficiency
+
+Code Review Checklist
+------------------------------
+https://www.liberty.edu/media/1414/%5B6401%5Dcode_review_checklist.pdf
+
+Used above link to check areas of the program such as structure,documentation,variables,loops and branches
+
+e.g.
+Does the code completely and correctly implement the design?
+Does the code conform to any pertinent coding standards?
+Is the code well-structured, consistent in style, and consistently formatted?
+
+--------------
+rmcomments
+--------------
+line 8:  missing documentation, should have #token definitions for clarity
+line 19: undescriptive variable naming, len should be length
+
+Overall, the code is following a consistent code style, it is readable, and maintainable
+
+--------------
+idtoken
+--------------
+line 13: could store regexpression as a global variable just like num variable
+
+Overall, the code is easy to read top to bottom.
+
+--------------
+tokenizer
+--------------
+line 2: extra line feed unneeded
+
+Overall, could not find any bugs (small program)
+
+--------------
+decaflex ( line numbers subject to change give or take 5 lines)
+--------------
+line 141: short variable name, needs to be longer and clearer
+line 68: wrong area to put comment, should be placed above where the actual tokens are being defined by reg expressions
+lines 241-265: may be a bit confusing, should tell other readers what is going on using proper documentation
+line 132: should rename function name to createErrorFile for this specific assignment for clarity
+line 154: abbreviations make sense for only teammembers, newcomers may find it a bit confusing so should rename function name to calculatePosition or locateColumn. Same with parameter: curpos -> currentPosition
+lines 241-265(part2): formatting issues, coding style is not consistent, suggest reformatting
+line 173:  need comments above explaining what the while loop is doing since there are alot statements inside while loop
+line 69: need comments to explain what #option yylineno does
+
+Overall, there are many consistency issues with formatting and naming. There are semantics that need to be clarified more by using more comments. Also, the calcpos function is a reasonable way to locate columns for the error tokens but there is an easier way (macro). However, I see no issue with it and macros are ugly to use.
