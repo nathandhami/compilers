@@ -19,21 +19,22 @@
 %token <str> R_PAREN
 %token <str> ID
 
-%type <value> factor
+%type <str> factor
+%type <str> term
+%type <str> expression
 
 %%
-expression: /*empty*/
-		| expression PLUS term {}
-     	| term
+expression: expression PLUS term {printf("%s + %s\n", $1,$3);}
+     	| term {$$ = $1;}
      	;
 
-term: 
-     | term TIMES factor  {;}
-     | factor 
+term: term TIMES factor  {printf("%s * %s\n", $1,$3);}
+     | factor { $$ = $1;}
      ;
 
-factor: L_PAREN expression R_PAREN {}
-     | ID { }
+factor: 
+     | L_PAREN expression R_PAREN {printf("( %s ) ", $2);}
+     | ID {printf("ID: %s\n", $1);}
      ;
 %%
 
