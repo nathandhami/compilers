@@ -32,8 +32,7 @@ term: term TIMES factor  {printf("%s * %s\n", $1,$3);}
      | factor { $$ = $1;}
      ;
 
-factor: 
-     | L_PAREN expression R_PAREN {printf("( %s ) ", $2);}
+factor: L_PAREN expression R_PAREN {printf("( %s ) ", $2);}
      | ID {printf("ID: %s\n", $1);}
      ;
 %%
