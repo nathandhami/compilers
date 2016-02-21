@@ -5,6 +5,11 @@
 #define _USINGCPP_DEFS
 
 #include <string>
+#include <cstdio> 
+#include <cstdlib>
+#include <cstring> 
+#include <stdexcept>
+#include <vector>
 
 using namespace std;
 

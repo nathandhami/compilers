@@ -4,11 +4,13 @@
 #include <stdbool.h>
 #include <iostream>
 #include <ostream>
-#include <string>
-#include <cstdlib>
+#include "expr-ast.cpp"
+
+using namespace std;
 %}
 
 %union {
+    class exprParseAST *ast;
     char *str;
     int value;
 }
@@ -19,21 +21,23 @@
 %token <str> R_PAREN
 %token <str> ID
 
-%type <str> factor
-%type <str> term
-%type <str> expression
+%type <ast> factor term expression
+
+%start expression
 
 %%
-expression: expression PLUS term {printf("%s + %s\n", $1,$3);}
-     	| term {$$ = $1;}
-     	;
+expression: 
+      expression PLUS term                {$$ = new BinaryExprAST(PLUS,$1,$3);}
+    | term                                {$$ = $1;}
+    ;
 
-term: term TIMES factor  {printf("%s * %s\n", $1,$3);}
-     | factor { $$ = $1;}
-     ;
+term: 
+      term TIMES factor                   {$$ = new BinaryExprAST(TIMES, $1, $3);}
+    | factor                              {$$ = $1;}
+    ;
 
-factor: L_PAREN expression R_PAREN {printf("( %s ) ", $2);}
-     | ID {printf("ID: %s\n", $1);}
-     ;
+factor: 
+      L_PAREN expression R_PAREN          {$$ = $2;}
+    | ID                                  {$$ = new VariableExprAST($1); VariableExprAST *sa = new VariableExprAST($1); cout << getString(sa) << endl;}
+    ;
 %%
-
