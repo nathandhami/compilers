@@ -6,6 +6,8 @@
 #include <ostream>
 #include "expr-ast.cpp"
 
+bool printAST = true;
+
 using namespace std;
 %}
 
@@ -22,10 +24,30 @@ using namespace std;
 %token <str> ID
 
 %type <ast> factor term expression
+%type <ast> statement_list
 
-%start expression
+
 
 %%
+
+start: program
+
+program: statement_list
+    {
+        ProgramAST *prog = new ProgramAST((exprStmtList *)$1);
+                if (printAST) {
+                        cout << getString(prog) << endl;
+                }
+        delete prog;
+    }
+
+
+statement_list: expression statement_list
+    { exprStmtList *slist = (exprStmtList *)$2; slist->push_front($1); $$ = slist; }
+    | /* empty */ 
+    { exprStmtList *slist = new exprStmtList(); $$ = slist; }
+    ;
+
 expression: 
       expression PLUS term                {$$ = new BinaryExprAST(PLUS,$1,$3);}
     | term                                {$$ = $1;}
@@ -38,6 +60,7 @@ term:
 
 factor: 
       L_PAREN expression R_PAREN          {$$ = $2;}
-    | ID                                  {$$ = new VariableExprAST($1); VariableExprAST *sa = new VariableExprAST($1); cout << getString(sa) << endl;}
+    | ID                                  {$$ = new VariableExprAST($1); 
+                                         }
     ;
 %%
