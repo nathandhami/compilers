@@ -12,8 +12,8 @@ using namespace std;
 
 string BinaryOpString(int Op) {
 	switch (Op) {
-		case PLUS: return string(" (PLUS +) ");
-  		case TIMES: return string(" (TIMES *) ");
+		case PLUS: return string(" (PLUS +)");
+  		case TIMES: return string(" (TIMES *)");
 		default: throw runtime_error("unknown type in BinaryOpString call");
 	}
 }
@@ -64,7 +64,7 @@ string buildString3(const char *Name, exprParseAST *a, exprParseAST *b, exprPars
 }
 
 string buildString3(const char *Name, string a, exprParseAST *b, exprParseAST *c) {
-	return "(" + string(Name) + " " + getString(b) + a + " " + getString(c) + ")";
+	return "(" + string(Name) + " " + getString(b) + ")" + a + " " + getString(c) ;
 }
 
 template <class T>
