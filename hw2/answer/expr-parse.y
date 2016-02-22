@@ -62,17 +62,25 @@ term:
     ;
 
 factor: 
-      //L_PAREN expression R_PAREN          {$$ = $2;}
-	L_PAREN expression R_PAREN          {$$ = new FactorExprAst(L_PAREN,$2,R_PAREN);}
+	  L_PAREN expression R_PAREN          {$$ = new FactorExprAst(L_PAREN,$2,R_PAREN);}
     | ID                                  {$$ = new VariableExprAST($1);}
     ;
 %%
 
+// 
 int main(){
+    // 1: error 0: no error
     int retVal = yyparse();
 
+    // Return error without displaying output b/c Syntax Error
     if(retVal){
     exit(1);
+    }
+
+    // Returns error if there is no input
+    if(output.empty()){
+    yyerror("syntax error");
+        exit(1);
     }
 
     cout << output << endl;

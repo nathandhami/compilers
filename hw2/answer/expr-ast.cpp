@@ -1,3 +1,9 @@
+/*
+*	This class structures the grammar syntax provided in bison file expr-parse.y
+*	Abstract Syntax Tree Derivation for Expr-parse grammar
+*
+*/
+
 #include "usingcpp-defs.h"
 #include <list>
 #include <ostream>
@@ -49,6 +55,7 @@ string getString(exprParseAST *d) {
 }
 
 
+// String representation of abstract syntax tree for each expression
 
 string buildString1(const char *Name, exprParseAST *a) {
 	return "(" + string(Name) + " " + getString(a) + ")";
@@ -56,11 +63,6 @@ string buildString1(const char *Name, exprParseAST *a) {
 string buildString1(const char *Name, string a) {
 	return "(" + string(Name) + " " + a + ")";
 }
-
-// for variable/identifier test case input: x ==> (e (t (f (ID x))))
-//string buildString1(const char *Name, string a) {
-//	return "(" + string(Name) + a + ")))";
-//}
 
 string buildString2(const char *Name, exprParseAST *a, exprParseAST *b) {
 	return string(Name) + "(" + getString(a) + "," + getString(b) + ")";
@@ -103,7 +105,7 @@ string commaList(list<T> vec) {
 	return s;
 }
 
-/// exprStmtList - List of Decaf statements
+/// exprStmtList - List of expression statements
 class exprStmtList : public exprParseAST {
 	list<exprParseAST *> stmts;
 public:
@@ -128,22 +130,12 @@ public:
 	//const std::string &getName() const { return Name; }
 };
 
- /// ExpressionExprAst - Expression class for production rule e.
- //class ExpressionExprAst : public exprParseAST {
- //	int Op;
- //public:
-// 	ExpressionExprAst(int op) : Op(op) {}
-// 	string str() { return buildString1(Op); }
-// 	//const std::string &getName() const { return Name; }
-// };
-
  /// TermExprAst - Expression class for production rule t.
  class TermExprAst : public exprParseAST {
  	exprParseAST *E;
  public:
  	TermExprAst(exprParseAST *e) : E(e) {}
  	string str() { return buildString1("t", E); }
- 	//const std::string &getName() const { return Name; }
  };
 
 // /// FactorExprAst - Expression class for production rule f.
@@ -154,21 +146,11 @@ public:
  	FactorExprAst(int lp, exprParseAST *e, int rp) : LP(lp), E(e), RP(rp) {}
 	FactorExprAst(exprParseAST *e) : E(e) {}
  	string str() { 
-	if(LP == NULL){
+	if(LP == 0){
 		return buildString1("f", E);
 	}else{
 		return buildString4("f", FactorOpString(LP), E, FactorOpString(RP)); }}
- 	//const std::string &getName() const { return FactorOpString(Op); }
  };
-
- class FactorExprAst2 : public exprParseAST {
-	exprParseAST *E;
- public:
-	FactorExprAst2(exprParseAST *e) : E(e) {}
- 	string str() { return buildString1("f", E);}
- 	//const std::string &getName() const { return FactorOpString(Op); }
- };
-
 
 /// BinaryExprAST - Expression class for a binary operator.
 class BinaryExprAST : public exprParseAST {
