@@ -53,19 +53,18 @@ statement_list: expression statement_list
 
 expression: 
       expression PLUS term                {$$ = new BinaryExprAST(PLUS,$1,$3);}
-    | term                                {$$ = $1;}
+    | term                                {$$ = new TermExprAst($1);}
     ;
 
 term: 
       term TIMES factor                   {$$ = new BinaryExprAST(TIMES, $1, $3);}
-    | factor                              {$$ = $1;}
+    | factor                              {$$ = new FactorExprAst($1);}
     ;
 
 factor: 
       //L_PAREN expression R_PAREN          {$$ = $2;}
 	L_PAREN expression R_PAREN          {$$ = new FactorExprAst(L_PAREN,$2,R_PAREN);}
-    | ID                                  {$$ = new VariableExprAST($1); 
-                                         }
+    | ID                                  {$$ = new VariableExprAST($1);}
     ;
 %%
 
