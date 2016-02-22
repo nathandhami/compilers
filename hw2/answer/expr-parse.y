@@ -62,7 +62,8 @@ term:
     ;
 
 factor: 
-      L_PAREN expression R_PAREN          {$$ = $2;}
+      //L_PAREN expression R_PAREN          {$$ = $2;}
+	L_PAREN expression R_PAREN          {$$ = new FactorExprAst(L_PAREN,$2,R_PAREN);}
     | ID                                  {$$ = new VariableExprAST($1); 
                                          }
     ;

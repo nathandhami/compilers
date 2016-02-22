@@ -18,6 +18,14 @@ string BinaryOpString(int Op) {
 	}
 }
 
+string FactorOpString(int Op) {
+	switch (Op) {
+		case L_PAREN: return string("(L_PAREN /()");
+  		case R_PAREN: return string("(R_PAREN /))");
+		default: throw runtime_error("unknown type in FactorOpString call");
+	}
+}
+
 string convertInt(int number) {
 	stringstream ss;
 	ss << number;
@@ -65,6 +73,12 @@ string buildString3(const char *Name, exprParseAST *a, exprParseAST *b, exprPars
 
 string buildString3(const char *Name, string a, exprParseAST *b, exprParseAST *c) {
 	return "(" + string(Name) + " " + getString(b) + ")" + a + " " + getString(c) ;
+}
+
+//for L_PAREN & R_PAREN
+//(f (LPAREN \() (e (t (f (ID z)))) (RPAREN \)))))
+string buildString4(const char *Name, string lp, exprParseAST *e, string rp)  {
+	return "(" + string(Name) + " " + string(lp) + " (e" + getString(e) + ") " + string(rp) + "))";
 }
 
 template <class T>
@@ -123,13 +137,14 @@ public:
 // };
 
 // /// FactorExprAst - Expression class for production rule f.
-// class FactorExprAst : public exprParseAST {
-// 	string Name;
-// public:
-// 	FactorExprAst(string name) : Name(name) {}
-// 	string str() { return buildString1("f ", Name); }
-// 	//const std::string &getName() const { return Name; }
-// };
+ class FactorExprAst : public exprParseAST {
+	int LP, RP;
+	exprParseAST *E;
+ public:
+ 	FactorExprAst(int lp, exprParseAST *e, int rp) : LP(lp), E(e), RP(rp) {}
+ 	string str() { return buildString4("f", FactorOpString(LP), E, FactorOpString(RP)); }
+ 	//const std::string &getName() const { return FactorOpString(Op); }
+ };
 
 
 /// BinaryExprAST - Expression class for a binary operator.
