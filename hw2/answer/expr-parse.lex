@@ -10,7 +10,7 @@ using namespace std;
 \*		 { yylval.value = atoi(yytext); return TIMES; }
 \(       { yylval.str = strdup(yytext); return L_PAREN;}
 \) 		 { yylval.str = strdup(yytext); return R_PAREN;}
-[a-z|A-Z|_]*[a-z|A-Z|_|0-9]  { yylval.str = strdup(yytext); return ID; }
+[a-z|A-Z|_]+[a-z|A-Z|_|0-9]*  { yylval.str = strdup(yytext); return ID; }
 [ \t\n]	
 .        return yytext[0];
 %%

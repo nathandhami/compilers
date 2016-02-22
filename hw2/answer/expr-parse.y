@@ -7,6 +7,7 @@
 #include "expr-ast.cpp"
 
 bool printAST = true;
+string output = "";
 
 using namespace std;
 %}
@@ -32,12 +33,14 @@ using namespace std;
 
 start: program
 
-program: statement_list
+program:  |
+    statement_list
     {
         ProgramAST *prog = new ProgramAST((exprStmtList *)$1);
                 if (printAST) {
-                        cout << getString(prog) << endl;
+                        output += getString(prog);
                 }
+
         delete prog;
     }
 
@@ -64,3 +67,15 @@ factor:
                                          }
     ;
 %%
+
+int main(){
+    int retVal = yyparse();
+
+    if(retVal){
+    exit(1);
+    }
+
+    cout << output << endl;
+    exit (0);
+
+}
