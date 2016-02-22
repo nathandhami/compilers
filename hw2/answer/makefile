@@ -5,7 +5,7 @@ bindir=.
 rm=/bin/rm -f
 mv=/bin/mv -f
 targets=multexpr varexpr
-cpptargets=expr-parse decaf-ast json
+cpptargets=expr-interpreter expr-parse decaf-ast json
 
 all: $(targets) $(cpptargets)
 

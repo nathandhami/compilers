@@ -77,12 +77,12 @@ def check_defaults(**args):
     }
 
 checks = {
-    ##"multexpr": {},
-    ##"varexpr": {},
-    ##"expr-interpreter": {},
+    "multexpr": {},
+    "varexpr": {},
+    "expr-interpreter": {},
     "expr-parse": {},
-    ##"decaf-ast": {},
-   ## "json": {},
+    "decaf-ast": {},
+    ##"json": {},
 }
 
 check.check_all(checks, check_defaults, extra_usage=__doc__.rstrip('\n\r'))
