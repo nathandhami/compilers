@@ -20,8 +20,8 @@ string BinaryOpString(int Op) {
 
 string FactorOpString(int Op) {
 	switch (Op) {
-		case L_PAREN: return string("(L_PAREN /()");
-  		case R_PAREN: return string("(R_PAREN /))");
+		case L_PAREN: return string("(LPAREN \\()");
+  		case R_PAREN: return string("(RPAREN \\))");
 		default: throw runtime_error("unknown type in FactorOpString call");
 	}
 }
