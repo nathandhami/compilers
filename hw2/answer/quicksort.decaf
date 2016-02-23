@@ -1,0 +1,71 @@
+extern void print_int(int);
+extern void print_string(string);
+
+class QuickSort {
+	int list[100];
+	    
+	int main() {
+		initList();
+		 
+		print_string("List:\n");    
+		printList();   
+		sortList();
+		    
+		print_string("\nAfter sorting:\nList:\n");
+		printList();
+	}
+
+	void initList() {
+		int i;
+		    
+		for (i = 0; i < 100; i = i + 1) {
+		  list[i] = (i * 2382983) % 100;
+		}
+	}
+
+	void quickSort(int arr[], int leftIndex, int rightIndex)     
+		int i = leftIndex;
+	  int j = rightIndex;
+		int temp;
+	  int index = [(leftIndex + rightIndex) / 2;
+		int pivot = arr[index];
+
+		while (i <= j) {
+	   	while (arr[i] < pivot) {
+	   		i= i + 1;
+	   	}
+
+	    while (arr[j] > pivot){
+	      j = j - 1;
+	   	}
+
+	   	if (i <= j) {
+	   		temp = arr[i];
+	      arr[i] = arr[j];
+	   		arr[j] = temp;
+	   		 
+	   		i = i + 1;
+	      j = j - 1;
+	    }
+	  }
+
+  	if (leftIndex < j) {
+      return (quickSort(arr, leftIndex, j));
+  	}
+ 	 
+  	if (i < rightIndex) {
+      return (quickSort(arr, i, rightIndex));
+  	}
+	}
+
+	void sortList() {
+		quickSort(list, 0, 99);
+	}
+
+	void printList() {
+		for (int i = 0; i < 100; i = i + 1) {
+	    print_int(list[i]);
+	    print_string(“ “);
+		}
+	}
+}
