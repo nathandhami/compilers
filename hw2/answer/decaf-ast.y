@@ -41,6 +41,8 @@ string output = "";
 %type <ast> rvalue expr constant bool_constant assign
 %type <ast> statement statement_list
 
+%type <ast> type
+
 %right UMINUS
 %left T_NOT
 %left T_MULT T_DIV T_MOD T_LEFTSHIFT T_RIGHTSHIFT
@@ -93,6 +95,26 @@ expr: rvalue
     { $$ = new BinaryExprAST(T_DIV, $1, $3); }
     | expr T_MOD expr
     { $$ = new BinaryExprAST(T_MOD, $1, $3); }
+    | expr T_LEFTSHIFT expr
+    { $$ = new BinaryExprAST(T_LEFTSHIFT, $1, $3); }
+    | expr T_RIGHTSHIFT expr
+    { $$ = new BinaryExprAST(T_RIGHTSHIFT, $1, $3); }
+    | expr T_AND expr
+    { $$ = new BinaryExprAST(T_AND, $1, $3); }
+    | expr T_OR expr
+    { $$ = new BinaryExprAST(T_OR, $1, $3); }
+    | expr T_EQ expr
+    { $$ = new BinaryExprAST(T_EQ, $1, $3); }
+    | expr T_GEQ expr
+    { $$ = new BinaryExprAST(T_GEQ, $1, $3); }
+    | expr T_GT expr
+    { $$ = new BinaryExprAST(T_GT, $1, $3); }
+    | expr T_LEQ expr
+    { $$ = new BinaryExprAST(T_LEQ, $1, $3); }
+    | expr T_LT expr
+    { $$ = new BinaryExprAST(T_LT, $1, $3); }
+    | expr T_NEQ expr
+    { $$ = new BinaryExprAST(T_NEQ, $1, $3); }
     | T_MINUS expr %prec UMINUS 
     { $$ = new UnaryExprAST(T_MINUS, $2); }
     | T_NOT expr
