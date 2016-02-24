@@ -40,8 +40,7 @@ string output = "";
 
 %type <ast> rvalue expr constant bool_constant assign
 %type <ast> statement statement_list
-
-%type <ast> type
+%type <ast> block vardecls 
 
 %right UMINUS
 %left T_NOT
@@ -71,7 +70,29 @@ statement_list: statement statement_list
     { decafStmtList *slist = new decafStmtList(); $$ = slist; }
     ;
 
-statement: assign T_SEMICOLON { $$ = $1; }
+
+statement: assign T_SEMICOLON 
+        { $$ = $1; }
+        | T_IF T_LPAREN expr T_RPAREN block
+        { $$ = new IfAST($3,$5);}
+        | T_WHILE T_LPAREN expr T_RPAREN block
+        { $$ = new WhileAST($3,$5);}
+        | T_BREAK T_SEMICOLON
+        { $$ = new StandAloneAST("BreakStmt");}
+        | T_CONTINUE T_SEMICOLON
+        { $$ = new StandAloneAST("ContinueStmt");}
+        ;
+
+
+block: T_LCB vardecls statement_list T_RCB
+      { $$ = new BlockAST($2,$3);}
+      ;
+
+// Work in progress: sneed to add variable declaration
+// still need to add more variables  int num1,num2,num3;
+// VarDecl  = Type { identifier }+ ";" 
+vardecls: /* empty */
+        {$$ = new StandAloneAST("None");}
 
 assign: T_ID T_ASSIGN expr
     { $$ = new AssignVarAST(*$1, $3); delete $1; }

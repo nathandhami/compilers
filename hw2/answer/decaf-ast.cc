@@ -37,6 +37,7 @@ string UnaryOpString(int Op) {
 	switch (Op) {
   		case T_MINUS: return string("UnaryMinus");
   		case T_NOT: return string("Not");
+  		case T_BREAK: return string("BreakStmt");
 		default: throw runtime_error("unknown type in UnaryOpString call");
 	}
 }
@@ -148,6 +149,13 @@ public:
 	//const std::string &getName() const { return Name; }
 };
 
+class StandAloneAST : public decafAST {
+	string Name;
+public:
+	StandAloneAST(string name) : Name(name) {}
+	string str() { return Name;}
+};
+
 
 /// BinaryExprAST - Expression class for a binary operator.
 class BinaryExprAST : public decafAST {
@@ -157,6 +165,33 @@ public:
 	BinaryExprAST(int op, decafAST *lhs, decafAST *rhs) : Op(op), LHS(lhs), RHS(rhs) {}
 	~BinaryExprAST() { delete LHS; delete RHS; }
 	string str() { return buildString3("BinaryExpr", BinaryOpString(Op), LHS, RHS); }
+};
+
+/// BlockAST -  class for a block
+class BlockAST : public decafAST {
+	decafAST *LHS, *RHS;
+public:
+	BlockAST(decafAST *lhs, decafAST *rhs) : LHS(lhs), RHS(rhs) {}
+	~BlockAST() { delete LHS; delete RHS; }
+	string str() { return buildString2("Block", LHS, RHS); }
+};
+
+/// IfAst -  class for a if
+class IfAST : public decafAST {
+	decafAST *LHS, *RHS;
+public:
+	IfAST(decafAST *lhs, decafAST *rhs) : LHS(lhs), RHS(rhs) {}
+	~IfAST() { delete LHS; delete RHS; }
+	string str() { return buildString2("IfStmt", LHS, RHS); }
+};
+
+/// WhileAst -  class for a while
+class WhileAST : public decafAST {
+	decafAST *LHS, *RHS;
+public:
+	WhileAST(decafAST *lhs, decafAST *rhs) : LHS(lhs), RHS(rhs) {}
+	~WhileAST() { delete LHS; delete RHS; }
+	string str() { return buildString2("WhileStmt", LHS, RHS); }
 };
 
 /// UnaryExprAST - Expression class for a unary operator.
