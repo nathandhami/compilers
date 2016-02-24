@@ -12,6 +12,7 @@ using namespace std;
 
 // print AST?
 bool printAST = true;
+string output = "";
 
 #include "decaf-ast.cc"
 
@@ -56,7 +57,7 @@ program: statement_list
     {
         ProgramAST *prog = new ProgramAST((decafStmtList *)$1);
                 if (printAST) {
-                        cout << getString(prog) << endl;
+                       output += getString(prog);
                 }
         delete prog;
     }
@@ -117,7 +118,20 @@ bool_constant: T_TRUE
 %%
 
 int main() {
-  // parse the input and create the abstract syntax tree
-  int retval = yyparse();
-  return(retval >= 1 ? 1 : 0);
+  // 1: error 0: no error
+    int retVal = yyparse();
+
+    // Return error without displaying output b/c Syntax Error
+    if(retVal){
+    exit(1);
+    }
+
+    // Returns error if there is no input
+    if(output.empty()){
+    yyerror("");
+        exit(1);
+    }
+
+    cout << output << endl;
+    exit (0);
 }
