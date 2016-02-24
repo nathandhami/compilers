@@ -154,6 +154,15 @@ public:
 	//const std::string &getName() const { return Name; }
 };
 
+/// VariableExprAST - Expression class for variables like "a".
+class ReturnAST : public decafAST {
+	decafAST *AST;
+public:
+	ReturnAST(decafAST *ast) : AST(ast) {}
+	string str() { return buildString1("ReturnStmt", AST); }
+	//const std::string &getName() const { return Name; }
+};
+
 class StandAloneAST : public decafAST {
 	string Name;
 public:
@@ -227,6 +236,18 @@ public:
 		if (Value != NULL) { delete Value; }
 	}
 	string str() { return buildString2("AssignVar", Name, Value); }
+};
+
+// methodcall - g(int a, int b);
+class MethodCallAST : public decafAST {
+	string Name; // location to assign value
+	decafAST *AST;
+public:
+	MethodCallAST(string name, decafAST *ast) : Name(name), AST(ast) {}
+	~MethodCallAST() { 
+		if (AST != NULL) { delete AST; }
+	}
+	string str() { return buildString2("MethodCall", Name, AST); }
 };
 
 

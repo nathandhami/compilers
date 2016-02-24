@@ -40,7 +40,9 @@ string output = "";
 
 %type <ast> rvalue expr constant bool_constant assign
 %type <ast> statement statement_list assigns
-%type <ast> block vardecls 
+%type <ast> block vardecls
+%type <ast> return 
+%type <ast> methodcall methodargument methodarguments
 
 %right UMINUS
 %left T_NOT
@@ -83,8 +85,20 @@ statement: assign T_SEMICOLON
         { $$ = new StandAloneAST("BreakStmt");}
         | T_CONTINUE T_SEMICOLON
         { $$ = new StandAloneAST("ContinueStmt");}
+        | methodcall T_SEMICOLON
+        { $$ = $1;}
+        | return
+        { $$ = $1;}
         ;
 
+
+// return [expr]-optional semicolon
+return:  T_RETURN T_SEMICOLON
+         { $$ = new ReturnAST(NULL); }
+         | T_RETURN T_LPAREN T_RPAREN T_SEMICOLON
+         { $$ = new ReturnAST(NULL); }
+         | T_RETURN T_LPAREN expr T_RPAREN T_SEMICOLON
+         { $$ = new ReturnAST($3); }
 
 block: T_LCB vardecls statement_list T_RCB
       { $$ = new BlockAST($2,$3);}
@@ -111,9 +125,12 @@ rvalue: T_ID
     { $$ = new VariableExprAST(*$1); delete $1; }
     ;
 
+
 expr: rvalue
     { $$ = $1; }
     | constant
+    { $$ = $1; }
+    | methodcall
     { $$ = $1; }
     | expr T_PLUS expr
     { $$ = new BinaryExprAST(T_PLUS, $1, $3); }
@@ -152,6 +169,23 @@ expr: rvalue
     | T_LPAREN expr T_RPAREN
     { $$ = $2; }
     ;
+
+// method calls (3 shift-reduce conflicts)
+
+methodcall: T_ID T_LPAREN T_RPAREN
+        {$$ = new MethodCallAST(*$1, NULL); }
+        |T_ID T_LPAREN methodarguments T_RPAREN
+        { $$ = new MethodCallAST(*$1,$3); }
+        
+
+methodarguments: methodargument methodarguments
+    { decafStmtList *slist = (decafStmtList *)$2; slist->push_front($1); $$ = slist; }
+    | /* empty */ 
+    { decafStmtList *slist = new decafStmtList(); $$ = slist; }
+
+// missing string literal
+methodargument: expr 
+        {$$ = $1;}
 
 constant: T_INTCONSTANT
     { $$ = new NumberExprAST($1); }
