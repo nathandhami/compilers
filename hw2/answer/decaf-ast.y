@@ -39,7 +39,7 @@ string output = "";
 %token <sval> T_ID T_STRINGCONSTANT
 
 %type <ast> rvalue expr constant bool_constant assign
-%type <ast> statement statement_list
+%type <ast> statement statement_list assigns
 %type <ast> block vardecls 
 
 %right UMINUS
@@ -77,6 +77,8 @@ statement: assign T_SEMICOLON
         { $$ = new IfAST($3,$5);}
         | T_WHILE T_LPAREN expr T_RPAREN block
         { $$ = new WhileAST($3,$5);}
+        | T_FOR T_LPAREN assigns T_SEMICOLON expr T_SEMICOLON assigns T_RPAREN block
+        { $$ = new ForAST($3,$5,$7,$9);}
         | T_BREAK T_SEMICOLON
         { $$ = new StandAloneAST("BreakStmt");}
         | T_CONTINUE T_SEMICOLON
@@ -93,6 +95,13 @@ block: T_LCB vardecls statement_list T_RCB
 // VarDecl  = Type { identifier }+ ";" 
 vardecls: /* empty */
         {$$ = new StandAloneAST("None");}
+
+
+// recursion
+assigns: assign assigns
+        { decafStmtList *slist = (decafStmtList *)$2; slist->push_front($1); $$ = slist; }
+    | /* empty */ 
+    { decafStmtList *slist = new decafStmtList(); $$ = slist; }
 
 assign: T_ID T_ASSIGN expr
     { $$ = new AssignVarAST(*$1, $3); delete $1; }

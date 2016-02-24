@@ -87,6 +87,11 @@ string buildString3(const char *Name, string a, decafAST *b, decafAST *c) {
 	return string(Name) + "(" + a + "," + getString(b) + "," + getString(c) + ")";
 }
 
+string buildString4(const char *Name, decafAST *a, decafAST *b, decafAST *c, decafAST *d) {
+	return string(Name) + "(" + getString(a) + "," + getString(b) + "," + getString(c) + "," + getString(d) + ")";
+}
+
+
 
 template <class T>
 string commaList(list<T> vec) {
@@ -192,6 +197,14 @@ public:
 	WhileAST(decafAST *lhs, decafAST *rhs) : LHS(lhs), RHS(rhs) {}
 	~WhileAST() { delete LHS; delete RHS; }
 	string str() { return buildString2("WhileStmt", LHS, RHS); }
+};
+
+class ForAST : public decafAST {
+	decafAST *LHS1,*LHS2,*RHS1,*RHS2;
+public:
+	ForAST(decafAST *lhs1, decafAST *lhs2, decafAST *rhs1, decafAST *rhs2) : LHS1(lhs1), LHS2(lhs2), RHS1(rhs1), RHS2(rhs2) {}
+	~ForAST() { delete LHS1; delete LHS2; delete RHS1; delete RHS2; }
+	string str() { return buildString4("ForStmt", LHS1, LHS2, RHS1, RHS2); }
 };
 
 /// UnaryExprAST - Expression class for a unary operator.
