@@ -43,10 +43,11 @@ string output = "";
 %type <ast> block vardecls
 %type <ast> return 
 %type <ast> methodcall methodargument methodarguments
-%type <ast> methoddecls methoddecl methodblock vardefmethod methodtype
+%type <ast> methoddecls methoddecl methodblock vardefmethod vardefmethods methodtype
 %type <ast> fielddecl fielddecls fieldtype
-%type <ast> externtype externtypes externdefn externdefns
+%type <ast> externtype externdefn externdefns externvar externvars
 %type <ast> class
+%type <ast> if
 
 %right UMINUS
 %left T_NOT
@@ -91,7 +92,7 @@ externdefns: externdefn externdefns
 
 externdefn: T_EXTERN externtype T_ID T_LPAREN T_RPAREN T_SEMICOLON
             { $$ = new ExternAST($2,*$3, NULL); }
-            | T_EXTERN externtype T_ID T_LPAREN externtypes T_RPAREN T_SEMICOLON
+            | T_EXTERN externtype T_ID T_LPAREN externvars T_RPAREN T_SEMICOLON
             { $$ = new ExternAST($2,*$3,$5);}
             ;
 
@@ -99,15 +100,15 @@ externdefn: T_EXTERN externtype T_ID T_LPAREN T_RPAREN T_SEMICOLON
 //MethodType = ( void | Type ) .
 //Type = ( int | bool ) 
 
-externtypes: externtype externtypes
+externvars: externvar externvars
     { decafStmtList *slist = (decafStmtList *)$2; slist->push_front($1); $$ = slist; }
+    | externvar T_COMMA externvars
+    { decafStmtList *slist = (decafStmtList *)$3; slist->push_front($1); $$ = slist;}
     | /* empty */ 
     { decafStmtList *slist = new decafStmtList(); $$ = slist; }
     ;
-            
 
-
-externtype: T_STRINGTYPE
+externvar:  T_STRINGTYPE
             {$$ = new VarDefExternAST(T_STRINGTYPE);}
             | T_INTTYPE
             {$$ = new VarDefExternAST(T_INTTYPE);}
@@ -118,7 +119,15 @@ externtype: T_STRINGTYPE
             ;
 
 
-
+externtype: T_STRINGTYPE
+            {$$ = new StandAloneAST("StringType");}
+            | T_INTTYPE
+            {$$ = new StandAloneAST("IntType");}
+            | T_BOOL
+            {$$ = new StandAloneAST("BoolType");}
+            | T_VOID
+            { $$ = new StandAloneAST("VoidType");}
+            ;
 
 
 // Field Declarartions
@@ -143,14 +152,14 @@ fieldtype: T_INTTYPE
 
 // Methods Declarations
 methoddecls: methoddecl methoddecls
-            { decafStmtList *slist1 = (decafStmtList *)$2; slist1->push_front($1); $$ = slist1; }
+            { decafStmtList *slist = (decafStmtList *)$2; slist->push_front($1); $$ = slist; }
             | /* empty */ 
-            { decafStmtList *slist1 = new decafStmtList(); $$ = slist1; }
+            { decafStmtList *slist = new decafStmtList(); $$ = slist; }
             ;
 
 methoddecl : methodtype T_ID T_LPAREN T_RPAREN methodblock
              {$$ = new MethodDeclarationAST($1,*$2,NULL,$5);}
-             | methodtype T_ID T_LPAREN vardefmethod T_RPAREN methodblock
+             | methodtype T_ID T_LPAREN vardefmethods T_RPAREN methodblock
              {$$ = new MethodDeclarationAST($1,*$2,$4,$6);}
              ;
 
@@ -166,6 +175,14 @@ methodblock: T_LCB vardecls statement_list T_RCB
       { $$ = new MethodBlockAST($2,$3);}
       ;
 
+vardefmethods: vardefmethod vardefmethods
+    { decafStmtList *slist = (decafStmtList *)$2; slist->push_front($1); $$ = slist; }
+    | vardefmethod T_COMMA vardefmethods
+    { decafStmtList *slist = (decafStmtList *)$3; slist->push_front($1); $$ = slist;}
+    | /* empty */ 
+    { decafStmtList *slist = new decafStmtList(); $$ = slist; }
+    ;
+
 
 vardefmethod: T_INTTYPE T_ID      
         { $$ = new VarDefMethodAST(T_INTTYPE,*$2);}
@@ -175,8 +192,8 @@ vardefmethod: T_INTTYPE T_ID
 
 statement: assign T_SEMICOLON 
         { $$ = $1; }
-        | T_IF T_LPAREN expr T_RPAREN block
-        { $$ = new IfAST($3,$5);}
+        | if
+        { $$ = $1; }
         | T_WHILE T_LPAREN expr T_RPAREN block
         { $$ = new WhileAST($3,$5);}
         | T_FOR T_LPAREN assigns T_SEMICOLON expr T_SEMICOLON assigns T_RPAREN block
@@ -191,6 +208,10 @@ statement: assign T_SEMICOLON
         { $$ = $1;}
         ;
 
+if:   T_IF T_LPAREN expr T_RPAREN block
+    { $$ = new IfElseAST($3,$5, NULL); }
+    | T_IF T_LPAREN expr T_RPAREN block T_ELSE block
+    { $$ = new IfElseAST($3,$5,$7); }
 
 // return [expr]-optional semicolon
 return:  T_RETURN T_SEMICOLON
@@ -280,6 +301,8 @@ methodcall: T_ID T_LPAREN T_RPAREN
 
 methodarguments: methodargument methodarguments
     { decafStmtList *slist = (decafStmtList *)$2; slist->push_front($1); $$ = slist; }
+    | methodargument T_COMMA methodarguments
+    { decafStmtList *slist = (decafStmtList *)$3; slist->push_front($1); $$ = slist;}
     | /* empty */ 
     { decafStmtList *slist = new decafStmtList(); $$ = slist; }
 

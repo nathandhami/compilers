@@ -238,6 +238,15 @@ public:
 	string str() { return buildString2("IfStmt", LHS, RHS); }
 };
 
+/// IfElseAst -  class for a if
+class IfElseAST: public decafAST {
+	decafAST *LHS, *RHS, *EHS;
+public:
+	IfElseAST(decafAST *lhs, decafAST *rhs, decafAST *ehs) : LHS(lhs), RHS(rhs), EHS(ehs) {}
+	~IfElseAST() { delete LHS; delete RHS; delete EHS; }
+	string str() { return buildString3("IfStmt", LHS, RHS, EHS); }
+};
+
 /// WhileAst -  class for a while
 class WhileAST : public decafAST {
 	decafAST *LHS, *RHS;
