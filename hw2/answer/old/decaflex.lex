@@ -71,6 +71,7 @@ using namespace std;
 %%
 
 "//".*|"//".*\n		{ return T_COMMENT; }
+
 &&			{ return T_AND; }
 =  			{ return T_ASSIGN; }
 bool  		{ return T_BOOL; }
@@ -79,6 +80,7 @@ break  		{ return T_BREAK; }
  \'[^\/]'|\'\\[t|v|r|n|a|f|b|\\|'|"]\'        { return T_CHARCONSTANT;}
 class			{ return T_CLASS; }
 ,			{ return T_COMMA; }
+
 continue		{ return T_CONTINUE; }
 \/			{ return T_DIV; }
 \.			{ return T_DOT; }

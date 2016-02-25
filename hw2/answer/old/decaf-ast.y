@@ -1,0 +1,38 @@
+%{
+#include <stdio.h>
+%}
+
+%union{
+	int number;
+	char* stringVal;
+}
+
+%token T_AND T_ASSIGN T_BOOL T_BREAK 
+%token T_ CLASS T_COMMA T_COMMENT T_CONTINUE T_DIV 
+%token T_DOT T_ELSE T_EQ T_EXTENDS T_EXTERN 
+%token T_FOR T_GEQ T_GT T_ID T_IF T_INTTYPE 
+%token T_LCB T_LEFTSHIFT T_LEQ T_LPAREN T_LSB T_LT T_MINUS 
+%token T_MOD T_MULT T_NEQ T_NEW T_NOT T_NULL T_OR T_PLUS 
+%token T_RCB T_RETURN T_RIGHTSHIFT T_RPAREN T_RSB T_SEMICOLON 
+%token T_STRINGCONSTANT T_STRINGTYPE T_VOID T_WHILE T_WHITESPACE
+
+%token <number>    T_TRUE T_FALSE T_INTCONSTANT T_CHARCONSTANT
+%token <stringVal> T_ID T_STRINGCONSTANT
+
+// Operators and Precedence (high to low)
+%right UMINUS
+%left T_NOT
+%left T_MULT T_DIV T_MOD T_LEFTSHIFT T_RIGHTSHIFT
+%left T_PLUS T_MINUS
+%left T_EQ T_GEQ T_GT T_LEQ T_LT T_NEQ
+%left T_AND
+%left T_OR
+
+
+
+%%
+
+
+%%
+
+

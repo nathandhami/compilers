@@ -27,8 +27,6 @@ using namespace std;
 %type <ast> factor term expression
 %type <ast> statement_list
 
-
-
 %%
 
 start: program
