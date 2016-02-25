@@ -43,8 +43,8 @@ string output = "";
 %type <ast> block vardecls
 %type <ast> return 
 %type <ast> methodcall methodargument methodarguments
-%type <ast> methoddecls methoddecl methodblock vardefmethod methodtype vartype
-%type <ast> fielddecl fielddecls
+%type <ast> methoddecls methoddecl methodblock vardefmethod methodtype
+%type <ast> fielddecl fielddecls fieldtype
 %type <ast> externtype externtypes externdefn externdefns
 %type <ast> class
 
@@ -128,11 +128,17 @@ fielddecls: fielddecl fielddecls
             { decafStmtList *slist2 = new decafStmtList(); $$ = slist2; }
             ;
 
-fielddecl: vartype T_ID T_ASSIGN constant T_SEMICOLON
+fielddecl: fieldtype T_ID T_ASSIGN constant T_SEMICOLON
          { $$ = new FieldDeclarationAST($1,*$2, $4);}
-         | vartype T_ID T_SEMICOLON
+         | fieldtype T_ID T_SEMICOLON
          { $$ = new FieldDeclarationNoAssignAST($1,*$2);}
          ;
+
+fieldtype: T_INTTYPE
+        { $$ = new StandAloneAST("IntType"); }
+        | T_BOOL
+        { $$ = new StandAloneAST("BoolType");}
+        ;
 
 
 // Methods Declarations
@@ -166,12 +172,6 @@ vardefmethod: T_INTTYPE T_ID
         | T_VOID T_ID
         { $$ = new VarDefMethodAST(T_VOID,*$2);}
         ;
-
-
-vartype: T_INTTYPE
-        { $$ = new StandAloneAST("IntType"); }
-        | T_VOID
-        { $$ = new StandAloneAST("VoidType");}
 
 statement: assign T_SEMICOLON 
         { $$ = $1; }
