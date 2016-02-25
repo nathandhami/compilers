@@ -151,6 +151,7 @@ return                       { return T_RETURN; }
 \>>                          { return T_RIGHTSHIFT; }
 \+                           { return T_PLUS; }
 \)                           { return T_RPAREN; }
+\]                           { return T_RSB; }
 \;                           { return T_SEMICOLON; }
 \"([^\n\"\\]*{stresc}?)*\"   { yylval.sval = process_string(yytext); return T_STRINGCONSTANT; }
 string                       { return T_STRINGTYPE; }

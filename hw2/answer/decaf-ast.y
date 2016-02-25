@@ -48,14 +48,17 @@ string output = "";
 %type <ast> externtype externdefn externdefns externvar externvars
 %type <ast> class
 %type <ast> if
+%type <ast> arraydecl
 
-%right UMINUS
-%left T_NOT
-%left T_MULT T_DIV T_MOD T_LEFTSHIFT T_RIGHTSHIFT
-%left T_PLUS T_MINUS
-%left T_EQ T_GEQ T_GT T_LEQ T_LT T_NEQ
-%left T_AND
+ //%expect 9
+
 %left T_OR
+%left T_AND
+%left T_EQ T_GEQ T_GT T_LEQ T_LT T_NEQ
+%left T_PLUS T_MINUS
+%left T_MULT T_DIV T_MOD T_LEFTSHIFT T_RIGHTSHIFT
+%left T_NOT
+%right UMINUS
 
 %%
 
@@ -141,6 +144,8 @@ fielddecl: fieldtype T_ID T_ASSIGN constant T_SEMICOLON
          { $$ = new FieldDeclarationAST($1,*$2, $4);}
          | fieldtype T_ID T_SEMICOLON
          { $$ = new FieldDeclarationNoAssignAST($1,*$2);}
+         | fieldtype T_ID arraydecl T_SEMICOLON
+         { $$ = new FieldDeclarationArrayAST($1,*$2,$3); }
          ;
 
 fieldtype: T_INTTYPE
@@ -148,6 +153,11 @@ fieldtype: T_INTTYPE
         | T_BOOL
         { $$ = new StandAloneAST("BoolType");}
         ;
+
+arraydecl: T_LSB T_INTCONSTANT T_RSB
+          {$$ = new ArrayAST($2); }
+          ;
+
 
 
 // Methods Declarations
@@ -206,6 +216,8 @@ statement: assign T_SEMICOLON
         { $$ = $1;}
         | return
         { $$ = $1;}
+        | block
+        { $$ = $1; }
         ;
 
 if:   T_IF T_LPAREN expr T_RPAREN block
@@ -309,6 +321,8 @@ methodarguments: methodargument methodarguments
 // missing string literal
 methodargument: expr 
         {$$ = $1;}
+        | T_STRINGCONSTANT
+        { $$ = new StringConstAST(*$1); }
 
 constant: T_INTCONSTANT
     { $$ = new NumberExprAST($1); }

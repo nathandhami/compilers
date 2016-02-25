@@ -159,6 +159,14 @@ public:
 	string str() { return buildString1("Number", convertInt(Val)); }
 };
 
+/// ArrayAST - Expression class for integer numeric literals like "12".
+class ArrayAST : public decafAST {
+	int Val;
+public:
+	ArrayAST(int val) : Val(val) {}
+	string str() { return buildString1("Array", convertInt(Val)); }
+};
+
 /// StringConstAST - string constant
 class StringConstAST : public decafAST {
 	string StringConst;
@@ -300,6 +308,15 @@ public:
 	FieldDeclarationNoAssignAST(decafAST *lhs, string name) : LHS(lhs), Name(name) {}
 	~FieldDeclarationNoAssignAST() { delete LHS; }
 	string str() { return buildString3("FieldDecl", Name, LHS, "Scalar"); }
+};
+
+class FieldDeclarationArrayAST : public decafAST {
+	decafAST *LHS,*RHS;
+	string Name;
+public:
+	FieldDeclarationArrayAST(decafAST *lhs, string name, decafAST *rhs) : LHS(lhs), Name(name), RHS(rhs) {}
+	~FieldDeclarationArrayAST() { delete LHS; delete RHS; }
+	string str() { return buildString3("FieldDecl", Name, LHS, RHS); }
 };
 
 // method decelarations
