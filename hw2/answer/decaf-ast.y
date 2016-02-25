@@ -38,7 +38,7 @@ string output = "";
 %token <number> T_CHARCONSTANT T_INTCONSTANT T_FALSE T_TRUE
 %token <sval> T_ID T_STRINGCONSTANT
 
-%type <ast> rvalue expr constant bool_constant assign
+%type <ast> lvalue expr constant bool_constant assign
 %type <ast> statement statement_list assigns
 %type <ast> block vardecls
 %type <ast> return 
@@ -49,6 +49,7 @@ string output = "";
 %type <ast> class
 %type <ast> if
 %type <ast> arraydecl
+%type <ast> vardecl
 
  //%expect 9
 
@@ -240,8 +241,18 @@ block: T_LCB vardecls statement_list T_RCB
 // Work in progress: sneed to add variable declaration
 // still need to add more variables  int num1,num2,num3;
 // VarDecl  = Type { identifier }+ ";" 
-vardecls: /* empty */
-        {$$ = new StandAloneAST("None");}
+
+vardecls: vardecl vardecls
+    { decafStmtList *slist = (decafStmtList *)$2; slist->push_front($1); $$ = slist; }
+    | /* empty */ 
+    { decafStmtList *slist = new decafStmtList(); $$ = slist; }
+    ;
+
+vardecl: T_INTTYPE T_ID T_SEMICOLON
+        {$$ = new VarDefMethodBlockAST(T_INTTYPE,*$2);}
+        | T_BOOL T_ID T_SEMICOLON
+        {$$ = new VarDefMethodBlockAST(T_BOOL,*$2); }
+        ;
 
 
 // recursion
@@ -252,14 +263,19 @@ assigns: assign assigns
 
 assign: T_ID T_ASSIGN expr
     { $$ = new AssignVarAST(*$1, $3); delete $1; }
+    |   T_ID T_LSB expr T_RSB T_ASSIGN expr
+    { $$ = new AssignArrayAST(*$1,$3,$6); }
     ;
 
-rvalue: T_ID
+lvalue: T_ID
     { $$ = new VariableExprAST(*$1); delete $1; }
+    |   T_ID T_LSB expr T_RSB
+    { $$ = new ArrayLocExprAST(*$1,$3);}
+
     ;
 
 
-expr: rvalue
+expr: lvalue
     { $$ = $1; }
     | constant
     { $$ = $1; }

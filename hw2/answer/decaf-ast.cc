@@ -192,6 +192,7 @@ public:
 	//const std::string &getName() const { return Name; }
 };
 
+
 /// VariableExprAST - Expression class for variables like "a".
 class ReturnAST : public decafAST {
 	decafAST *AST;
@@ -217,6 +218,16 @@ public:
 	BinaryExprAST(int op, decafAST *lhs, decafAST *rhs) : Op(op), LHS(lhs), RHS(rhs) {}
 	~BinaryExprAST() { delete LHS; delete RHS; }
 	string str() { return buildString3("BinaryExpr", BinaryOpString(Op), LHS, RHS); }
+};
+
+class ArrayLocExprAST : public decafAST {
+	string Name;
+	decafAST *AST;
+public:
+	ArrayLocExprAST(string name, decafAST *ast) : Name(name), AST(ast) {}
+	~ArrayLocExprAST() { delete AST; }
+	string str() { return buildString2("ArrayLocExpr", Name, AST); }
+	//const std::string &getName() const { return Name; }
 };
 
 class ClassAST : public decafAST {
@@ -289,6 +300,15 @@ public:
 	VarDefExternAST(int op) : Op(op) {}
 	~VarDefExternAST() {  }
 	string str() { return buildString1("VarDef", TypeString(Op)); }
+};
+
+class VarDefMethodBlockAST : public decafAST {
+	int Op; // use the token value of the operator
+	string Name;
+public:
+	VarDefMethodBlockAST(int op, string name) : Op(op), Name(name){}
+	~VarDefMethodBlockAST() {  }
+	string str() { return buildString2("VarDef", Name, TypeString(Op)); }
 };
 
 // Field Declarations
@@ -369,6 +389,18 @@ public:
 		if (Value != NULL) { delete Value; }
 	}
 	string str() { return buildString2("AssignVar", Name, Value); }
+};
+
+class AssignArrayAST : public decafAST {
+	string Name; // location to assign value
+	decafAST *Value;
+	decafAST *Expr;
+public:
+	AssignArrayAST(string name, decafAST *expr, decafAST *value) : Name(name), Value(value), Expr(expr) {}
+	~AssignArrayAST() { 
+		if (Value != NULL) { delete Value; }
+	}
+	string str() { return buildString3("AssignArrayLoc", Name, Expr, Value); }
 };
 
 // methodcall - g(int a, int b);
