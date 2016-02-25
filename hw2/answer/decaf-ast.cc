@@ -230,6 +230,15 @@ public:
 	//const std::string &getName() const { return Name; }
 };
 
+// class ClassAST : public decafAST {
+// 	decafAST *LHS1,*RHS1,*RHS2;
+// 	string Name;
+// public:
+// 	ClassAST(decafAST *lhs1, string name, decafAST *rhs1, decafAST *rhs2) : LHS1(lhs1), Name(name), RHS1(rhs1), RHS2(rhs2) {}
+// 	~ClassAST() { delete LHS1; delete RHS1; delete RHS2; }
+// 	string str() { return buildStringFinal("Class",Name, LHS1, RHS1, RHS2); }
+// };
+
 class ClassAST : public decafAST {
 	decafAST *LHS1,*RHS1,*RHS2;
 	string Name;
@@ -238,6 +247,7 @@ public:
 	~ClassAST() { delete LHS1; delete RHS1; delete RHS2; }
 	string str() { return buildStringFinal("Class",Name, LHS1, RHS1, RHS2); }
 };
+
 
 /// BlockAST -  class for a block
 class BlockAST : public decafAST {

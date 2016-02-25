@@ -51,7 +51,7 @@ string output = "";
 %type <ast> arraydecl
 %type <ast> vardecl
 
- //%expect 9
+%expect 9
 
 %left T_OR
 %left T_AND
@@ -242,15 +242,17 @@ block: T_LCB vardecls statement_list T_RCB
 // still need to add more variables  int num1,num2,num3;
 // VarDecl  = Type { identifier }+ ";" 
 
-vardecls: vardecl vardecls
+vardecls: vardecl vardecls T_SEMICOLON
     { decafStmtList *slist = (decafStmtList *)$2; slist->push_front($1); $$ = slist; }
+    | vardecl T_COMMA vardecls T_SEMICOLON
+    { decafStmtList *slist = (decafStmtList *)$3; slist->push_front($1); $$ = slist;}
     | /* empty */ 
     { decafStmtList *slist = new decafStmtList(); $$ = slist; }
     ;
 
-vardecl: T_INTTYPE T_ID T_SEMICOLON
+vardecl: T_INTTYPE T_ID
         {$$ = new VarDefMethodBlockAST(T_INTTYPE,*$2);}
-        | T_BOOL T_ID T_SEMICOLON
+        | T_BOOL T_ID
         {$$ = new VarDefMethodBlockAST(T_BOOL,*$2); }
         ;
 
