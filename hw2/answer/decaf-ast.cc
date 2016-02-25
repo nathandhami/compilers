@@ -28,7 +28,7 @@ string BinaryOpString(int Op) {
   		case T_LEQ: return string("Leq");
   		case T_LT: return string("Lt");
   		case T_NEQ: return string("Neq");
-
+  
 		default: throw runtime_error("unknown type in BinaryOpString call");
 	}
 }

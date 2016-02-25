@@ -189,8 +189,6 @@ statement: assign T_SEMICOLON
         { $$ = $1;}
         | return
         { $$ = $1;}
-        | methoddecls
-        { $$ = $1;}
         ;
 
 
