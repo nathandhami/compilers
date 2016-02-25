@@ -43,6 +43,10 @@ string output = "";
 %type <ast> block vardecls
 %type <ast> return 
 %type <ast> methodcall methodargument methodarguments
+%type <ast> methoddecls methoddecl methodblock vardefmethod methodtype vartype
+%type <ast> fielddecl fielddecls
+%type <ast> externtype externtypes externdefn externdefns
+%type <ast> class
 
 %right UMINUS
 %left T_NOT
@@ -56,7 +60,7 @@ string output = "";
 
 start: program
 
-program: statement_list
+program: class
     {
         ProgramAST *prog = new ProgramAST((decafStmtList *)$1);
                 if (printAST) {
@@ -64,7 +68,7 @@ program: statement_list
                 }
         delete prog;
     }
-
+    ;
 
 statement_list: statement statement_list
     { decafStmtList *slist = (decafStmtList *)$2; slist->push_front($1); $$ = slist; }
@@ -72,6 +76,102 @@ statement_list: statement statement_list
     { decafStmtList *slist = new decafStmtList(); $$ = slist; }
     ;
 
+// Class Def
+// Program = Externs class identifier "{" FieldDecls MethodDecls "}" .
+class: externdefns T_CLASS T_ID T_LCB fielddecls methoddecls T_RCB
+      {$$ = new ClassAST($1,*$3,$5,$6);}
+      ;
+
+// Extern Def
+externdefns: externdefn externdefns
+            { decafStmtList *slist2= (decafStmtList *)$2; slist2->push_front($1); $$ = slist2; }
+            | /* empty */ 
+            { decafStmtList *slist2 = new decafStmtList(); $$ = slist2; }
+            ;
+
+externdefn: T_EXTERN externtype T_ID T_LPAREN T_RPAREN T_SEMICOLON
+            { $$ = new ExternAST($2,*$3, NULL); }
+            | T_EXTERN externtype T_ID T_LPAREN externtypes T_RPAREN T_SEMICOLON
+            { $$ = new ExternAST($2,*$3,$5);}
+            ;
+
+//ExternType = ( string | MethodType ) .
+//MethodType = ( void | Type ) .
+//Type = ( int | bool ) 
+
+externtypes: externtype externtypes
+    { decafStmtList *slist = (decafStmtList *)$2; slist->push_front($1); $$ = slist; }
+    | /* empty */ 
+    { decafStmtList *slist = new decafStmtList(); $$ = slist; }
+    ;
+            
+
+
+externtype: T_STRINGTYPE
+            {$$ = new VarDefExternAST(T_STRINGTYPE);}
+            | T_INTTYPE
+            {$$ = new VarDefExternAST(T_INTTYPE);}
+            | T_BOOL
+            {$$ = new VarDefExternAST(T_BOOL);}
+            | T_VOID
+            { $$ = new VarDefExternAST(T_VOID);}
+            ;
+
+
+
+
+
+// Field Declarartions
+fielddecls: fielddecl fielddecls
+            { decafStmtList *slist2= (decafStmtList *)$2; slist2->push_front($1); $$ = slist2; }
+            | /* empty */ 
+            { decafStmtList *slist2 = new decafStmtList(); $$ = slist2; }
+            ;
+
+fielddecl: vartype T_ID T_ASSIGN constant T_SEMICOLON
+         { $$ = new FieldDeclarationAST($1,*$2, $4);}
+         | vartype T_ID T_SEMICOLON
+         { $$ = new FieldDeclarationNoAssignAST($1,*$2);}
+         ;
+
+
+// Methods Declarations
+methoddecls: methoddecl methoddecls
+            { decafStmtList *slist1 = (decafStmtList *)$2; slist1->push_front($1); $$ = slist1; }
+            | /* empty */ 
+            { decafStmtList *slist1 = new decafStmtList(); $$ = slist1; }
+            ;
+
+methoddecl : methodtype T_ID T_LPAREN T_RPAREN methodblock
+             {$$ = new MethodDeclarationAST($1,*$2,NULL,$5);}
+             | methodtype T_ID T_LPAREN vardefmethod T_RPAREN methodblock
+             {$$ = new MethodDeclarationAST($1,*$2,$4,$6);}
+             ;
+
+methodtype: T_VOID
+            {$$ = new StandAloneAST("VoidType");}
+            | T_INTTYPE
+            {$$ = new StandAloneAST("IntType");}
+            | T_BOOL
+            {$$ = new StandAloneAST("BoolType");}
+            ;
+
+methodblock: T_LCB vardecls statement_list T_RCB
+      { $$ = new MethodBlockAST($2,$3);}
+      ;
+
+
+vardefmethod: T_INTTYPE T_ID      
+        { $$ = new VarDefMethodAST(T_INTTYPE,*$2);}
+        | T_VOID T_ID
+        { $$ = new VarDefMethodAST(T_VOID,*$2);}
+        ;
+
+
+vartype: T_INTTYPE
+        { $$ = new StandAloneAST("IntType"); }
+        | T_VOID
+        { $$ = new StandAloneAST("VoidType");}
 
 statement: assign T_SEMICOLON 
         { $$ = $1; }
@@ -88,6 +188,8 @@ statement: assign T_SEMICOLON
         | methodcall T_SEMICOLON
         { $$ = $1;}
         | return
+        { $$ = $1;}
+        | methoddecls
         { $$ = $1;}
         ;
 
@@ -170,7 +272,7 @@ expr: rvalue
     { $$ = $2; }
     ;
 
-// method calls (3 shift-reduce conflicts)
+// method calls (3 shift-reduce conflicts that need to be fixed)
 
 methodcall: T_ID T_LPAREN T_RPAREN
         {$$ = new MethodCallAST(*$1, NULL); }

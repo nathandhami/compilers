@@ -33,6 +33,17 @@ string BinaryOpString(int Op) {
 	}
 }
 
+string TypeString(int Op) {
+	switch (Op) {
+		case T_INTTYPE: return string("IntType");
+		case T_VOID: return string("VoidType");
+		case T_BOOL: return string("BoolType");
+		case T_STRINGTYPE: return string("StringType");
+
+		default: throw runtime_error("unknown type in TypeString call");
+	}
+}
+
 string UnaryOpString(int Op) {
 	switch (Op) {
   		case T_MINUS: return string("UnaryMinus");
@@ -75,8 +86,13 @@ string buildString2(const char *Name, decafAST *a, decafAST *b) {
 	return string(Name) + "(" + getString(a) + "," + getString(b) + ")";
 }
 
+
 string buildString2(const char *Name, string a, decafAST *b) {
 	return string(Name) + "(" + a + "," + getString(b) + ")";
+}
+
+string buildString2(const char *Name, string a, string b) {
+	return string(Name) + "(" + a + "," + b + ")";
 }
 
 string buildString3(const char *Name, decafAST *a, decafAST *b, decafAST *c) {
@@ -87,9 +103,23 @@ string buildString3(const char *Name, string a, decafAST *b, decafAST *c) {
 	return string(Name) + "(" + a + "," + getString(b) + "," + getString(c) + ")";
 }
 
+string buildString3(const char *Name, string a, decafAST *b, const char *Name2) {
+	return string(Name) + "(" + a + "," + getString(b) + "," + string(Name2) + ")";
+}
+
+
 string buildString4(const char *Name, decafAST *a, decafAST *b, decafAST *c, decafAST *d) {
 	return string(Name) + "(" + getString(a) + "," + getString(b) + "," + getString(c) + "," + getString(d) + ")";
 }
+
+string buildString4(const char *Name, string a, decafAST *b, decafAST *c, decafAST *d) {
+	return string(Name) + "(" + a + "," + getString(b) + "," + getString(c) + "," + getString(d) + ")";
+}
+
+string buildStringFinal(const char *Name, string a, decafAST *b, decafAST *c, decafAST *d) {
+	return getString(b) + "," + string(Name) + "(" + a + "," + getString(c) + "," + getString(d) + ")";
+}
+
 
 
 
@@ -181,6 +211,15 @@ public:
 	string str() { return buildString3("BinaryExpr", BinaryOpString(Op), LHS, RHS); }
 };
 
+class ClassAST : public decafAST {
+	decafAST *LHS1,*RHS1,*RHS2;
+	string Name;
+public:
+	ClassAST(decafAST *lhs1, string name, decafAST *rhs1, decafAST *rhs2) : LHS1(lhs1), Name(name), RHS1(rhs1), RHS2(rhs2) {}
+	~ClassAST() { delete LHS1; delete RHS1; delete RHS2; }
+	string str() { return buildStringFinal("Class",Name, LHS1, RHS1, RHS2); }
+};
+
 /// BlockAST -  class for a block
 class BlockAST : public decafAST {
 	decafAST *LHS, *RHS;
@@ -215,6 +254,74 @@ public:
 	~ForAST() { delete LHS1; delete LHS2; delete RHS1; delete RHS2; }
 	string str() { return buildString4("ForStmt", LHS1, LHS2, RHS1, RHS2); }
 };
+
+// Extern Declarations
+// Field Declarations
+class ExternAST : public decafAST {
+	decafAST *LHS,*RHS;
+	string Name;
+public:
+	ExternAST(decafAST *lhs, string name, decafAST *rhs) : LHS(lhs), Name(name), RHS(rhs) {}
+	~ExternAST() { delete LHS; delete RHS; }
+	string str() { return buildString3("ExternFunction", Name, LHS, RHS); }
+};
+
+class VarDefExternAST : public decafAST {
+	int Op; // use the token value of the operator
+public:
+	VarDefExternAST(int op) : Op(op) {}
+	~VarDefExternAST() {  }
+	string str() { return buildString1("VarDef", TypeString(Op)); }
+};
+
+// Field Declarations
+class FieldDeclarationAST : public decafAST {
+	decafAST *LHS,*RHS;
+	string Name;
+public:
+	FieldDeclarationAST(decafAST *lhs, string name, decafAST *rhs) : LHS(lhs), Name(name), RHS(rhs) {}
+	~FieldDeclarationAST() { delete LHS; delete RHS; }
+	string str() { return buildString3("FieldDecl", Name, LHS, RHS); }
+};
+
+class FieldDeclarationNoAssignAST : public decafAST {
+	decafAST *LHS;
+	string Name;
+public:
+	FieldDeclarationNoAssignAST(decafAST *lhs, string name) : LHS(lhs), Name(name) {}
+	~FieldDeclarationNoAssignAST() { delete LHS; }
+	string str() { return buildString3("FieldDecl", Name, LHS, "Scalar"); }
+};
+
+// method decelarations
+class MethodDeclarationAST : public decafAST {
+	decafAST *LHS1,*RHS1,*RHS2;
+	string Name;
+public:
+	MethodDeclarationAST(decafAST *lhs1, string name, decafAST *rhs1, decafAST *rhs2) : LHS1(lhs1), Name(name), RHS1(rhs1), RHS2(rhs2) {}
+	~MethodDeclarationAST() { delete LHS1; delete RHS1; delete RHS2; }
+	string str() { return buildString4("Method", Name, LHS1, RHS1, RHS2); }
+};
+
+/// BlockAST -  class for a block
+class MethodBlockAST : public decafAST {
+	decafAST *LHS, *RHS;
+public:
+	MethodBlockAST(decafAST *lhs, decafAST *rhs) : LHS(lhs), RHS(rhs) {}
+	~MethodBlockAST() { delete LHS; delete RHS; }
+	string str() { return buildString2("MethodBlock", LHS, RHS); }
+};
+
+/// VarDeMethod -Variables in methods
+class VarDefMethodAST : public decafAST {
+	int Op; // use the token value of the operator
+	string Name;
+public:
+	VarDefMethodAST(int op, string name) : Op(op), Name(name){}
+	~VarDefMethodAST() {  }
+	string str() { return buildString2("VarDef", Name, TypeString(Op)); }
+};
+
 
 /// UnaryExprAST - Expression class for a unary operator.
 class UnaryExprAST : public decafAST {
