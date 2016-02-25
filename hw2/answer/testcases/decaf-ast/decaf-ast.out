@@ -1,0 +1,1 @@
+Program(None,Class(Foo,None,Method(bar,VoidType,None,MethodBlock(None,AssignVar(ten,Number(10)),IfStmt(BinaryExpr(Geq,VariableExpr(x),VariableExpr(y)),Block(None,AssignVar(one,Number(1))),None)))))

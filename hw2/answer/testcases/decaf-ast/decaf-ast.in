@@ -1,0 +1,9 @@
+class Foo {
+	void bar() {
+		ten = 10;
+
+		if (x >= y) {
+			one = 1;
+		}
+	}
+}

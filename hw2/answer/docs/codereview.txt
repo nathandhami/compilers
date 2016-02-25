@@ -1,0 +1,225 @@
+-------------------
+Code Review Quality
+-------------------
+
+-Code efficiency
+-Code consistency
+-Code style
+-Bug finding
+-Bugs found in code review require much less effort to find & fix than bugs found during testing
+-Improving code quality
+-Teach best practices
+-Learning code
+
+Reference:
+
+https://wiki.openmrs.org/display/docs/Code+Review
+
+---------------------
+Code Review Checklist
+---------------------
+
+Checklist used to check areas of the program. Areas such as branches, structure, documentation, variables, and loops.
+
+Examples:
+
+-Is the code readable? 
+-Does the code completely and correctly implement the design?
+-Does the code conform to coding standards?
+-Is the code well structured, consistent in style, and consistently formatted?
+
+Reference:
+
+https://www.liberty.edu/media/1414/%5B6401%5Dcode_review_checklist.pdf
+
+-----------
+Code Review
+-----------
+
+expr-ast.cpp:
+-------------
+
+General: 
+
+-More commentary. It's hard to tell what certain functions do.
+-Classes should have more spacing for readability purposes.
+
+Specific:
+
+-Line 138: Make into multiple lines for better readability.
+-Line 173: Make into multiple lines for better readability.
+
+Overall, the code is following a consistent code style, it is a bit hard to read though.
+
+
+expr-interpreter.lex:
+---------------------
+
+General:
+
+-Better spacing throughout.
+-More comments to increase readability.
+
+Specific:
+
+-Line 9: Unclear what atof does. Could use a comment.
+
+Overall, the code is following a consistent code style, but I would like to see more spacing.
+
+
+expr-interpreter.y:
+-------------------
+
+General:
+
+-Better spacing throughout.
+-More comments to increase readability.
+
+Overall, the code is following a consistent code style, and I could not find any bugs.
+
+
+expr-parse.lex:
+---------------
+
+General:
+
+-Better spacing throughout.
+-More comments to increase readability.
+
+Overall, the code is following a consistent code style, but I would like to see more spacing.
+
+
+expr-parse.y:
+-------------
+
+General:
+
+-Great spacing throughout.
+-More comments to increase readability.
+
+Specific:
+
+-Line 77: Need a tab before the line.
+-Line 82: Need a tab before the line.
+
+Overall, the code is following a consistent code style. The spacing makes it easier to read.
+
+
+multexpr.lex:
+-------------
+
+General:
+
+-Better spacing throughout.
+-More comments to increase readability.
+
+Overall, the code is following a consistent code style, but I would like to see more spacing.
+
+
+multexpr.y:
+-----------
+
+General:
+
+-Could use more comments.
+-Good spacing throughout.
+
+Overall, the code follows a consistent style. Easy to read. Good code.
+
+
+usingcpp-defs.h:
+----------------
+
+General:
+
+-Needs a comment to describe what this code does.
+
+Overall, the code is fine. Can't find any bugs.
+
+
+varexpr.lex:
+------------
+
+General:
+
+-Good spacing throughout.
+-More comments to increase readability.
+
+Overall, the code is following a consistent code style, but I would like to see more comments.
+
+
+varexpr.y:
+----------
+
+General:
+
+-Better spacing throughout.
+-More comments to increase readability.
+
+Specific:
+
+Line 25-33: All code needs to be in line.
+
+Overall, the code is following a consistent code style. Needs better spacing.
+
+
+decaf-ast.cc:
+-------------
+
+General:
+
+-More comments to increase readability.
+-Great spacing throughout.
+-Need to remove unnecessary spaces.
+-Remove long inline statements.
+
+Specific:
+
+-Line 14 to 32: Need to make all the returns inline for better readability.
+-Line 38 to 41: Need to make all the returns inline for better readability.
+-Line 49 to 51: Need to make all the returns inline for better readability.
+-Line 122 to 125: Unnecessary spaces.
+-Line 139 to 152: Need more spaces.
+-Line 151: Remove in-line statement.
+-Line 159: Remove in-line statement.
+-Line 393: Remove in-line statement.
+
+The code is following a consistent code style. The spacing makes it easier to read. I like the use of comments. Could use some more though. Overall, reading can be improved by adding more spaces.
+
+
+decaf-ast.lex:
+--------------
+
+General:
+
+-Great spacing throughout.
+-Everything in a vertical line (except for a few lines)
+-Readability is very good.
+-Could use more comments
+
+Specific:
+
+-Line 161: Needs one more space to place the statement back in line.
+-Line 92 to 100: Need a comment to describe what this function does, it's unclear. Clean it up a bit.
+
+Overall, the code is following a consistent code style. Very good use of the keeping the statements in the same vertical line. The spacing makes it easier to read.
+
+
+decaf-ast.y:
+------------
+
+General:
+
+-Nice use of vertical in line statements. It makes it easy to read the code.
+-Needs more comments to increase readability.
+
+Specific:
+
+-Line 29 to 36: Clean this up a bit. Too messy.
+-Line 41 to 51: Clean this up a bit, too. Too messy. Hard to read.
+-Line 102 to 104: Remove unused code.
+-Line 344: Need a few more space to put it back in line.
+-Line 349: Needs a tab character.
+
+Code is good. Couldn't find any bugs. Very readable. However, I would like to see more comments to explain certain functions.
+

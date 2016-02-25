@@ -1,0 +1,24 @@
+Design Documentation
+
+Group Name - Drones
+Group Members
+- Nathan Dhami, nda24
+- Jeffrey Fung, jhf1
+- Alexander Michal, amichal
+- David Shiach, dshiach
+
+1) Overview
+- 3. creating an expression interpreter to able to handle type double as well as funciton such as exp, sqrt, and log
+- 4. write a decaf program that does a quick sort of a list of 100 elements
+- 5. create a yacc parser for a simple grammar which contains no ambiguity
+- 7. create a yacc parser that prints out parse trees for decaf using the lexical analyzer from Homework 100
+
+2) Design Plan
+- 3. Since this is an extention of Q2 of the assignment, we took that time to complete Q1 and Q2 which would make doing Q3 much simplier.
+- 4. Implementing quicksort is not a problem, the main challenge of this problem will be getting use to the decaf syntax.
+- 5. When building a parser, it is important to identify any possible ambiguities in the grammar first.
+	 Since there were none in this grammar, the next step should be breaking down the components into smaller parts.
+	 (i.e expressions, terms, and factors)
+- 7. We took a similar approach to Q5, trying to identify any problems ahead of the road first.
+	 Followed by breaking down to smaller components, the only challenge in this problem that is different from Q5 is it is to a much larger scale.
+	 Which makes it more difficult to find where the errors may occur when trying to fix the program,
