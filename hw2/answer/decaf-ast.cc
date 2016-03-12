@@ -11,36 +11,36 @@
 
 using namespace std;
 
+typedef enum { voidTy, intTy, boolTy, stringTy, } decafType;
+
+string TyString(decafType x) {
+	switch (x) {
+		case voidTy: return string("VoidType");
+		case intTy: return string("IntType");
+		case boolTy: return string("BoolType");
+		case stringTy: return string("StringType");
+		default: throw runtime_error("unknown type in TyString call");
+	}
+}
+
 string BinaryOpString(int Op) {
 	switch (Op) {
 		case T_PLUS: return string("Plus");
   		case T_MINUS: return string("Minus");
   		case T_MULT: return string("Mult");
   		case T_DIV: return string("Div");
-  		case T_MOD: return string("Mod");
   		case T_LEFTSHIFT: return string("Leftshift");
   		case T_RIGHTSHIFT: return string("Rightshift");
-  		case T_AND: return string("And");
-  		case T_OR: return string("Or");
-  		case T_EQ: return string("Eq");
-  		case T_GEQ: return string("Geq");
+  		case T_MOD: return string("Mod");
+  		case T_LT: return string("Lt");
   		case T_GT: return string("Gt");
   		case T_LEQ: return string("Leq");
-  		case T_LT: return string("Lt");
+  		case T_GEQ: return string("Geq");
+  		case T_EQ: return string("Eq");
   		case T_NEQ: return string("Neq");
-  
+  		case T_AND: return string("And");
+  		case T_OR: return string("Or");
 		default: throw runtime_error("unknown type in BinaryOpString call");
-	}
-}
-
-string TypeString(int Op) {
-	switch (Op) {
-		case T_INTTYPE: return string("IntType");
-		case T_VOID: return string("VoidType");
-		case T_BOOL: return string("BoolType");
-		case T_STRINGTYPE: return string("StringType");
-
-		default: throw runtime_error("unknown type in TypeString call");
 	}
 }
 
@@ -48,7 +48,6 @@ string UnaryOpString(int Op) {
 	switch (Op) {
   		case T_MINUS: return string("UnaryMinus");
   		case T_NOT: return string("Not");
-  		case T_BREAK: return string("BreakStmt");
 		default: throw runtime_error("unknown type in UnaryOpString call");
 	}
 }
@@ -86,7 +85,6 @@ string buildString2(const char *Name, decafAST *a, decafAST *b) {
 	return string(Name) + "(" + getString(a) + "," + getString(b) + ")";
 }
 
-
 string buildString2(const char *Name, string a, decafAST *b) {
 	return string(Name) + "(" + a + "," + getString(b) + ")";
 }
@@ -103,25 +101,25 @@ string buildString3(const char *Name, string a, decafAST *b, decafAST *c) {
 	return string(Name) + "(" + a + "," + getString(b) + "," + getString(c) + ")";
 }
 
-string buildString3(const char *Name, string a, decafAST *b, const char *Name2) {
-	return string(Name) + "(" + a + "," + getString(b) + "," + string(Name2) + ")";
+string buildString3(const char *Name, string a, string b, decafAST *c) {
+	return string(Name) + "(" + a + "," + b + "," + getString(c) + ")";
 }
 
-
-string buildString4(const char *Name, decafAST *a, decafAST *b, decafAST *c, decafAST *d) {
-	return string(Name) + "(" + getString(a) + "," + getString(b) + "," + getString(c) + "," + getString(d) + ")";
+string buildString3(const char *Name, string a, string b, string c) {
+	return string(Name) + "(" + a + "," + b + "," + c + ")";
 }
 
 string buildString4(const char *Name, string a, decafAST *b, decafAST *c, decafAST *d) {
 	return string(Name) + "(" + a + "," + getString(b) + "," + getString(c) + "," + getString(d) + ")";
 }
 
-string buildStringFinal(const char *Name, string a, decafAST *b, decafAST *c, decafAST *d) {
-	return getString(b) + "," + string(Name) + "(" + a + "," + getString(c) + "," + getString(d) + ")";
+string buildString4(const char *Name, string a, string b, decafAST *c, decafAST *d) {
+	return string(Name) + "(" + a + "," + b + "," + getString(c) + "," + getString(d) + ")";
 }
 
-
-
+string buildString4(const char *Name, decafAST *a, decafAST *b, decafAST *c, decafAST *d) {
+	return string(Name) + "(" + getString(a) + "," + getString(b) + "," + getString(c) + "," + getString(d) + ")";
+}
 
 template <class T>
 string commaList(list<T> vec) {
@@ -134,6 +132,54 @@ string commaList(list<T> vec) {
 	} 
 	return s;
 }
+
+class TypedSymbol {
+	string Sym;
+	decafType Ty;
+public:
+	TypedSymbol(string s, decafType t) : Sym(s), Ty(t) {}
+	string str() { 
+		if (Sym.empty()) { 
+			return "VarDef(" + TyString(Ty) + ")"; 
+		} else { 
+			return "VarDef(" + Sym + "," + TyString(Ty) + ")";
+		}
+	}
+	//virtual string getName();
+};
+
+class TypedSymbolListAST : public decafAST {
+	list<class TypedSymbol *> arglist;
+	decafType listType; // this variable is used if all the symbols in the list share the same type
+public:
+	TypedSymbolListAST() {}
+	TypedSymbolListAST(string sym, decafType ty) {
+		TypedSymbol *s = new TypedSymbol(sym, ty);
+		arglist.push_front(s);
+		listType = ty;
+	}
+	~TypedSymbolListAST() {
+		for (list<class TypedSymbol *>::iterator i = arglist.begin(); i != arglist.end(); i++) { 
+			delete *i;
+		}
+	}
+	void push_front(string sym, decafType ty) {
+		TypedSymbol *s = new TypedSymbol(sym, ty);
+		arglist.push_front(s); 
+	}	
+	void push_back(string sym, decafType ty) {
+		TypedSymbol *s = new TypedSymbol(sym, ty);
+		arglist.push_back(s); 
+	}
+	void new_sym(string sym) {
+		if (arglist.empty()) { 
+			throw runtime_error("Error in AST creation: insertion into empty typed symbol list\n");
+		}
+		TypedSymbol *s = new TypedSymbol(sym, listType);
+		arglist.push_back(s);
+	}
+	string str() { return commaList<class TypedSymbol *>(arglist); }
+};
 
 /// decafStmtList - List of Decaf statements
 class decafStmtList : public decafAST {
@@ -157,14 +203,6 @@ class NumberExprAST : public decafAST {
 public:
 	NumberExprAST(int val) : Val(val) {}
 	string str() { return buildString1("Number", convertInt(Val)); }
-};
-
-/// ArrayAST - Expression class for integer numeric literals like "12".
-class ArrayAST : public decafAST {
-	int Val;
-public:
-	ArrayAST(int val) : Val(val) {}
-	string str() { return buildString1("Array", convertInt(Val)); }
 };
 
 /// StringConstAST - string constant
@@ -192,23 +230,15 @@ public:
 	//const std::string &getName() const { return Name; }
 };
 
-
-/// VariableExprAST - Expression class for variables like "a".
-class ReturnAST : public decafAST {
-	decafAST *AST;
-public:
-	ReturnAST(decafAST *ast) : AST(ast) {}
-	string str() { return buildString1("ReturnStmt", AST); }
-	//const std::string &getName() const { return Name; }
-};
-
-class StandAloneAST : public decafAST {
+/// MethodCallAST - call a function with some arguments
+class MethodCallAST : public decafAST {
 	string Name;
+	decafStmtList *Args;
 public:
-	StandAloneAST(string name) : Name(name) {}
-	string str() { return Name;}
+	MethodCallAST(string name, decafStmtList *args) : Name(name), Args(args) {}
+	~MethodCallAST() { delete Args; }
+	string str() { return buildString2("MethodCall", Name, Args); }
 };
-
 
 /// BinaryExprAST - Expression class for a binary operator.
 class BinaryExprAST : public decafAST {
@@ -219,165 +249,6 @@ public:
 	~BinaryExprAST() { delete LHS; delete RHS; }
 	string str() { return buildString3("BinaryExpr", BinaryOpString(Op), LHS, RHS); }
 };
-
-class ArrayLocExprAST : public decafAST {
-	string Name;
-	decafAST *AST;
-public:
-	ArrayLocExprAST(string name, decafAST *ast) : Name(name), AST(ast) {}
-	~ArrayLocExprAST() { delete AST; }
-	string str() { return buildString2("ArrayLocExpr", Name, AST); }
-	//const std::string &getName() const { return Name; }
-};
-
-// class ClassAST : public decafAST {
-// 	decafAST *LHS1,*RHS1,*RHS2;
-// 	string Name;
-// public:
-// 	ClassAST(decafAST *lhs1, string name, decafAST *rhs1, decafAST *rhs2) : LHS1(lhs1), Name(name), RHS1(rhs1), RHS2(rhs2) {}
-// 	~ClassAST() { delete LHS1; delete RHS1; delete RHS2; }
-// 	string str() { return buildStringFinal("Class",Name, LHS1, RHS1, RHS2); }
-// };
-
-class ClassAST : public decafAST {
-	decafAST *LHS1,*RHS1,*RHS2;
-	string Name;
-public:
-	ClassAST(decafAST *lhs1, string name, decafAST *rhs1, decafAST *rhs2) : LHS1(lhs1), Name(name), RHS1(rhs1), RHS2(rhs2) {}
-	~ClassAST() { delete LHS1; delete RHS1; delete RHS2; }
-	string str() { return buildStringFinal("Class",Name, LHS1, RHS1, RHS2); }
-};
-
-
-/// BlockAST -  class for a block
-class BlockAST : public decafAST {
-	decafAST *LHS, *RHS;
-public:
-	BlockAST(decafAST *lhs, decafAST *rhs) : LHS(lhs), RHS(rhs) {}
-	~BlockAST() { delete LHS; delete RHS; }
-	string str() { return buildString2("Block", LHS, RHS); }
-};
-
-/// IfAst -  class for a if
-class IfAST : public decafAST {
-	decafAST *LHS, *RHS;
-public:
-	IfAST(decafAST *lhs, decafAST *rhs) : LHS(lhs), RHS(rhs) {}
-	~IfAST() { delete LHS; delete RHS; }
-	string str() { return buildString2("IfStmt", LHS, RHS); }
-};
-
-/// IfElseAst -  class for a if
-class IfElseAST: public decafAST {
-	decafAST *LHS, *RHS, *EHS;
-public:
-	IfElseAST(decafAST *lhs, decafAST *rhs, decafAST *ehs) : LHS(lhs), RHS(rhs), EHS(ehs) {}
-	~IfElseAST() { delete LHS; delete RHS; delete EHS; }
-	string str() { return buildString3("IfStmt", LHS, RHS, EHS); }
-};
-
-/// WhileAst -  class for a while
-class WhileAST : public decafAST {
-	decafAST *LHS, *RHS;
-public:
-	WhileAST(decafAST *lhs, decafAST *rhs) : LHS(lhs), RHS(rhs) {}
-	~WhileAST() { delete LHS; delete RHS; }
-	string str() { return buildString2("WhileStmt", LHS, RHS); }
-};
-
-class ForAST : public decafAST {
-	decafAST *LHS1,*LHS2,*RHS1,*RHS2;
-public:
-	ForAST(decafAST *lhs1, decafAST *lhs2, decafAST *rhs1, decafAST *rhs2) : LHS1(lhs1), LHS2(lhs2), RHS1(rhs1), RHS2(rhs2) {}
-	~ForAST() { delete LHS1; delete LHS2; delete RHS1; delete RHS2; }
-	string str() { return buildString4("ForStmt", LHS1, LHS2, RHS1, RHS2); }
-};
-
-// Extern Declarations
-// Field Declarations
-class ExternAST : public decafAST {
-	decafAST *LHS,*RHS;
-	string Name;
-public:
-	ExternAST(decafAST *lhs, string name, decafAST *rhs) : LHS(lhs), Name(name), RHS(rhs) {}
-	~ExternAST() { delete LHS; delete RHS; }
-	string str() { return buildString3("ExternFunction", Name, LHS, RHS); }
-};
-
-class VarDefExternAST : public decafAST {
-	int Op; // use the token value of the operator
-public:
-	VarDefExternAST(int op) : Op(op) {}
-	~VarDefExternAST() {  }
-	string str() { return buildString1("VarDef", TypeString(Op)); }
-};
-
-class VarDefMethodBlockAST : public decafAST {
-	int Op; // use the token value of the operator
-	string Name;
-public:
-	VarDefMethodBlockAST(int op, string name) : Op(op), Name(name){}
-	~VarDefMethodBlockAST() {  }
-	string str() { return buildString2("VarDef", Name, TypeString(Op)); }
-};
-
-// Field Declarations
-class FieldDeclarationAST : public decafAST {
-	decafAST *LHS,*RHS;
-	string Name;
-public:
-	FieldDeclarationAST(decafAST *lhs, string name, decafAST *rhs) : LHS(lhs), Name(name), RHS(rhs) {}
-	~FieldDeclarationAST() { delete LHS; delete RHS; }
-	string str() { return buildString3("FieldDecl", Name, LHS, RHS); }
-};
-
-class FieldDeclarationNoAssignAST : public decafAST {
-	decafAST *LHS;
-	string Name;
-public:
-	FieldDeclarationNoAssignAST(decafAST *lhs, string name) : LHS(lhs), Name(name) {}
-	~FieldDeclarationNoAssignAST() { delete LHS; }
-	string str() { return buildString3("FieldDecl", Name, LHS, "Scalar"); }
-};
-
-class FieldDeclarationArrayAST : public decafAST {
-	decafAST *LHS,*RHS;
-	string Name;
-public:
-	FieldDeclarationArrayAST(decafAST *lhs, string name, decafAST *rhs) : LHS(lhs), Name(name), RHS(rhs) {}
-	~FieldDeclarationArrayAST() { delete LHS; delete RHS; }
-	string str() { return buildString3("FieldDecl", Name, LHS, RHS); }
-};
-
-// method decelarations
-class MethodDeclarationAST : public decafAST {
-	decafAST *LHS1,*RHS1,*RHS2;
-	string Name;
-public:
-	MethodDeclarationAST(decafAST *lhs1, string name, decafAST *rhs1, decafAST *rhs2) : LHS1(lhs1), Name(name), RHS1(rhs1), RHS2(rhs2) {}
-	~MethodDeclarationAST() { delete LHS1; delete RHS1; delete RHS2; }
-	string str() { return buildString4("Method", Name, LHS1, RHS1, RHS2); }
-};
-
-/// BlockAST -  class for a block
-class MethodBlockAST : public decafAST {
-	decafAST *LHS, *RHS;
-public:
-	MethodBlockAST(decafAST *lhs, decafAST *rhs) : LHS(lhs), RHS(rhs) {}
-	~MethodBlockAST() { delete LHS; delete RHS; }
-	string str() { return buildString2("MethodBlock", LHS, RHS); }
-};
-
-/// VarDeMethod -Variables in methods
-class VarDefMethodAST : public decafAST {
-	int Op; // use the token value of the operator
-	string Name;
-public:
-	VarDefMethodAST(int op, string name) : Op(op), Name(name){}
-	~VarDefMethodAST() {  }
-	string str() { return buildString2("VarDef", Name, TypeString(Op)); }
-};
-
 
 /// UnaryExprAST - Expression class for a unary operator.
 class UnaryExprAST : public decafAST {
@@ -401,39 +272,234 @@ public:
 	string str() { return buildString2("AssignVar", Name, Value); }
 };
 
-class AssignArrayAST : public decafAST {
-	string Name; // location to assign value
+/// AssignArrayLocAST - assign value to a variable
+class AssignArrayLocAST : public decafAST {
+	string Name; // name of array variable
+    decafAST *Index;  // index for assignment of value
 	decafAST *Value;
-	decafAST *Expr;
 public:
-	AssignArrayAST(string name, decafAST *expr, decafAST *value) : Name(name), Value(value), Expr(expr) {}
-	~AssignArrayAST() { 
+	AssignArrayLocAST(string name, decafAST *index, decafAST *value) : Name(name), Index(index), Value(value) {}
+	~AssignArrayLocAST() { delete Index; delete Value; }
+	string str() { return buildString3("AssignArrayLoc", Name, Index, Value); }
+};
+
+/// ArrayLocExprAST - access an array location
+class ArrayLocExprAST : public decafAST {
+	string Name;
+    decafAST *Expr;
+public:
+	ArrayLocExprAST(string name, decafAST *expr) : Name(name), Expr(expr) {}
+	~ArrayLocExprAST() {
+		if (Expr != NULL) { delete Expr; }
+	}
+	string str() { return buildString2("ArrayLocExpr", Name, Expr); }
+};
+
+/// BlockAST - block
+class BlockAST : public decafAST {
+	decafStmtList *Vars;
+	decafStmtList *Statements;
+public:
+	BlockAST(decafStmtList *vars, decafStmtList *s) : Vars(vars), Statements(s) {}
+	~BlockAST() { 
+		if (Vars != NULL) { delete Vars; }
+		if (Statements != NULL) { delete Statements; }
+	}
+	decafStmtList *getVars() { return Vars; }
+	decafStmtList *getStatements() { return Statements; }
+	string str() { return buildString2("Block", Vars, Statements); }
+};
+
+/// MethodBlockAST - block for methods
+class MethodBlockAST : public decafAST {
+	decafStmtList *Vars;
+	decafStmtList *Statements;
+public:
+	MethodBlockAST(decafStmtList *vars, decafStmtList *s) : Vars(vars), Statements(s) {}
+	~MethodBlockAST() { 
+		if (Vars != NULL) { delete Vars; }
+		if (Statements != NULL) { delete Statements; }
+	}
+	string str() { return buildString2("MethodBlock", Vars, Statements); }
+};
+
+/// IfStmtAST - if statement
+class IfStmtAST : public decafAST {
+	decafAST *Cond;
+	BlockAST *IfTrueBlock;
+	BlockAST *ElseBlock;
+public:
+	IfStmtAST(decafAST *cond, BlockAST *iftrue, BlockAST *elseblock) : Cond(cond), IfTrueBlock(iftrue), ElseBlock(elseblock) {}
+	~IfStmtAST() { 
+		delete Cond; 
+		delete IfTrueBlock; 
+		if (ElseBlock != NULL) { delete ElseBlock; }
+	}
+	string str() { return buildString3("IfStmt", Cond, IfTrueBlock, ElseBlock); }
+};
+
+/// WhileStmtAST - while statement
+class WhileStmtAST : public decafAST {
+	decafAST *Cond;
+	BlockAST *Body;
+public:
+	WhileStmtAST(decafAST *cond, BlockAST *body) : Cond(cond), Body(body) {}
+	~WhileStmtAST() { delete Cond; delete Body; }
+	string str() { return buildString2("WhileStmt", Cond, Body); }
+};
+
+/// ForStmtAST - for statement
+class ForStmtAST : public decafAST {
+	decafStmtList *InitList;
+	decafAST *Cond;
+	decafStmtList *LoopEndList;
+	BlockAST *Body;
+public:
+	ForStmtAST(decafStmtList *init, decafAST *cond, decafStmtList *end, BlockAST *body) :
+		InitList(init), Cond(cond), LoopEndList(end), Body(body) {}
+	~ForStmtAST() {
+		delete InitList;
+		delete Cond;
+		delete LoopEndList;
+		delete Body;
+	}
+	string str() { return buildString4("ForStmt", InitList, Cond, LoopEndList, Body); }
+};
+
+/// ReturnStmtAST - return statement
+class ReturnStmtAST : public decafAST {
+	decafAST *Value;
+public:
+	ReturnStmtAST(decafAST *value) : Value(value) {}
+	~ReturnStmtAST() { 
 		if (Value != NULL) { delete Value; }
 	}
-	string str() { return buildString3("AssignArrayLoc", Name, Expr, Value); }
+	string str() { return buildString1("ReturnStmt", Value); }
 };
 
-// methodcall - g(int a, int b);
-class MethodCallAST : public decafAST {
-	string Name; // location to assign value
-	decafAST *AST;
+/// BreakStmtAST - break statement
+class BreakStmtAST : public decafAST {
 public:
-	MethodCallAST(string name, decafAST *ast) : Name(name), AST(ast) {}
-	~MethodCallAST() { 
-		if (AST != NULL) { delete AST; }
-	}
-	string str() { return buildString2("MethodCall", Name, AST); }
+	BreakStmtAST() {}
+	string str() { return string("BreakStmt"); }
 };
 
+/// ContinueStmtAST - continue statement
+class ContinueStmtAST : public decafAST {
+public:
+	ContinueStmtAST() {}
+	string str() { return string("ContinueStmt"); }
+};
 
-/// ProgramAST - the simplified decaf program
+/// MethodDeclAST - function definition
+class MethodDeclAST : public decafAST {
+	decafType ReturnType;
+	string Name;
+	TypedSymbolListAST *FunctionArgs;
+	MethodBlockAST *Block;
+public:
+	MethodDeclAST(decafType rtype, string name, TypedSymbolListAST *fargs, MethodBlockAST *block) 
+		: ReturnType(rtype), Name(name), FunctionArgs(fargs), Block(block) {}
+	~MethodDeclAST() { 
+		delete FunctionArgs;
+		delete Block; 
+	}
+	string str() { return buildString4("Method", Name, TyString(ReturnType), FunctionArgs, Block); }
+};
+
+/// AssignGlobalVarAST - assign value to a global variable
+class AssignGlobalVarAST : public decafAST {
+	decafType Ty;
+	string Name; // location to assign value
+	decafAST *Value;
+public:
+	AssignGlobalVarAST(decafType ty, string name, decafAST *value) : Ty(ty), Name(name), Value(value) {}
+	~AssignGlobalVarAST() { 
+		if (Value != NULL) { delete Value; }
+	}
+	string str() { return buildString3("AssignGlobalVar", Name, TyString(Ty), Value); }
+};
+
+/// FieldDecl - field declaration aka Decaf global variable
+class FieldDecl : public decafAST {
+	string Name;
+	decafType Ty;
+	int Size; // -1 for scalars and size value for arrays, size 0 array is an error
+public:
+	FieldDecl(string name, decafType ty, int size) : Name(name), Ty(ty), Size(size) {}
+	string str() { return buildString3("FieldDecl", Name, TyString(Ty), (Size == -1) ? "Scalar" : "Array(" + convertInt(Size) + ")"); }
+};
+
+class FieldDeclListAST : public decafAST {
+	list<class decafAST *> arglist;
+	decafType listType; // this variable is used if all the symbols in the list share the same type
+public:
+	FieldDeclListAST() {}
+	FieldDeclListAST(string sym, decafType ty, int sz) {
+		FieldDecl *s = new FieldDecl(sym, ty, sz);
+		arglist.push_front(s);
+		listType = ty;
+	}
+	~FieldDeclListAST() {
+		for (list<class decafAST *>::iterator i = arglist.begin(); i != arglist.end(); i++) { 
+			delete *i;
+		}
+	}
+	void push_front(string sym, decafType ty, int sz) {
+		FieldDecl *s = new FieldDecl(sym, ty, sz);
+		arglist.push_front(s); 
+	}	
+	void push_back(string sym, decafType ty, int sz) {
+		FieldDecl *s = new FieldDecl(sym, ty, sz);
+		arglist.push_back(s); 
+	}
+	void new_sym(string sym, int sz) {
+		if (arglist.empty()) { 
+			throw runtime_error("Error in AST creation: insertion into empty field list\n");
+		}
+		FieldDecl *s = new FieldDecl(sym, listType, sz);
+		arglist.push_back(s);
+	}
+	string str() { return commaList<class decafAST *>(arglist); }
+};
+
+class ClassAST : public decafAST {
+	string Name;
+	FieldDeclListAST *FieldDeclList;
+	decafStmtList *MethodDeclList;
+public:
+	ClassAST(string name, FieldDeclListAST *fieldlist, decafStmtList *methodlist) 
+		: Name(name), FieldDeclList(fieldlist), MethodDeclList(methodlist) {}
+	~ClassAST() { 
+		if (FieldDeclList != NULL) { delete FieldDeclList; }
+		if (MethodDeclList != NULL) { delete MethodDeclList; }
+	}
+	string str() { return buildString3("Class", Name, FieldDeclList, MethodDeclList); }
+};
+
+/// ExternAST - extern function definition
+class ExternAST : public decafAST {
+	decafType ReturnType;
+	string Name;
+	TypedSymbolListAST *FunctionArgs;
+public:
+	ExternAST(decafType r, string n, TypedSymbolListAST *fargs) : ReturnType(r), Name(n), FunctionArgs(fargs) {}
+	~ExternAST() {
+		if (FunctionArgs != NULL) { delete FunctionArgs; }
+	}
+	string str() { return buildString3("ExternFunction", Name, TyString(ReturnType), FunctionArgs); }
+};
+
+/// ProgramAST - the decaf program
 class ProgramAST : public decafAST {
 	decafStmtList *ExternList;
+	ClassAST *ClassDef;
 public:
-	ProgramAST(decafStmtList *externs) : ExternList(externs) {}
+	ProgramAST(decafStmtList *externs, ClassAST *c) : ExternList(externs), ClassDef(c) {}
 	~ProgramAST() { 
 		if (ExternList != NULL) { delete ExternList; } 
+		if (ClassDef != NULL) { delete ClassDef; }
 	}
-	string str() { return buildString1("Program", ExternList); }
+	string str() { return buildString2("Program", ExternList, ClassDef); }
 };
 
