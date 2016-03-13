@@ -4,8 +4,8 @@ yacclib=y
 bindir=.
 rm=/bin/rm -f
 mv=/bin/mv -f
-targets=multexpr varexpr
-cpptargets=expr-interpreter expr-parse decaf-ast json
+targets= 
+cpptargets= decaf-ast 
 
 all: $(targets) $(cpptargets)
 

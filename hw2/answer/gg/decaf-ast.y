@@ -4,12 +4,9 @@
 #include <string>
 #include <cstdlib>
 #include "usingcpp-defs.h"
-#include <map>
-
 
 int yylex(void);
 int yyerror(char *); 
-extern int lineno;
 
 using namespace std;
 
@@ -17,38 +14,6 @@ using namespace std;
 bool printAST = true;
 
 #include "decaf-ast.cc"
-
-
-struct descriptor{
-    string *location;
-    string varname;
-    int lineno;
-    int type;
-};
-
-
-// type declarations
-typedef map<string, descriptor*> symbol_table;
-
-typedef list<symbol_table > symbol_table_list;
-
-
- map<string,int> testmap;
-
-
-// program stack
-symbol_table_list symtbl_list;
-
-// Symbol Tables
-
-// field block symbol table
-symbol_table fieldSymTable;
-
-// method block symbol table
-symbol_table methodSymTable;
-
-// other(for,if-else,while) block symbol table
-symbol_table localSymTable;
 
 %}
 
@@ -90,7 +55,7 @@ program: extern_list decafclass
     { 
         ProgramAST *prog = new ProgramAST((decafStmtList *)$1, (ClassAST *)$2); 
         if (printAST) {
-           // cout << getString(prog) << endl;
+            cout << getString(prog) << endl;
         }
         delete prog;
     }
@@ -215,17 +180,7 @@ var_list: var_list T_COMMA T_ID
         delete $3;
     }
     | type T_ID
-    { $$ = new TypedSymbolListAST(*$2, (decafType)$1); descriptor variableInfo; variableInfo.type = $1; variableInfo.location = (string*)$2; variableInfo.varname = *$2; variableInfo.lineno = lineno; 
-     // cout << " \n\n Type: " << variableInfo.type << " ID: " << variableInfo.location << endl;
-     // cout << "line #: " << variableInfo.lineno << endl; 
-     symbol_table newSymTable; newSymTable[*$2] = &variableInfo; 
-    // cout << newSymTable["x"]->lineno << endl; // to access value
-
-    // pushes new symbol table into stack
-    symtbl_list.push_front(newSymTable);
-
-
-     }
+    { $$ = new TypedSymbolListAST(*$2, (decafType)$1); delete $2; }
     ;
 
 statement_list: statement statement_list
@@ -355,9 +310,6 @@ bool_constant: T_TRUE
     ;
 
 %%
-
- 
-
 
 int main() {
   // parse the input and create the abstract syntax tree
