@@ -19,7 +19,7 @@ string remove_newlines (string s) {
       lineno += 1; tokenpos = 0;
       newstring.push_back('\\');
       newstring.push_back('n');
-       printf("%s ", yytext); 
+       printf("%s", yytext); 
       break;
     case '(':
       newstring.push_back('\\');
@@ -39,7 +39,11 @@ string remove_newlines (string s) {
 void process_ws() {
   tokenpos += yyleng;
   string lexeme(yytext);
-  printf(" ");
+	if (yytext[0] != '\n' && yytext[1] != '\n' )
+	{
+		printf(" ");
+	}
+  
   lexeme = remove_newlines(lexeme);
 }
 
