@@ -39,10 +39,12 @@ string remove_newlines (string s) {
 void process_ws() {
   tokenpos += yyleng;
   string lexeme(yytext);
+
   if (yytext[0] != '\n' && yytext[1] != '\n' )
    {
   printf(" ");
   }
+  
   lexeme = remove_newlines(lexeme);
 }
 
