@@ -1,6 +1,6 @@
 %{
 #include "usingcpp-defs.h"
-#include "decaf-ast.tab.h"
+#include "decaf-sym.tab.h"
 #include <cstring>
 #include <string>
 #include <sstream>

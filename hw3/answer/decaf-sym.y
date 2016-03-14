@@ -16,7 +16,7 @@ using namespace std;
 // print AST?
 bool printAST = true;
 
-#include "decaf-ast.cc"
+#include "decaf-sym.cc"
 
 
 struct descriptor{
@@ -306,7 +306,7 @@ statement: assign T_SEMICOLON
     ;
 
 assign: T_ID T_ASSIGN expr
-    { cout << " // using decl on line " << getLineNumberOfVar(*$1); $$ = new AssignVarAST(*$1, $3); delete $1; }
+    { cout << " // using decl on line: " << getLineNumberOfVar(*$1); $$ = new AssignVarAST(*$1, $3); delete $1; }
     | T_ID T_LSB expr T_RSB T_ASSIGN expr
     { $$ = new AssignArrayLocAST(*$1, $3, $6); delete $1; }
     ;

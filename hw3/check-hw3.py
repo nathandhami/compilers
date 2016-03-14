@@ -111,8 +111,8 @@ checks = {
             'stderr': None,
             'file_checks': []
         },
-    "expr-codegen": {},
-    "func-codegen": {}
+    #"expr-codegen": {},
+    #"func-codegen": {}
 }
 
 check_defaults = {
