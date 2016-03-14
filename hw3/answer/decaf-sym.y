@@ -214,10 +214,15 @@ param_comma_list: type T_ID T_COMMA param_comma_list
         TypedSymbolListAST *tlist = (TypedSymbolListAST *)$4; 
         tlist->push_front(*$2, (decafType)$1); 
         $$ = tlist;
+        descriptor variableInfo; variableInfo.type = $1; variableInfo.location = (string*)$2; variableInfo.varname = *$2; variableInfo.lineno = lineno; 
+         updateSymTable(*$2, variableInfo);
         delete $2;
     }
     | type T_ID
-    { $$ = new TypedSymbolListAST(*$2, (decafType)$1); delete $2; }
+    {  
+        descriptor variableInfo; variableInfo.type = $1; variableInfo.location = (string*)$2; variableInfo.varname = *$2;
+        updateSymTable(*$2, variableInfo);
+       $$ = new TypedSymbolListAST(*$2, (decafType)$1); delete $2; }
     ;
 
 type: T_INTTYPE
