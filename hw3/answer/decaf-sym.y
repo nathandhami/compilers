@@ -37,7 +37,6 @@ typedef list<symbol_table*> symbol_table_list;
 // prototypes
 
 int getLineNumberOfVar(string);
-symbol_table *getCurrentSymTable();
 void updateSymTable(string ,descriptor *);
 int getTypeFromPreviousVar(int);
 descriptor* access_symtbl(string);
