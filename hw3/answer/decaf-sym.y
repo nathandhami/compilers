@@ -19,6 +19,7 @@ bool printAST = true;
 #include "decaf-sym.cc"
 
 
+
 struct descriptor{
     string *location;
     string varname;
@@ -33,8 +34,13 @@ typedef map<string, descriptor*> symbol_table;
 typedef list<symbol_table*> symbol_table_list;
 
 
- map<string,int> testmap;
+// prototypes
 
+int getLineNumberOfVar(string);
+symbol_table *getCurrentSymTable();
+void updateSymTable(string ,descriptor *);
+int getTypeFromPreviousVar(int);
+descriptor* access_symtbl(string);
 
 // program stack
 symbol_table_list symtbl_list;
@@ -46,11 +52,6 @@ symbol_table *currentSymTable;
 
 // FUNCTIONS
 // ------------------
-symbol_table *getCurrentSymTable(){
-    return symtbl_list.front();
-}
-
-
 
 descriptor* access_symtbl(string ident) {
 for (symbol_table_list::iterator i = symtbl_list.begin(); i != symtbl_list.end(); ++i) {
@@ -61,11 +62,22 @@ return find_ident->second;
 return NULL;
 }
 
+// int a,b,c; retrieves the s type from previous var declaration
+int getTypeFromPreviousVar(int lineno) {
+
+    for(symbol_table::iterator i = currentSymTable->begin(); i!= currentSymTable->end(); ++i){
+       if(i->second->lineno == lineno){
+       return i->second->type;
+       }
+    }
+return 0;
+}
 
 void updateSymTable(string ident,descriptor *variableInfo){
 
     currentSymTable = symtbl_list.front();
     //currentSymTable[ident]->lineno = variableInfo.
+
     (*currentSymTable)[ident] = variableInfo;
     //symbol_table *yes = symtbl_list.front();
 
@@ -86,8 +98,6 @@ int getLineNumberOfVar(string ident){
 
 
 %}
-
-
 
 %union{
     class decafAST *ast;
@@ -172,25 +182,44 @@ field_decl_list: field_decl_list field_decl
     { decafStmtList *slist = new decafStmtList(); $$ = slist; }
     ;
 
+// still need to work on
 field_decl: field_list T_SEMICOLON
     { $$ = $1; }
     | type T_ID T_ASSIGN constant T_SEMICOLON
     {  descriptor *variableInfo; 
-        variableInfo = new descriptor();
+    variableInfo = new descriptor();
     (*variableInfo).type = $1; 
     (*variableInfo).location = (string*)$2; 
     (*variableInfo).varname = *$2; 
     (*variableInfo).lineno = lineno; 
 
-    updateSymTable(*$2, variableInfo); $$ = new AssignGlobalVarAST((decafType)$1, *$2, $4); delete $2; }
+    updateSymTable(*$2, variableInfo); 
+    $$ = new AssignGlobalVarAST((decafType)$1, *$2, $4); delete $2; }
     ;
-
+// array decl?
 field_list: field_list T_COMMA T_ID
-    { FieldDeclListAST *flist = (FieldDeclListAST *)$1; flist->new_sym(*$3, -1); $$ = flist; delete $3; }
+    { 
+    descriptor *variableInfo; 
+    variableInfo = new descriptor();
+    (*variableInfo).type = getTypeFromPreviousVar(lineno); 
+    (*variableInfo).location = (string*)$3; 
+    (*variableInfo).varname = *$3; 
+    (*variableInfo).lineno = lineno; 
+    updateSymTable(*$3, variableInfo); 
+
+    FieldDeclListAST *flist = (FieldDeclListAST *)$1; flist->new_sym(*$3, -1); $$ = flist; delete $3; }
     | field_list T_COMMA T_ID T_LSB T_INTCONSTANT T_RSB
     { FieldDeclListAST *flist = (FieldDeclListAST *)$1; flist->new_sym(*$3, $5); $$ = flist; delete $3; }
     | type T_ID
-    { $$ = new FieldDeclListAST(*$2, (decafType)$1, -1); delete $2; }
+    { 
+    descriptor *variableInfo; 
+    variableInfo = new descriptor();
+    (*variableInfo).type = $1; 
+    (*variableInfo).location = (string*)$2; 
+    (*variableInfo).varname = *$2; 
+    (*variableInfo).lineno = lineno; 
+    updateSymTable(*$2, variableInfo); 
+    $$ = new FieldDeclListAST(*$2, (decafType)$1, -1); delete $2; }
     | type T_ID T_LSB T_INTCONSTANT T_RSB
     { $$ = new FieldDeclListAST(*$2, (decafType)$1, $4); delete $2; }
     ;
@@ -251,7 +280,8 @@ param_comma_list: type T_ID T_COMMA param_comma_list
     ;
 
 type: T_INTTYPE
-    { $$ = intTy; }
+    { $$ = intTy; 
+    }
     | T_BOOL
     { $$ = boolTy; }
     ;
@@ -267,7 +297,7 @@ block_begin: T_LCB
     {     symbol_table* newSymTable = new symbol_table(); symtbl_list.push_front(newSymTable);           }
 
 block_end: T_RCB
-    {        symtbl_list.pop_front(); }
+    {        symtbl_list.pop_front();}
 
 
 
@@ -281,7 +311,6 @@ var_decl_list: var_decl var_decl_list
 var_decl: var_list T_SEMICOLON
     { $$ = $1; }
 
-// type of T_ID
 var_list: var_list T_COMMA T_ID
     { 
         TypedSymbolListAST *tlist = (TypedSymbolListAST *)$1; 
@@ -290,7 +319,7 @@ var_list: var_list T_COMMA T_ID
 
         descriptor *variableInfo;
         variableInfo = new descriptor();
-        (*variableInfo).type = 1; 
+        (*variableInfo).type = getTypeFromPreviousVar(lineno);
          (*variableInfo).location = (string*)$3; 
          (*variableInfo).varname = *$3; 
          (*variableInfo).lineno = lineno; 
