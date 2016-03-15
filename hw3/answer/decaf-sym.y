@@ -50,21 +50,17 @@ symbol_table *getCurrentSymTable(){
     return symtbl_list.front();
 }
 
-int getLineNumberOfVar(string ident){
 
-   return (*currentSymTable)[ident]->lineno;
-}
 
-/*
 descriptor* access_symtbl(string ident) {
 for (symbol_table_list::iterator i = symtbl_list.begin(); i != symtbl_list.end(); ++i) {
 symbol_table::iterator find_ident;
-if ((find_ident = i->find(ident)) != i->end())
+if ((find_ident = (*i)->find(ident)) != (*i)->end())
 return find_ident->second;
 }
 return NULL;
 }
-*/
+
 
 void updateSymTable(string ident,descriptor *variableInfo){
 
@@ -78,6 +74,16 @@ void updateSymTable(string ident,descriptor *variableInfo){
     //cout << currentSymTable[ident]->type << endl;
     //cout << currentSymTable[ident]->lineno << endl;
 }
+
+int getLineNumberOfVar(string ident){
+
+   descriptor* getDesc = access_symtbl(ident);
+
+   if (getDesc!=NULL)
+  // cout << (*getDesc).lineno;
+   return (*getDesc).lineno;
+}
+
 
 %}
 
