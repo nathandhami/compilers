@@ -30,7 +30,7 @@ struct descriptor{
 // type declarations
 typedef map<string, descriptor*> symbol_table;
 
-typedef list<symbol_table > symbol_table_list;
+typedef list<symbol_table*> symbol_table_list;
 
 
  map<string,int> testmap;
@@ -39,29 +39,23 @@ typedef list<symbol_table > symbol_table_list;
 // program stack
 symbol_table_list symtbl_list;
 
-symbol_table currentTable;
+// active record
+symbol_table *currentSymTable;
 
-// Symbol Tables
 
-// field block symbol table
-symbol_table fieldSymTable;
-
-// method block symbol table
-symbol_table methodSymTable;
-
-// other(for,if-else,while) block symbol table
-symbol_table localSymTable;
 
 // FUNCTIONS
 // ------------------
-symbol_table getCurrentSymTable(){
+symbol_table *getCurrentSymTable(){
     return symtbl_list.front();
 }
 
 int getLineNumberOfVar(string ident){
-   return currentTable[ident]->lineno;
+
+   return (*currentSymTable)[ident]->lineno;
 }
 
+/*
 descriptor* access_symtbl(string ident) {
 for (symbol_table_list::iterator i = symtbl_list.begin(); i != symtbl_list.end(); ++i) {
 symbol_table::iterator find_ident;
@@ -70,15 +64,19 @@ return find_ident->second;
 }
 return NULL;
 }
+*/
 
-void updateSymTable(string ident,descriptor variableInfo){
-    currentTable = getCurrentSymTable();
-    //currentTable[ident]->lineno = variableInfo.
-    currentTable[ident] = &variableInfo;
-    //cout << currentTable[ident]->location << endl;
-    //cout << currentTable[ident]->varname << endl;
-    //cout << currentTable[ident]->type << endl;
-    //cout << currentTable[ident]->lineno << endl;
+void updateSymTable(string ident,descriptor *variableInfo){
+
+    currentSymTable = symtbl_list.front();
+    //currentSymTable[ident]->lineno = variableInfo.
+    (*currentSymTable)[ident] = variableInfo;
+    //symbol_table *yes = symtbl_list.front();
+
+    //cout << (*yes)[ident]->location << endl;
+    //cout << currentSymTable[ident]->varname << endl;
+    //cout << currentSymTable[ident]->type << endl;
+    //cout << currentSymTable[ident]->lineno << endl;
 }
 
 %}
@@ -156,9 +154,9 @@ extern_type: T_STRINGTYPE
     { $$ = $1; }
     ;
 
-decafclass: T_CLASS T_ID T_LCB field_decl_list method_decl_list T_RCB
+decafclass: T_CLASS T_ID block_begin field_decl_list method_decl_list block_end
     { $$ = new ClassAST(*$2, (FieldDeclListAST *)$4, (decafStmtList *)$5); delete $2; }
-    | T_CLASS T_ID T_LCB field_decl_list T_RCB
+    | T_CLASS T_ID block_begin field_decl_list block_end
     { $$ = new ClassAST(*$2, (FieldDeclListAST *)$4, new decafStmtList()); delete $2; }
     ;
 
@@ -171,8 +169,14 @@ field_decl_list: field_decl_list field_decl
 field_decl: field_list T_SEMICOLON
     { $$ = $1; }
     | type T_ID T_ASSIGN constant T_SEMICOLON
-    {  descriptor variableInfo; variableInfo.type = $1; variableInfo.location = (string*)$2; variableInfo.varname = *$2; variableInfo.lineno = lineno; 
-        updateSymTable(*$2, variableInfo); $$ = new AssignGlobalVarAST((decafType)$1, *$2, $4); delete $2; }
+    {  descriptor *variableInfo; 
+        variableInfo = new descriptor();
+    (*variableInfo).type = $1; 
+    (*variableInfo).location = (string*)$2; 
+    (*variableInfo).varname = *$2; 
+    (*variableInfo).lineno = lineno; 
+
+    updateSymTable(*$2, variableInfo); $$ = new AssignGlobalVarAST((decafType)$1, *$2, $4); delete $2; }
     ;
 
 field_list: field_list T_COMMA T_ID
@@ -191,11 +195,16 @@ method_decl_list: method_decl_list method_decl
     { decafStmtList *slist = new decafStmtList(); slist->push_back($1); $$ = slist; }
     ;
 
-method_decl: T_VOID T_ID T_LPAREN param_list T_RPAREN method_block
+method_decl: T_VOID T_ID method_begin param_list T_RPAREN method_block
     { $$ = new MethodDeclAST(voidTy, *$2, (TypedSymbolListAST *)$4, (MethodBlockAST *)$6); delete $2; }
-    | type T_ID T_LPAREN param_list T_RPAREN method_block
+    | type T_ID method_begin param_list T_RPAREN method_block
     { $$ = new MethodDeclAST((decafType)$1, *$2, (TypedSymbolListAST *)$4, (MethodBlockAST *)$6); delete $2; }
     ;
+
+method_begin: T_LPAREN
+    { symbol_table* newSymTable = new symbol_table(); symtbl_list.push_front(newSymTable); }
+
+
 
 method_type: T_VOID
     { $$ = voidTy; }
@@ -214,13 +223,23 @@ param_comma_list: type T_ID T_COMMA param_comma_list
         TypedSymbolListAST *tlist = (TypedSymbolListAST *)$4; 
         tlist->push_front(*$2, (decafType)$1); 
         $$ = tlist;
-        descriptor variableInfo; variableInfo.type = $1; variableInfo.location = (string*)$2; variableInfo.varname = *$2; variableInfo.lineno = lineno; 
+        descriptor *variableInfo; 
+        variableInfo = new descriptor();
+        (*variableInfo).type = $1; 
+        (*variableInfo).location = (string*)$2; 
+        (*variableInfo).varname = *$2; 
+        (*variableInfo).lineno = lineno; 
          updateSymTable(*$2, variableInfo);
         delete $2;
     }
     | type T_ID
     {  
-        descriptor variableInfo; variableInfo.type = $1; variableInfo.location = (string*)$2; variableInfo.varname = *$2;
+        descriptor *variableInfo; 
+        variableInfo = new descriptor();
+        (*variableInfo).type = $1; 
+        (*variableInfo).location = (string*)$2; 
+        (*variableInfo).varname = *$2;
+         (*variableInfo).lineno = lineno; 
         updateSymTable(*$2, variableInfo);
        $$ = new TypedSymbolListAST(*$2, (decafType)$1); delete $2; }
     ;
@@ -231,12 +250,21 @@ type: T_INTTYPE
     { $$ = boolTy; }
     ;
 
-block: T_LCB {symbol_table newSymTable; symtbl_list.push_front(newSymTable);} var_decl_list statement_list T_RCB
+block: block_begin var_decl_list statement_list block_end
     {
-    $$ = new BlockAST((decafStmtList *)$3, (decafStmtList *)$4); }
+    $$ = new BlockAST((decafStmtList *)$2, (decafStmtList *)$3); }
 
-method_block: T_LCB var_decl_list statement_list T_RCB
+method_block: T_LCB var_decl_list statement_list block_end
     { $$ = new MethodBlockAST((decafStmtList *)$2, (decafStmtList *)$3); }
+
+block_begin: T_LCB
+    {     symbol_table* newSymTable = new symbol_table(); symtbl_list.push_front(newSymTable);           }
+
+block_end: T_RCB
+    {        symtbl_list.pop_front(); }
+
+
+
 
 var_decl_list: var_decl var_decl_list
     { decafStmtList *slist = (decafStmtList *)$2; slist->push_front($1); $$ = slist; }
@@ -253,30 +281,31 @@ var_list: var_list T_COMMA T_ID
         TypedSymbolListAST *tlist = (TypedSymbolListAST *)$1; 
         tlist->new_sym(*$3); 
         $$ = tlist;
-        descriptor variableInfo; variableInfo.type = 1; variableInfo.location = (string*)$3; variableInfo.varname = *$3; variableInfo.lineno = lineno; 
+
+        descriptor *variableInfo;
+        variableInfo = new descriptor();
+        (*variableInfo).type = 1; 
+         (*variableInfo).location = (string*)$3; 
+         (*variableInfo).varname = *$3; 
+         (*variableInfo).lineno = lineno; 
+
         updateSymTable(*$3, variableInfo);
+
+
         delete $3;
     }
     | type T_ID
-    { $$ = new TypedSymbolListAST(*$2, (decafType)$1); descriptor variableInfo; variableInfo.type = $1; variableInfo.location = (string*)$2; variableInfo.varname = *$2; variableInfo.lineno = lineno; 
-     // cout << " \n\n Type: " << variableInfo.type << " ID: " << variableInfo.location << endl;
-     // cout << "line #: " << variableInfo.lineno << endl; 
-    // symbol_table newSymTable; 
-     //newSymTable[*$2] = &variableInfo; 
-    // cout << newSymTable["x"]->lineno << endl; // to access value
-
-    // pushes new symbol table into stack
-   // symtbl_list.push_front(newSymTable);
-
-    //cout << "\nTEST : \n";
-    updateSymTable(*$2, variableInfo);
-
-    //cout << 
-   // cout << currentTable["x"]->lineno << endl;
-    //getLineNumberOfVar(*$2);
-    delete $2;
-    
+    { $$ = new TypedSymbolListAST(*$2, (decafType)$1); 
+      descriptor *variableInfo; 
+      variableInfo = new descriptor();
+      (*variableInfo).type = $1; 
+      (*variableInfo).location = (string*)$2; 
+      (*variableInfo).varname = *$2; 
+      (*variableInfo).lineno = lineno; 
+      updateSymTable(*$2, variableInfo);
+      delete $2; 
     }
+    ;
 
 statement_list: statement statement_list
     { decafStmtList *slist = (decafStmtList *)$2; slist->push_front($1); $$ = slist; }
@@ -311,7 +340,8 @@ statement: assign T_SEMICOLON
     ;
 
 assign: T_ID T_ASSIGN expr
-    { cout << " // using decl on line: " << getLineNumberOfVar(*$1); $$ = new AssignVarAST(*$1, $3); delete $1; }
+    { cout << " // using decl on line: " << getLineNumberOfVar(*$1); 
+      $$ = new AssignVarAST(*$1, $3); delete $1; }
     | T_ID T_LSB expr T_RSB T_ASSIGN expr
     { $$ = new AssignArrayLocAST(*$1, $3, $6); delete $1; }
     ;
