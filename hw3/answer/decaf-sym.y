@@ -377,7 +377,7 @@ assign_comma_list: assign
     ;
 
 rvalue: T_ID
-    { $$ = new VariableExprAST(*$1); delete $1; }
+    { cout << " // using decl on line: " << getLineNumberOfVar(*$1); $$ = new VariableExprAST(*$1); delete $1; }
     | T_ID T_LSB expr T_RSB
     { $$ = new ArrayLocExprAST(*$1, $3); delete $1; }
     ;
