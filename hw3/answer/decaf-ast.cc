@@ -33,13 +33,13 @@ string BinaryOpString(int Op) {
   		case T_RIGHTSHIFT: return string("Rightshift");
   		case T_MOD: return string("Mod");
   		case T_LT: return string("Lt");
-  		case T_GT: return string("Gt");
-  		case T_LEQ: return string("Leq");
-  		case T_GEQ: return string("Geq");
+  		//case T_GT: return string("Gt");
+  		//case T_LEQ: return string("Leq");
+  		//case T_GEQ: return string("Geq");
   		case T_EQ: return string("Eq");
-  		case T_NEQ: return string("Neq");
-  		case T_AND: return string("And");
-  		case T_OR: return string("Or");
+  		//case T_NEQ: return string("Neq");
+  		//case T_AND: return string("And");
+  		//case T_OR: return string("Or");
 		default: throw runtime_error("unknown type in BinaryOpString call");
 	}
 }
@@ -47,7 +47,7 @@ string BinaryOpString(int Op) {
 string UnaryOpString(int Op) {
 	switch (Op) {
   		case T_MINUS: return string("UnaryMinus");
-  		case T_NOT: return string("Not");
+  		//case T_NOT: return string("Not");
 		default: throw runtime_error("unknown type in UnaryOpString call");
 	}
 }
@@ -63,6 +63,8 @@ class decafAST {
 public:
   virtual ~decafAST() {}
   virtual string str() { return string(""); }
+  virtual Value *Codegen() = 0;
+
 };
 
 string getString(decafAST *d) {
@@ -197,14 +199,16 @@ public:
 	string str() { return commaList<class decafAST *>(stmts); }
 };
 
+
 /// NumberExprAST - Expression class for integer numeric literals like "12".
 class NumberExprAST : public decafAST {
 	int Val;
 public:
 	NumberExprAST(int val) : Val(val) {}
 	string str() { return buildString1("Number", convertInt(Val)); }
+	virtual Value *Codegen();
 };
-
+/*
 /// StringConstAST - string constant
 class StringConstAST : public decafAST {
 	string StringConst;
@@ -220,6 +224,7 @@ public:
 	BoolExprAST(bool val) : Val(val) {}
 	string str() { return buildString1("BoolExpr", Val ? string("True") : string("False")); }
 };
+*/
 
 /// VariableExprAST - Expression class for variables like "a".
 class VariableExprAST : public decafAST {
@@ -248,8 +253,9 @@ public:
 	BinaryExprAST(int op, decafAST *lhs, decafAST *rhs) : Op(op), LHS(lhs), RHS(rhs) {}
 	~BinaryExprAST() { delete LHS; delete RHS; }
 	string str() { return buildString3("BinaryExpr", BinaryOpString(Op), LHS, RHS); }
+	virtual Value *Codegen();
 };
-
+/*
 /// UnaryExprAST - Expression class for a unary operator.
 class UnaryExprAST : public decafAST {
 	int Op; // use the token value of the operator
@@ -259,7 +265,7 @@ public:
 	~UnaryExprAST() { delete Expr; }
 	string str() { return buildString2("UnaryExpr", UnaryOpString(Op), Expr); }
 };
-
+*/
 /// AssignVarAST - assign value to a variable
 class AssignVarAST : public decafAST {
 	string Name; // location to assign value
@@ -271,7 +277,7 @@ public:
 	}
 	string str() { return buildString2("AssignVar", Name, Value); }
 };
-
+/*
 /// AssignArrayLocAST - assign value to a variable
 class AssignArrayLocAST : public decafAST {
 	string Name; // name of array variable
@@ -282,6 +288,7 @@ public:
 	~AssignArrayLocAST() { delete Index; delete Value; }
 	string str() { return buildString3("AssignArrayLoc", Name, Index, Value); }
 };
+
 
 /// ArrayLocExprAST - access an array location
 class ArrayLocExprAST : public decafAST {
@@ -294,7 +301,7 @@ public:
 	}
 	string str() { return buildString2("ArrayLocExpr", Name, Expr); }
 };
-
+*/
 /// BlockAST - block
 class BlockAST : public decafAST {
 	decafStmtList *Vars;
@@ -323,6 +330,7 @@ public:
 	string str() { return buildString2("MethodBlock", Vars, Statements); }
 };
 
+/*
 /// IfStmtAST - if statement
 class IfStmtAST : public decafAST {
 	decafAST *Cond;
@@ -365,6 +373,7 @@ public:
 	}
 	string str() { return buildString4("ForStmt", InitList, Cond, LoopEndList, Body); }
 };
+*/
 
 /// ReturnStmtAST - return statement
 class ReturnStmtAST : public decafAST {
@@ -376,7 +385,7 @@ public:
 	}
 	string str() { return buildString1("ReturnStmt", Value); }
 };
-
+/*
 /// BreakStmtAST - break statement
 class BreakStmtAST : public decafAST {
 public:
@@ -390,7 +399,7 @@ public:
 	ContinueStmtAST() {}
 	string str() { return string("ContinueStmt"); }
 };
-
+*/
 /// MethodDeclAST - function definition
 class MethodDeclAST : public decafAST {
 	decafType ReturnType;
@@ -406,7 +415,7 @@ public:
 	}
 	string str() { return buildString4("Method", Name, TyString(ReturnType), FunctionArgs, Block); }
 };
-
+/*
 /// AssignGlobalVarAST - assign value to a global variable
 class AssignGlobalVarAST : public decafAST {
 	decafType Ty;
@@ -462,19 +471,17 @@ public:
 	}
 	string str() { return commaList<class decafAST *>(arglist); }
 };
-
+*/
 class ClassAST : public decafAST {
 	string Name;
-	FieldDeclListAST *FieldDeclList;
 	decafStmtList *MethodDeclList;
 public:
-	ClassAST(string name, FieldDeclListAST *fieldlist, decafStmtList *methodlist) 
-		: Name(name), FieldDeclList(fieldlist), MethodDeclList(methodlist) {}
+	ClassAST(string name, decafStmtList *methodlist) 
+		: Name(name), MethodDeclList(methodlist) {}
 	~ClassAST() { 
-		if (FieldDeclList != NULL) { delete FieldDeclList; }
 		if (MethodDeclList != NULL) { delete MethodDeclList; }
 	}
-	string str() { return buildString3("Class", Name, FieldDeclList, MethodDeclList); }
+	string str() { return buildString2("Class", Name, MethodDeclList); }
 };
 
 /// ExternAST - extern function definition
