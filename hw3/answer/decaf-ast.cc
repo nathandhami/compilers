@@ -136,6 +136,7 @@ string commaList(list<T> vec) {
 }
 
 class TypedSymbol {
+public:
 	string Sym;
 	decafType Ty;
 public:
@@ -181,6 +182,7 @@ public:
 		arglist.push_back(s);
 	}
 	string str() { return commaList<class TypedSymbol *>(arglist); }
+	virtual Value *Codegen();
 };
 
 /// decafStmtList - List of Decaf statements
@@ -233,6 +235,7 @@ public:
 	VariableExprAST(string name) : Name(name) {}
 	string str() { return buildString1("VariableExpr", Name); }
 	//const std::string &getName() const { return Name; }
+	virtual Value *Codegen();
 };
 
 /// MethodCallAST - call a function with some arguments
@@ -483,6 +486,7 @@ public:
 	}
 	string str() { return buildString2("Class", Name, MethodDeclList); }
 };
+
 
 /// ExternAST - extern function definition
 class ExternAST : public decafAST {

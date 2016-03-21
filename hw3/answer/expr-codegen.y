@@ -16,6 +16,7 @@ using namespace std;
 
 #include "decaf-ast.cc"
 
+bool printAST = true;
 
 // this global variable contains all the generated code
 static Module *TheModule;
@@ -25,7 +26,59 @@ static IRBuilder<> Builder(getGlobalContext());
 // the calls to getGlobalContext() in the init above and in the
 // following code ensures that we are incrementally generating
 // instructions in the right order
-static std::map<std::string, Value*> NamedValues;
+//static std::map<std::string, Value*> NamedValues;
+
+typedef map<string, Value*> symbol_table;
+
+typedef list<symbol_table*> symbol_table_list;
+
+// program stack
+static symbol_table_list symtbl_list;
+
+// active record
+static symbol_table *currentSymTable;
+
+Type *getLLVMType(decafType ty) {
+ switch (ty) {
+ case voidTy: return Builder.getVoidTy();
+ case intTy: return Builder.getInt32Ty();
+ case boolTy: return Builder.getInt1Ty();
+ case stringTy: return Builder.getInt8PtrTy();
+ default: throw runtime_error("unknown type");
+ }
+}
+
+Value* access_symtbl(string ident) {
+for (symbol_table_list::iterator i = symtbl_list.begin(); i != symtbl_list.end(); ++i) {
+symbol_table::iterator find_ident;
+if ((find_ident = (*i)->find(ident)) != (*i)->end())
+return find_ident->second;
+}
+return NULL;
+}
+
+void updateSymTable(string ident,Value* alloca){
+
+    currentSymTable = symtbl_list.front();
+    //currentSymTable[ident]->lineno = variableInfo.
+
+    (*currentSymTable)[ident] = alloca;
+    //symbol_table *yes = symtbl_list.front();
+
+    //cout << (*yes)[ident]->location << endl;
+    //cout << currentSymTable[ident]->varname << endl;
+    //cout << currentSymTable[ident]->type << endl;
+    //cout << currentSymTable[ident]->lineno << endl;
+}
+
+
+AllocaInst *defineVariable(Type *llvmTy, string ident)
+{
+ AllocaInst *Alloca =
+    Builder.CreateAlloca(llvmTy, 0, ident.c_str());
+ updateSymTable(ident, Alloca);
+ return Alloca;
+}
 
 
 Function *gen_print_int_def() {
@@ -52,12 +105,18 @@ Function *gen_main_def(Value *RetVal, Function *print_int) {
   BasicBlock *BB = BasicBlock::Create(getGlobalContext(), "entry", TheFunction);
   // All subsequent calls to IRBuilder will place instructions in this location
   Builder.SetInsertPoint(BB);
+
+
+
+  
   Function *CalleeF = TheModule->getFunction(print_int->getName());
   if (CalleeF == 0) {
     throw runtime_error("could not find the function print_int\n");
   }
+
   // print the value of the expression and we are done
   Value *CallF = Builder.CreateCall(CalleeF, RetVal, "calltmp");
+  
   // Finish off the function.
   // return 0 from main, which is EXIT_SUCCESS
   Builder.CreateRet(ConstantInt::get(getGlobalContext(), APInt(32, 0)));
@@ -95,18 +154,19 @@ Function *gen_main_def(Value *RetVal, Function *print_int) {
 
 start: program
 
-program: extern_list decafclass
+program: expr
     { 
-        ProgramAST *prog = new ProgramAST((decafStmtList *)$1, (ClassAST *)$2); 
+    /*
+        ProgramAST *prog = new ProgramAST((decafStmtLst *)$1, (decafStmtList *)$2); 
         if (printAST) {
-           // cout << getString(prog) << endl;
-        }
+            cout << getString(prog) << endl;
+        }*/
         // IRBuilder does constant folding by default so all the
        // addition and subtraction operations are computed and always result in
        // a constant integer value in this simple example
        Value *RetVal = $1->Codegen();
        delete $1; // get rid of abstract syntax tree    
-       delete $2; // get rid of abstract syntax tree   
+       //delete $2; // get rid of abstract syntax tree   
 
        // we create an implicit print_int function call to print
        // out the value of the expression.
@@ -214,7 +274,10 @@ var_list: var_list T_COMMA T_ID
         delete $3;
     }
     | type T_ID
-    { $$ = new TypedSymbolListAST(*$2, (decafType)$1); delete $2; }
+    { $$ = new TypedSymbolListAST(*$2, (decafType)$1); 
+
+
+    delete $2; }
     ;
 
 statement_list: statement statement_list
@@ -266,6 +329,20 @@ constant: T_INTCONSTANT
 %%
 
 // Code Generation
+Value *TypedSymbolListAST::Codegen(){
+
+ // TypedSymbol *symbol = arglist.front();
+  Value* definedvar = defineVariable(getLLVMType(listType),arglist.front()->Sym);
+  return definedvar;
+}
+
+
+
+Value *VariableExprAST::Codegen() {
+  //Value* definedvar = defineVariable(type,ident);
+  Value *getvar = access_symtbl(Name);
+ return Builder.CreateLoad(getvar, Name.c_str());
+}
 
 Value *NumberExprAST::Codegen() {
   return ConstantInt::get(getGlobalContext(), APInt(32, Val));
