@@ -58,9 +58,9 @@ codegen_llvm_out_source = "err"
 codegen_env_var = "CODEGEN"
 stdlib_env_var = "STDLIB"
 
-llvm_config = os.environ.get('LLVMCONFIG') or 'llvm-config'
+llvm_config = 'llvm-config-3.3'
 llc_call = subprocess.check_output([llvm_config, "--bindir"]).strip() + '/llc -disable-cfi'
-llvmas = os.environ.get('LLVMAS') or 'llvm-as'
+llvmas = 'llvm-as-3.3'
 llc = os.environ.get('LCC') or llc_call
 cc = os.environ.get('CC') or 'gcc'
 codegen = os.environ.get(codegen_env_var) or os.path.join('.', default_codegen)

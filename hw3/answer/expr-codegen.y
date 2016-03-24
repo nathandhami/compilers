@@ -17,7 +17,7 @@ using namespace std;
 #include "decaf-ast.cc"
 
 bool printAST = true;
-bool debugging = true;
+bool debugging = false;
 
 // this global variable contains all the generated code
 static Module *TheModule;
@@ -140,12 +140,12 @@ Function *gen_main_def(Value *RetVal, Function *print_int) {
 
 %token T_AND T_OR
 %token T_ASSIGN T_CLASS T_COMMA T_DIV T_PLUS T_MINUS T_MULT T_MOD T_LEFTSHIFT T_RIGHTSHIFT
-%token T_LPAREN T_RPAREN T_SEMICOLON T_EXTERN T_LCB T_RCB
+%token T_LPAREN T_RPAREN T_SEMICOLON T_EXTERN T_LCB T_RCB T_RETURN
 %token T_INTTYPE T_STRINGTYPE T_BOOL T_VOID
 %token T_EQ T_NEQ T_LT T_LEQ T_GT T_GEQ T_NOT
 
 %token <number> T_INTCONSTANT T_CHARCONSTANT T_FALSE T_TRUE 
-%token <sval> T_ID
+%token <sval> T_ID T_STRINGCONSTANT
 
 %type <decaftype> type method_type extern_type
 
@@ -315,7 +315,13 @@ statement: assign T_SEMICOLON
     { $$ = $1; }
     | block
     { $$ = $1; }
-
+    | T_RETURN T_LPAREN expr T_RPAREN T_SEMICOLON
+    { $$ = new ReturnStmtAST($3); }
+    | T_RETURN T_LPAREN T_RPAREN T_SEMICOLON
+    { $$ = new ReturnStmtAST(NULL); }
+    | T_RETURN T_SEMICOLON
+    { $$ = new ReturnStmtAST(NULL); }
+    ;
 
 assign: T_ID T_ASSIGN expr
     { $$ = new AssignVarAST(*$1, $3); delete $1; }
@@ -334,6 +340,8 @@ method_arg_list: method_arg
 
 method_arg: expr
     { $$ = $1; }
+    | T_STRINGCONSTANT
+    { $$ = new StringConstAST(*$1); delete $1; }
     ;
 
 rvalue: T_ID
@@ -592,7 +600,11 @@ Value *MethodBlockAST::Codegen(){
   return val;
 }
 
-Function *ReturnStmtAST::Codegen(){
+Value *ReturnStmtAST::Codegen(){
+
+    if(Rval != NULL ){
+        return Builder.CreateRet(Rval->Codegen());
+    }
 
 }
 
@@ -620,11 +632,12 @@ Value *MethodCallAST::Codegen(){
   if (CalleeF == 0) {
       if(debugging)
     cout << "Couldnt find call statement" << endl;
+    return NULL;
   }
 
+if(CalleeF->arg_size() > 0){
 Value *promo;
 
-    cout << "Has multiple: " << CalleeF->arg_empty() << endl;
 
    vector<Value*> arguments;
    
@@ -637,8 +650,10 @@ Value *promo;
 
      }
 
-  Value* val = Builder.CreateCall(CalleeF,arguments);
-  return val;
+  return Builder.CreateCall(CalleeF,arguments);
+}
+
+  return Builder.CreateCall(CalleeF,"calltmp");
 }
 
 
@@ -650,6 +665,12 @@ Value *VariableExprAST::Codegen() {
 
 Value *NumberExprAST::Codegen() {
   return ConstantInt::get(getGlobalContext(), APInt(32, Val));
+}
+
+Value *StringConstAST::Codegen() {
+ const char *s = StringConst.c_str(); 
+ Value *GS = Builder.CreateGlobalString(s, "globalstring");
+ return Builder.CreateConstGEP2_32(GS, 0, 0, "cast");
 }
 
 Value *BinaryExprAST::Codegen() {

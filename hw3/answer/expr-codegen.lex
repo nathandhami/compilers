@@ -132,9 +132,11 @@ int                          { return T_INTTYPE; }
 \|\|                         { return T_OR; }
 \+                           { return T_PLUS; }
 \}                           { return T_RCB; }
+return                       { return T_RETURN; }
 \>>                          { return T_RIGHTSHIFT; }
 \)                           { return T_RPAREN; }
 \;                           { return T_SEMICOLON; }
+\"([^\n\"\\]*{stresc}?)*\"   { yylval.sval = process_string(yytext); return T_STRINGCONSTANT; }
 string                       { return T_STRINGTYPE; }
 true                         { return T_TRUE; }
 void                         { return T_VOID; }
