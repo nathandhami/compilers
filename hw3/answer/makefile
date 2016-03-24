@@ -8,8 +8,8 @@ targets=
 #cpptargets=type-inherit decaf-sym
 #llvmtargets=factorial
 #llvmcpp=sexpr2-codegen expr-codegen
-llvmfiles=rec_add
-llvmcpp=decaf-sym expr-codegen
+#llvmfiles=rec_add
+llvmcpp= expr-codegen #decaf-sym
 
 all: $(targets) $(cpptargets) $(llvmcpp) $(llvmfiles)
 
