@@ -455,14 +455,12 @@ Function *MethodDeclAST::Codegen(){
 Value *UnaryExprAST::Codegen(){
   Value *val = Expr->Codegen();
 
-  /*
   if(UnaryOpString(Op) == "UnaryMinus"){
 
-   val = ConstantInt::get(getGlobalContext(), APInt(32, b0 - Expr->Codegen()));
+   val = Builder.CreateNeg(val);
   }
-*/
 
-  cout << val->getType() << endl;
+
   return val;
 }
 
