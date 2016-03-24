@@ -1,0 +1,1 @@
+(e (e (e (t (f (ID x)))) (PLUS +) (t (f (LPAREN \() (e (t (t (f (ID y))) (TIMES *) (f (ID a)))) (RPAREN \))))) (PLUS +) (t (f (LPAREN \() (e (t (f (ID b)))) (RPAREN \)))))

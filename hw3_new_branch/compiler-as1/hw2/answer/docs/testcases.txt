@@ -1,0 +1,17 @@
+decaf-ast:
+-Need to make sure it can recognize multiple variables and can tell which is larger between 2 characters from the alphabet.
+
+expr-interpreter:
+-Checked to see if it could recognize more than 2 variables and nested expressions.
+
+expr-parse:
+-Checked to see if it could recognize variable names longer than 1.
+
+multexpr:
+-Checked to see if it could recognize more than 3 variables.
+
+quicksort:
+-Simple test to see if it could sort a small list of 5 numbers. Need to tweak the code to add the numbers to the array first.
+
+varexpr:
+-Checked to see if it could recognize more than 3 variables and to see if it could use 2 variables in one line.

@@ -1,0 +1,6 @@
+a=exp(5)+2.4
+a
+b=log(exp(3.0))+a
+b
+c=1+b
+c
