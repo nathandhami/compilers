@@ -115,15 +115,20 @@ class                        { return T_CLASS; }
 ==                           { return T_EQ; }
 extern                       { return T_EXTERN; }
 false                        { return T_FALSE; }
+\>=                          { return T_GEQ; }
+\>                           { return T_GT; }
 (0x[0-9a-fA-F]+)|([0-9]+)    { yylval.number = get_intconstant(yytext); return T_INTCONSTANT; }
 int                          { return T_INTTYPE; }
 \{                           { return T_LCB; }
 \<<                          { return T_LEFTSHIFT; }
 \<                           { return T_LT; }
+\<=                          { return T_LEQ; }
 \(                           { return T_LPAREN; }
 -                            { return T_MINUS; }
 \%                           { return T_MOD; }
 \*                           { return T_MULT; }
+\!=                          { return T_NEQ; }
+!                            { return T_NOT; }
 \|\|                         { return T_OR; }
 \+                           { return T_PLUS; }
 \}                           { return T_RCB; }

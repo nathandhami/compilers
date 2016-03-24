@@ -17,7 +17,7 @@ using namespace std;
 #include "decaf-ast.cc"
 
 bool printAST = true;
-bool debugging = true;
+bool debugging = false;
 
 // this global variable contains all the generated code
 static Module *TheModule;
@@ -140,8 +140,9 @@ Function *gen_main_def(Value *RetVal, Function *print_int) {
 
 %token T_AND T_OR
 %token T_ASSIGN T_CLASS T_COMMA T_DIV T_PLUS T_MINUS T_MULT T_MOD T_LEFTSHIFT T_RIGHTSHIFT
-%token T_EQ T_LT T_LPAREN T_RPAREN T_SEMICOLON T_EXTERN T_LCB T_RCB
+%token T_LPAREN T_RPAREN T_SEMICOLON T_EXTERN T_LCB T_RCB
 %token T_INTTYPE T_STRINGTYPE T_BOOL T_VOID
+%token T_EQ T_NEQ T_LT T_LEQ T_GT T_GEQ T_NOT
 
 %token <number> T_INTCONSTANT T_CHARCONSTANT T_FALSE T_TRUE 
 %token <sval> T_ID
@@ -156,9 +157,10 @@ Function *gen_main_def(Value *RetVal, Function *print_int) {
 
 %left T_OR
 %left T_AND
-%left T_EQ T_LT
+%left T_NEQ T_EQ T_LT T_LEQ T_GT T_GEQ
 %left T_PLUS T_MINUS    
 %left T_MULT T_DIV T_MOD T_LEFTSHIFT T_RIGHTSHIFT
+%left T_NOT
 %right UMINUS
 
 %%
@@ -355,16 +357,26 @@ expr:
 	{  $$ = new BinaryExprAST(T_RIGHTSHIFT, $1, $3); }
 	| expr T_MOD expr 
 	{  $$ = new BinaryExprAST(T_MOD, $1, $3); }
-	| expr T_EQ expr
-  { $$ = new BinaryExprAST(T_EQ, $1, $3); }
   | expr T_LT expr
   { $$ = new BinaryExprAST(T_LT, $1, $3); }
+  | expr T_GT expr
+  { $$ = new BinaryExprAST(T_GT, $1, $3); }
+  | expr T_LEQ expr
+  { $$ = new BinaryExprAST(T_LEQ, $1, $3); }
+  | expr T_GEQ expr
+  { $$ = new BinaryExprAST(T_GEQ, $1, $3); }
+  | expr T_EQ expr
+  { $$ = new BinaryExprAST(T_EQ, $1, $3); }
+  | expr T_NEQ expr
+  { $$ = new BinaryExprAST(T_NEQ, $1, $3); }
   | expr T_AND expr
   { $$ = new BinaryExprAST(T_AND, $1, $3); }
   | expr T_OR expr
   { $$ = new BinaryExprAST(T_OR, $1, $3); }
   | T_MINUS expr %prec UMINUS 
   { $$ = new UnaryExprAST(T_MINUS, $2); }
+  | T_NOT expr
+  { $$ = new UnaryExprAST(T_NOT, $2); }
   | T_LPAREN expr T_RPAREN
   { $$ = $2; }
   ;
@@ -479,6 +491,10 @@ Value *UnaryExprAST::Codegen(){
    val = Builder.CreateNeg(val);
   }
 
+  else if(UnaryOpString(Op) == "Not"){
+   val = Builder.CreateNot(val);
+  }
+
 
   return val;
 }
@@ -572,7 +588,7 @@ Value *AssignVarAST::Codegen(){
 
 }
 
-
+// argument type checking later on
 Value *MethodCallAST::Codegen(){
     if(debugging)
   cout << "generating method call .." << endl;
@@ -590,12 +606,11 @@ Value *promo;
    vector<Value*> arguments;
    
    for (list<decafAST *>::iterator it = Args->stmts.begin(); it != Args->stmts.end(); it++) { 
-     // promo = Builder.CreateZExt((*it)->Codegen(), Builder.getInt32Ty(), "zexttmp");
-      //arguments.push_back(promo);
+      promo = Builder.CreateZExt((*it)->Codegen(), Builder.getInt32Ty(), "zexttmp");
+      arguments.push_back(promo);
 
-      //if(CalleeF.getType != ))
 
-      arguments.push_back((*it)->Codegen());
+      //arguments.push_back((*it)->Codegen());
 
      }
 
@@ -627,8 +642,12 @@ Value *BinaryExprAST::Codegen() {
   case T_LEFTSHIFT: return Builder.CreateShl(L, R, "shltmp");
   case T_RIGHTSHIFT: return Builder.CreateLShr(L, R, "shrtmp");
   case T_MOD: return Builder.CreateSRem(L, R, "remtmp");
-  case T_EQ: return Builder.CreateFCmpUEQ(L, R, "booltmp");
-  case T_LT: return Builder.CreateFCmpUEQ(L, R, "booltmp");
+  case T_EQ: return Builder.CreateICmpEQ(L, R, "reltmp");
+  case T_GT: return Builder.CreateICmpUGT(L, R,"reltmp");
+  case T_GEQ: return Builder.CreateICmpUGE(L, R,"reltmp");
+  case T_LT: return Builder.CreateICmpULT(L, R, "reltmp");
+  case T_LEQ: return Builder.CreateICmpULE(L, R, "reltmp");
+  case T_NEQ: return Builder.CreateICmpNE(L, R, "reltmp");
   case T_AND: return Builder.CreateAnd(L,R,"condtmp");
   case T_OR: return Builder.CreateOr(L,R,"condtmp");
   default: throw runtime_error("what operator is this? never heard of it.");

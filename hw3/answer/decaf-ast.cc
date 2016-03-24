@@ -33,11 +33,11 @@ string BinaryOpString(int Op) {
   		case T_RIGHTSHIFT: return string("Rightshift");
   		case T_MOD: return string("Mod");
   		case T_LT: return string("Lt");
-  		//case T_GT: return string("Gt");
-  		//case T_LEQ: return string("Leq");
-  		//case T_GEQ: return string("Geq");
+  		case T_GT: return string("Gt");
+  		case T_LEQ: return string("Leq");
+  		case T_GEQ: return string("Geq");
   		case T_EQ: return string("Eq");
-  		//case T_NEQ: return string("Neq");
+  		case T_NEQ: return string("Neq");
   		case T_AND: return string("And");
   		case T_OR: return string("Or");
 		default: throw runtime_error("unknown type in BinaryOpString call");
@@ -47,7 +47,7 @@ string BinaryOpString(int Op) {
 string UnaryOpString(int Op) {
 	switch (Op) {
   		case T_MINUS: return string("UnaryMinus");
-  		//case T_NOT: return string("Not");
+  		case T_NOT: return string("Not");
 		default: throw runtime_error("unknown type in UnaryOpString call");
 	}
 }
