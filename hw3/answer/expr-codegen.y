@@ -17,6 +17,7 @@ using namespace std;
 #include "decaf-ast.cc"
 
 bool printAST = true;
+bool debugging = false;
 
 // this global variable contains all the generated code
 static Module *TheModule;
@@ -28,7 +29,7 @@ static IRBuilder<> Builder(getGlobalContext());
 // instructions in the right order
 //static std::map<std::string, Value*> NamedValues;
 
-typedef map<string, Value*> symbol_table;
+typedef map<string, AllocaInst*> symbol_table;
 
 typedef list<symbol_table*> symbol_table_list;
 
@@ -36,7 +37,7 @@ typedef list<symbol_table*> symbol_table_list;
 static symbol_table_list symtbl_list;
 
 // active record
-static symbol_table *currentSymTable;
+static symbol_table *currentSymTable = new symbol_table();
 
 Type *getLLVMType(decafType ty) {
  switch (ty) {
@@ -48,6 +49,12 @@ Type *getLLVMType(decafType ty) {
  }
 }
 
+static AllocaInst *CreateEntryBlockAlloca(Function *TheFunction, const string &VarName) {
+  IRBuilder<> TmpB(&TheFunction->getEntryBlock(), TheFunction->getEntryBlock().begin());
+   return TmpB.CreateAlloca(Type::getDoubleTy(getGlobalContext()), 0,
+                           VarName.c_str());
+}
+
 Value* access_symtbl(string ident) {
 for (symbol_table_list::iterator i = symtbl_list.begin(); i != symtbl_list.end(); ++i) {
 symbol_table::iterator find_ident;
@@ -57,9 +64,8 @@ return find_ident->second;
 return NULL;
 }
 
-void updateSymTable(string ident,Value* alloca){
+void updateSymTable(string ident,AllocaInst* alloca){
 
-    currentSymTable = symtbl_list.front();
     //currentSymTable[ident]->lineno = variableInfo.
 
     (*currentSymTable)[ident] = alloca;
@@ -77,6 +83,7 @@ AllocaInst *defineVariable(Type *llvmTy, string ident)
  AllocaInst *Alloca =
     Builder.CreateAlloca(llvmTy, 0, ident.c_str());
  updateSymTable(ident, Alloca);
+
  return Alloca;
 }
 
@@ -105,7 +112,6 @@ Function *gen_main_def(Value *RetVal, Function *print_int) {
   BasicBlock *BB = BasicBlock::Create(getGlobalContext(), "entry", TheFunction);
   // All subsequent calls to IRBuilder will place instructions in this location
   Builder.SetInsertPoint(BB);
-
 
 
   
@@ -142,40 +148,51 @@ Function *gen_main_def(Value *RetVal, Function *print_int) {
 %type <decaftype> type method_type extern_type
 
 %type <ast> expr constant
-%type <ast> rvalue assign
+%type <ast> rvalue assign method_call method_arg_list method_arg
 %type <ast> block method_block statement statement_list var_decl_list var_decl var_list param_list param_comma_list 
 %type <ast> method_decl method_decl_list extern_type_list extern_defn
 %type <ast> extern_list decafclass
 
 %left T_DIV T_PLUS T_MINUS T_MULT T_MOD T_LEFTSHIFT T_RIGHTSHIFT
 %left T_EQ T_LT
+%right UMINUS
 
 %%
 
 start: program
 
-program: expr
+program: extern_list decafclass
     { 
-    /*
-        ProgramAST *prog = new ProgramAST((decafStmtLst *)$1, (decafStmtList *)$2); 
+
+     symtbl_list.push_front(currentSymTable); 
+  
+        ProgramAST *prog = new ProgramAST((decafStmtList *)$1, (ClassAST *)$2); 
+
+        /*
         if (printAST) {
             cout << getString(prog) << endl;
         }*/
+
         // IRBuilder does constant folding by default so all the
        // addition and subtraction operations are computed and always result in
        // a constant integer value in this simple example
-       Value *RetVal = $1->Codegen();
+
+       Value *RetVal = prog->Codegen();
        delete $1; // get rid of abstract syntax tree    
        //delete $2; // get rid of abstract syntax tree   
 
        // we create an implicit print_int function call to print
        // out the value of the expression.
-       Function *print_int = gen_print_int_def();
+       //Function *print_int = gen_print_int_def();
+
+
 
        // create the top-level function called main
-       Function *TheFunction = gen_main_def(RetVal, print_int);
+     //  Function *TheFunction = gen_main_def(RetVal, print_int);
        // Validate the generated code, checking for consistency.
-       verifyFunction(*TheFunction); 
+      // verifyFunction(*TheFunction); 
+
+
     }
 
 extern_list: extern_list extern_defn
@@ -274,7 +291,7 @@ var_list: var_list T_COMMA T_ID
         delete $3;
     }
     | type T_ID
-    { $$ = new TypedSymbolListAST(*$2, (decafType)$1); 
+    {   $$ = new TypedSymbolListAST(*$2, (decafType)$1); 
 
 
     delete $2; }
@@ -288,9 +305,27 @@ statement_list: statement statement_list
   
 statement: assign T_SEMICOLON
     { $$ = $1; }
+    | method_call T_SEMICOLON
+    { $$ = $1; }
+
 
 assign: T_ID T_ASSIGN expr
     { $$ = new AssignVarAST(*$1, $3); delete $1; }
+    ;
+
+method_call: T_ID T_LPAREN method_arg_list T_RPAREN
+    { $$ = new MethodCallAST(*$1, (decafStmtList *)$3); delete $1; }
+    | T_ID T_LPAREN T_RPAREN
+    { $$ = new MethodCallAST(*$1, (decafStmtList *)NULL); delete $1; }
+    ;
+method_arg_list: method_arg
+    { decafStmtList *slist = new decafStmtList(); slist->push_front($1); $$ = slist; }
+    | method_arg T_COMMA method_arg_list
+    { decafStmtList *slist = (decafStmtList *)$3; slist->push_front($1); $$ = slist; }
+    ;
+
+method_arg: expr
+    { $$ = $1; }
     ;
 
 rvalue: T_ID
@@ -317,10 +352,14 @@ expr:
 	| expr T_MOD expr 
 	{  $$ = new BinaryExprAST(T_MOD, $1, $3); }
 	| expr T_EQ expr
-    	{ $$ = new BinaryExprAST(T_EQ, $1, $3); }
-        | expr T_LT expr
-    	{ $$ = new BinaryExprAST(T_LT, $1, $3); }
-	;
+  { $$ = new BinaryExprAST(T_EQ, $1, $3); }
+  | expr T_LT expr
+  { $$ = new BinaryExprAST(T_LT, $1, $3); }
+  | T_MINUS expr %prec UMINUS 
+  { $$ = new UnaryExprAST(T_MINUS, $2); }
+  | T_LPAREN expr T_RPAREN
+  { $$ = $2; }
+  ;
 
 constant: T_INTCONSTANT
     	{ $$ = new NumberExprAST($1); }
@@ -329,13 +368,196 @@ constant: T_INTCONSTANT
 %%
 
 // Code Generation
-Value *TypedSymbolListAST::Codegen(){
 
- // TypedSymbol *symbol = arglist.front();
-  Value* definedvar = defineVariable(getLLVMType(listType),arglist.front()->Sym);
-  return definedvar;
+Value *ProgramAST::Codegen(){
+
+ 
+ for (list<decafAST*>::iterator it = ExternList->stmts.begin(); 
+      it != ExternList->stmts.end(); 
+      it++) {
+               (*it)->Codegen();
+            }
+
+  Value* classDef = ClassDef->Codegen();
+
+  return classDef;
+  
 }
 
+Function *ExternAST::Codegen(){
+
+  vector<Type*> Ints(FunctionArgs->arglist.size(),
+                             Type::getInt32Ty(getGlobalContext()));
+  FunctionType *FT =
+    FunctionType::get(Type::getVoidTy(getGlobalContext()), Ints, false);
+
+  Function *F =
+    Function::Create(FT, Function::ExternalLinkage, Name, TheModule);
+
+    return F;  
+}
+
+Value *ClassAST::Codegen(){
+ Value *val = ConstantInt::get(getGlobalContext(),APInt(32,0));
+
+for (list<decafAST*>::iterator it = MethodDeclList->stmts.begin(); 
+      it != MethodDeclList->stmts.end(); 
+      it++) {
+              val = (*it)->Codegen();
+            }
+    return val;
+}
+
+Function *MethodDeclAST::Codegen(){
+  if(debugging)
+  cout << "method declaration node" << endl;
+  //vector<Type *> argTypes;
+  //vector<string> argNames;
+
+  FunctionType *FT = FunctionType::get(IntegerType::get(getGlobalContext(), 32), false);
+  Function *TheFunction = Function::Create(FT, Function::ExternalLinkage, Name, TheModule);
+
+  if (TheFunction == 0) {
+    throw runtime_error("empty function block"); 
+  }
+
+
+  BasicBlock *BB = BasicBlock::Create(getGlobalContext(), "entry", TheFunction);
+
+  // All subsequent calls to IRBuilder will place instructions in this location
+  Builder.SetInsertPoint(BB);
+
+  if(debugging)
+  cout << "allocating instructions"<<endl;
+
+
+   Block->Codegen();
+
+
+  //Builder.CreateRet(returnValue);
+
+
+  //verifyFunction(*TheFunction); 
+
+
+ // return TheFunction;
+
+
+  //Function *func = Function::Create(FunctionType::)
+
+
+   Builder.CreateRet(ConstantInt::get(getGlobalContext(), APInt(32, 0)));
+
+ // func->dump();
+  //for(list<TypedSymbolListAST*> it = )
+}
+
+Value *UnaryExprAST::Codegen(){
+  Value *val = Expr->Codegen();
+  return val;
+}
+
+Value *TypedSymbolListAST::Codegen(){
+Value *val = ConstantInt::get(getGlobalContext(),APInt(32,1));
+Value *initialValue;
+if(debugging)
+cout << "allocating variables.."<<endl;
+ //Function *TheFunction = Builder.GetInsertBlock()->getParent();
+ // TypedSymbol *symbol = arglist.front();
+  for (list <TypedSymbol*>::iterator it = arglist.begin(); it != arglist.end(); it++) {
+     AllocaInst* alloca = defineVariable(getLLVMType(((*it)->Ty)),(*it)->Sym);
+/*
+     if(TyString((*it)->Ty) == "IntType"){
+        initialValue = ConstantInt::get(getGlobalContext(),APInt(32,0));
+     }
+
+     else if( TyString((*it)->Ty) == "BoolType"){
+        initialValue = ConstantInt::get(getGlobalContext(),APInt(32,0));
+     }
+
+
+     Builder.CreateStore(initialValue, alloca);
+     */
+  }
+// Value* definedvar = defineVariable(Builder.getInt32Ty(),arglist.front()->Sym);
+ //cout << arglist.fron
+
+
+   return val;
+}
+
+Value *decafStmtList::Codegen(){
+Value *val = ConstantInt::get(getGlobalContext(),APInt(32,1));
+  return val;
+}
+
+Value *BlockAST::Codegen(){
+  if(debugging)
+  cout << "generating block.." << endl;
+  Value* val = ConstantInt::get(getGlobalContext(),APInt(32,1));
+
+  return val;
+}
+
+Value *MethodBlockAST::Codegen(){
+  if(debugging)
+  cout << "generating block.." << endl;
+  Value* val = ConstantInt::get(getGlobalContext(),APInt(32,1));
+
+  for (list<decafAST*>::iterator it = Vars->stmts.begin(); 
+      it != Vars->stmts.end(); 
+      it++) {
+              val = (*it)->Codegen();
+            }
+
+  for (list<decafAST*>::iterator it = Statements->stmts.begin(); 
+      it != Statements->stmts.end(); 
+      it++) {
+              val = (*it)->Codegen();
+            }
+
+  return val;
+}
+
+Function *ReturnStmtAST::Codegen(){
+
+}
+
+
+Value *AssignVarAST::Codegen(){
+        if(debugging)
+      cout << "generating instructions for assignment" << endl;
+
+      Value *R = RHS->Codegen();
+   
+      Value* var = access_symtbl(Name);
+
+      Builder.CreateStore(R,var);
+
+      return R;
+
+}
+
+
+Value *MethodCallAST::Codegen(){
+    if(debugging)
+  cout << "generating method call .." << endl;
+
+  Function *CalleeF = TheModule->getFunction(Name);
+  if (CalleeF == 0) {
+      if(debugging)
+    cout << "Couldnt find call statement" << endl;
+  }
+
+   vector<Value*> arguments;
+   
+   for (list<decafAST *>::iterator it = Args->stmts.begin(); it != Args->stmts.end(); it++) { 
+      arguments.push_back((*it)->Codegen());
+    }
+
+  Value* val = Builder.CreateCall(CalleeF,arguments);
+  return val;
+}
 
 
 Value *VariableExprAST::Codegen() {
@@ -370,11 +592,12 @@ Value *BinaryExprAST::Codegen() {
 // Main 
 
 int main() {
-  fprintf(stderr, "ready> ");
+
   // initialize LLVM
   LLVMContext &Context = getGlobalContext();
   // Make the module, which holds all the code.
-  TheModule = new Module("module for very simple expressions", Context);
+  TheModule = new Module("Test", Context);
+
   // parse the input and create the abstract syntax tree
   int retval = yyparse();
   // Print out all of the generated code to stderr

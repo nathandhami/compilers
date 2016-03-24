@@ -64,7 +64,6 @@ public:
   virtual ~decafAST() {}
   virtual string str() { return string(""); }
   virtual Value *Codegen() = 0;
-
 };
 
 string getString(decafAST *d) {
@@ -152,6 +151,7 @@ public:
 };
 
 class TypedSymbolListAST : public decafAST {
+public:
 	list<class TypedSymbol *> arglist;
 	decafType listType; // this variable is used if all the symbols in the list share the same type
 public:
@@ -187,6 +187,7 @@ public:
 
 /// decafStmtList - List of Decaf statements
 class decafStmtList : public decafAST {
+public:
 	list<decafAST *> stmts;
 public:
 	decafStmtList() {}
@@ -199,6 +200,7 @@ public:
 	void push_front(decafAST *e) { stmts.push_front(e); }
 	void push_back(decafAST *e) { stmts.push_back(e); }
 	string str() { return commaList<class decafAST *>(stmts); }
+	virtual Value *Codegen();
 };
 
 
@@ -246,6 +248,7 @@ public:
 	MethodCallAST(string name, decafStmtList *args) : Name(name), Args(args) {}
 	~MethodCallAST() { delete Args; }
 	string str() { return buildString2("MethodCall", Name, Args); }
+	virtual Value* Codegen();
 };
 
 /// BinaryExprAST - Expression class for a binary operator.
@@ -258,7 +261,7 @@ public:
 	string str() { return buildString3("BinaryExpr", BinaryOpString(Op), LHS, RHS); }
 	virtual Value *Codegen();
 };
-/*
+
 /// UnaryExprAST - Expression class for a unary operator.
 class UnaryExprAST : public decafAST {
 	int Op; // use the token value of the operator
@@ -267,18 +270,21 @@ public:
 	UnaryExprAST(int op, decafAST *expr) : Op(op), Expr(expr) {}
 	~UnaryExprAST() { delete Expr; }
 	string str() { return buildString2("UnaryExpr", UnaryOpString(Op), Expr); }
+	virtual Value * Codegen();
 };
-*/
+
 /// AssignVarAST - assign value to a variable
 class AssignVarAST : public decafAST {
+
 	string Name; // location to assign value
-	decafAST *Value;
+	decafAST *RHS;
 public:
-	AssignVarAST(string name, decafAST *value) : Name(name), Value(value) {}
+	AssignVarAST(string name, decafAST *rhs) : Name(name), RHS(rhs) {}
 	~AssignVarAST() { 
-		if (Value != NULL) { delete Value; }
+		if (RHS != NULL) { delete RHS; }
 	}
-	string str() { return buildString2("AssignVar", Name, Value); }
+	string str() { return buildString2("AssignVar", Name, RHS); }
+	virtual Value *Codegen();
 };
 /*
 /// AssignArrayLocAST - assign value to a variable
@@ -318,10 +324,12 @@ public:
 	decafStmtList *getVars() { return Vars; }
 	decafStmtList *getStatements() { return Statements; }
 	string str() { return buildString2("Block", Vars, Statements); }
+	virtual Value* Codegen();
 };
 
 /// MethodBlockAST - block for methods
 class MethodBlockAST : public decafAST {
+public:
 	decafStmtList *Vars;
 	decafStmtList *Statements;
 public:
@@ -331,6 +339,7 @@ public:
 		if (Statements != NULL) { delete Statements; }
 	}
 	string str() { return buildString2("MethodBlock", Vars, Statements); }
+	virtual Value* Codegen();
 };
 
 /*
@@ -387,6 +396,7 @@ public:
 		if (Value != NULL) { delete Value; }
 	}
 	string str() { return buildString1("ReturnStmt", Value); }
+	virtual Function* Codegen();
 };
 /*
 /// BreakStmtAST - break statement
@@ -417,6 +427,8 @@ public:
 		delete Block; 
 	}
 	string str() { return buildString4("Method", Name, TyString(ReturnType), FunctionArgs, Block); }
+
+	virtual Function* Codegen();
 };
 /*
 /// AssignGlobalVarAST - assign value to a global variable
@@ -485,6 +497,8 @@ public:
 		if (MethodDeclList != NULL) { delete MethodDeclList; }
 	}
 	string str() { return buildString2("Class", Name, MethodDeclList); }
+
+	virtual Value* Codegen();
 };
 
 
@@ -499,6 +513,7 @@ public:
 		if (FunctionArgs != NULL) { delete FunctionArgs; }
 	}
 	string str() { return buildString3("ExternFunction", Name, TyString(ReturnType), FunctionArgs); }
+	virtual Function *Codegen();
 };
 
 /// ProgramAST - the decaf program
@@ -512,5 +527,8 @@ public:
 		if (ClassDef != NULL) { delete ClassDef; }
 	}
 	string str() { return buildString2("Program", ExternList, ClassDef); }
+	virtual Value *Codegen();
+
+
 };
 

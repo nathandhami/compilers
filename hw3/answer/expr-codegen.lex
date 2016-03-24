@@ -109,7 +109,7 @@ class                        { return T_CLASS; }
 extern                       { return T_EXTERN; }
 (0x[0-9a-fA-F]+)|([0-9]+)    { yylval.number = get_intconstant(yytext); return T_INTCONSTANT; }
 int                          { return T_INTTYPE; }
-\}                           { return T_LCB; }
+\{                           { return T_LCB; }
 \<<                          { return T_LEFTSHIFT; }
 \<                           { return T_LT; }
 \(                           { return T_LPAREN; }
@@ -126,5 +126,12 @@ void                         { return T_VOID; }
 
 [a-zA-Z\_][a-zA-Z\_0-9]*     { yylval.sval = new string(yytext); return T_ID; } 
 [\t\r\n\a\v\b ]+             { process_ws(); } /* ignore whitespace */
-.        return yytext[0];
+.                            { cerr << "Error: unexpected character in input" << endl; return -1; }
+
 %%
+
+
+int yyerror(const char *s) {
+  cerr << lineno << ": " << s << " at " << yytext << endl;
+  return 1;
+}
