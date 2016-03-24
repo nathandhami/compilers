@@ -17,7 +17,7 @@ using namespace std;
 #include "decaf-ast.cc"
 
 bool printAST = true;
-bool debugging = false;
+bool debugging = true;
 
 // this global variable contains all the generated code
 static Module *TheModule;
@@ -313,6 +313,8 @@ statement: assign T_SEMICOLON
     { $$ = $1; }
     | method_call T_SEMICOLON
     { $$ = $1; }
+    | block
+    { $$ = $1; }
 
 
 assign: T_ID T_ASSIGN expr
@@ -488,13 +490,12 @@ Value *UnaryExprAST::Codegen(){
 
   if(UnaryOpString(Op) == "UnaryMinus"){
 
-   val = Builder.CreateNeg(val);
+   val = Builder.CreateNeg(val,"negtmp");
   }
 
   else if(UnaryOpString(Op) == "Not"){
    val = Builder.CreateNot(val);
   }
-
 
   return val;
 }
@@ -545,8 +546,30 @@ Value *BlockAST::Codegen(){
   if(debugging)
   cout << "generating block.." << endl;
   Value* val = ConstantInt::get(getGlobalContext(),APInt(32,1));
+  symbol_table* newSymTable = new symbol_table(); 
+  symtbl_list.push_front(newSymTable); 
+  currentSymTable = symtbl_list.front();
 
-  return val;
+  for (list<decafAST*>::iterator it = Vars->stmts.begin(); 
+      it != Vars->stmts.end(); 
+      it++) {
+              val = (*it)->Codegen();
+            }
+
+  for (list<decafAST*>::iterator it = Statements->stmts.begin(); 
+      it != Statements->stmts.end(); 
+      it++) {
+              val = (*it)->Codegen();
+            }
+
+
+    currentSymTable->clear();
+
+    symtbl_list.pop_front();
+
+    currentSymTable = symtbl_list.front();
+
+    return val;
 }
 
 Value *MethodBlockAST::Codegen(){
