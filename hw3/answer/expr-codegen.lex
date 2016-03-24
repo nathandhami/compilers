@@ -97,11 +97,17 @@ int get_intconstant(const char *s) {
     return atoi(s);
   }
 }
-
 %}
+
+chars    [ !\"#\$%&\(\)\*\+,\-\.\/0-9:;\<=>\?\@A-Z\[\]\^\_\`a-z\{\|\}\~\t\v\r\n\a\f\b]
+charesc  \\[\'tvrnafb\\]
+stresc   \\[\'\"tvrnafb\\]
+
+
 %%
 =                            { return T_ASSIGN; }
 bool                         { return T_BOOL; }
+('{chars}')|('{charesc}')    { yylval.number = get_charconstant(yytext); return T_CHARCONSTANT; }
 class                        { return T_CLASS; }
 ,                            { return T_COMMA; }
 \/                           { return T_DIV; }

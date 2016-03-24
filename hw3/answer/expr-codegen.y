@@ -142,7 +142,7 @@ Function *gen_main_def(Value *RetVal, Function *print_int) {
 %token T_EQ T_LT T_LPAREN T_RPAREN T_SEMICOLON T_EXTERN T_LCB T_RCB
 %token T_INTTYPE T_STRINGTYPE T_BOOL T_VOID
 
-%token <number> T_INTCONSTANT
+%token <number> T_INTCONSTANT T_CHARCONSTANT
 %token <sval> T_ID
 
 %type <decaftype> type method_type extern_type
@@ -363,6 +363,8 @@ expr:
 
 constant: T_INTCONSTANT
     	{ $$ = new NumberExprAST($1); }
+      | T_CHARCONSTANT
+    { $$ = new NumberExprAST($1); }
 	;
 
 %%
