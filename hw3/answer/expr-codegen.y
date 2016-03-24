@@ -17,7 +17,7 @@ using namespace std;
 #include "decaf-ast.cc"
 
 bool printAST = true;
-bool debugging = false;
+bool debugging = true;
 
 // this global variable contains all the generated code
 static Module *TheModule;
@@ -138,23 +138,27 @@ Function *gen_main_def(Value *RetVal, Function *print_int) {
   int decaftype;
 }
 
+%token T_AND T_OR
 %token T_ASSIGN T_CLASS T_COMMA T_DIV T_PLUS T_MINUS T_MULT T_MOD T_LEFTSHIFT T_RIGHTSHIFT
 %token T_EQ T_LT T_LPAREN T_RPAREN T_SEMICOLON T_EXTERN T_LCB T_RCB
 %token T_INTTYPE T_STRINGTYPE T_BOOL T_VOID
 
-%token <number> T_INTCONSTANT T_CHARCONSTANT
+%token <number> T_INTCONSTANT T_CHARCONSTANT T_FALSE T_TRUE 
 %token <sval> T_ID
 
 %type <decaftype> type method_type extern_type
 
-%type <ast> expr constant
+%type <ast> expr constant bool_constant
 %type <ast> rvalue assign method_call method_arg_list method_arg
 %type <ast> block method_block statement statement_list var_decl_list var_decl var_list param_list param_comma_list 
 %type <ast> method_decl method_decl_list extern_type_list extern_defn
 %type <ast> extern_list decafclass
 
-%left T_DIV T_PLUS T_MINUS T_MULT T_MOD T_LEFTSHIFT T_RIGHTSHIFT
+%left T_OR
+%left T_AND
 %left T_EQ T_LT
+%left T_PLUS T_MINUS    
+%left T_MULT T_DIV T_MOD T_LEFTSHIFT T_RIGHTSHIFT
 %right UMINUS
 
 %%
@@ -355,6 +359,10 @@ expr:
   { $$ = new BinaryExprAST(T_EQ, $1, $3); }
   | expr T_LT expr
   { $$ = new BinaryExprAST(T_LT, $1, $3); }
+  | expr T_AND expr
+  { $$ = new BinaryExprAST(T_AND, $1, $3); }
+  | expr T_OR expr
+  { $$ = new BinaryExprAST(T_OR, $1, $3); }
   | T_MINUS expr %prec UMINUS 
   { $$ = new UnaryExprAST(T_MINUS, $2); }
   | T_LPAREN expr T_RPAREN
@@ -365,7 +373,16 @@ constant: T_INTCONSTANT
     	{ $$ = new NumberExprAST($1); }
       | T_CHARCONSTANT
     { $$ = new NumberExprAST($1); }
+      | bool_constant
+    { $$ = $1; }
 	;
+
+
+bool_constant: T_TRUE
+    { $$ = new BoolExprAST(true); }
+    | T_FALSE 
+    { $$ = new BoolExprAST(false); }
+    ;
 
 %%
 
@@ -466,6 +483,14 @@ Value *UnaryExprAST::Codegen(){
   return val;
 }
 
+Value *BoolExprAST::Codegen(){
+      if(Val == 1)
+    return ConstantInt::get(getGlobalContext(),APInt(1,1));
+    else if(Val ==0)
+    return ConstantInt::get(getGlobalContext(),APInt(1,0));
+
+}
+
 Value *TypedSymbolListAST::Codegen(){
 Value *val = ConstantInt::get(getGlobalContext(),APInt(32,1));
 Value *initialValue;
@@ -558,11 +583,21 @@ Value *MethodCallAST::Codegen(){
     cout << "Couldnt find call statement" << endl;
   }
 
+Value *promo;
+
+    cout << "Has multiple: " << CalleeF->arg_empty() << endl;
+
    vector<Value*> arguments;
    
    for (list<decafAST *>::iterator it = Args->stmts.begin(); it != Args->stmts.end(); it++) { 
+     // promo = Builder.CreateZExt((*it)->Codegen(), Builder.getInt32Ty(), "zexttmp");
+      //arguments.push_back(promo);
+
+      //if(CalleeF.getType != ))
+
       arguments.push_back((*it)->Codegen());
-    }
+
+     }
 
   Value* val = Builder.CreateCall(CalleeF,arguments);
   return val;
@@ -594,6 +629,8 @@ Value *BinaryExprAST::Codegen() {
   case T_MOD: return Builder.CreateSRem(L, R, "remtmp");
   case T_EQ: return Builder.CreateFCmpUEQ(L, R, "booltmp");
   case T_LT: return Builder.CreateFCmpUEQ(L, R, "booltmp");
+  case T_AND: return Builder.CreateAnd(L,R,"condtmp");
+  case T_OR: return Builder.CreateOr(L,R,"condtmp");
   default: throw runtime_error("what operator is this? never heard of it.");
   }
 }

@@ -38,8 +38,8 @@ string BinaryOpString(int Op) {
   		//case T_GEQ: return string("Geq");
   		case T_EQ: return string("Eq");
   		//case T_NEQ: return string("Neq");
-  		//case T_AND: return string("And");
-  		//case T_OR: return string("Or");
+  		case T_AND: return string("And");
+  		case T_OR: return string("Or");
 		default: throw runtime_error("unknown type in BinaryOpString call");
 	}
 }
@@ -220,6 +220,7 @@ public:
 	StringConstAST(string s) : StringConst(s) {}
 	string str() { return buildString1("StringConstant", "\"" + StringConst + "\""); }
 };
+*/
 
 /// BoolExprAST - Expression class for boolean literals: "true" and "false".
 class BoolExprAST : public decafAST {
@@ -227,8 +228,10 @@ class BoolExprAST : public decafAST {
 public:
 	BoolExprAST(bool val) : Val(val) {}
 	string str() { return buildString1("BoolExpr", Val ? string("True") : string("False")); }
+	virtual Value *Codegen();
+
 };
-*/
+
 
 /// VariableExprAST - Expression class for variables like "a".
 class VariableExprAST : public decafAST {

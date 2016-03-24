@@ -105,6 +105,7 @@ stresc   \\[\'\"tvrnafb\\]
 
 
 %%
+&&                           { return T_AND; }
 =                            { return T_ASSIGN; }
 bool                         { return T_BOOL; }
 ('{chars}')|('{charesc}')    { yylval.number = get_charconstant(yytext); return T_CHARCONSTANT; }
@@ -113,6 +114,7 @@ class                        { return T_CLASS; }
 \/                           { return T_DIV; }
 ==                           { return T_EQ; }
 extern                       { return T_EXTERN; }
+false                        { return T_FALSE; }
 (0x[0-9a-fA-F]+)|([0-9]+)    { yylval.number = get_intconstant(yytext); return T_INTCONSTANT; }
 int                          { return T_INTTYPE; }
 \{                           { return T_LCB; }
@@ -122,12 +124,14 @@ int                          { return T_INTTYPE; }
 -                            { return T_MINUS; }
 \%                           { return T_MOD; }
 \*                           { return T_MULT; }
+\|\|                         { return T_OR; }
 \+                           { return T_PLUS; }
 \}                           { return T_RCB; }
 \>>                          { return T_RIGHTSHIFT; }
 \)                           { return T_RPAREN; }
 \;                           { return T_SEMICOLON; }
 string                       { return T_STRINGTYPE; }
+true                         { return T_TRUE; }
 void                         { return T_VOID; }
 
 [a-zA-Z\_][a-zA-Z\_0-9]*     { yylval.sval = new string(yytext); return T_ID; } 
