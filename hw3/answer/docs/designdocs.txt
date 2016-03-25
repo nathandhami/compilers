@@ -15,5 +15,5 @@ Group Members
 - 2. since question 2 builds upon question 1, we decided to do question 1 as well for a better understanding of question 2
 - 8. majority of our time was spend on question 8, as it was the most complexed.
 	 we ran into some problems with llvm versions, which delayed progress for sometime.
-	 the extra week gave us a chance to get back on track, in the end we did need to use one grace day to finish.
+	 the extra week gave us a chance to get back on track, in the end we did need to use two grace days to finish.
 	 but it is completed.

@@ -16,7 +16,7 @@ using namespace std;
 
 #include "decaf-ast.cc"
 
-bool printAST = true;
+bool printAST = false;
 bool debugging = false;
 
 // this global variable contains all the generated code
@@ -27,16 +27,15 @@ static IRBuilder<> Builder(getGlobalContext());
 // the calls to getGlobalContext() in the init above and in the
 // following code ensures that we are incrementally generating
 // instructions in the right order
-//static std::map<std::string, Value*> NamedValues;
 
 typedef map<string, AllocaInst*> symbol_table;
 
 typedef list<symbol_table*> symbol_table_list;
 
-// program stack
+// program stack, holds all symbol tables 
 static symbol_table_list symtbl_list;
 
-// active record
+// active symbol table
 static symbol_table *currentSymTable = new symbol_table();
 
 Type *getLLVMType(decafType ty) {
@@ -49,6 +48,7 @@ Type *getLLVMType(decafType ty) {
  }
 }
 
+// Create an Instruction for current block
 static AllocaInst *CreateEntryBlockAlloca(Function *TheFunction, const string &VarName) {
   IRBuilder<> TmpB(&TheFunction->getEntryBlock(), TheFunction->getEntryBlock().begin());
    return TmpB.CreateAlloca(Type::getDoubleTy(getGlobalContext()), 0,
@@ -66,29 +66,18 @@ return NULL;
 }
 
 void updateSymTable(string ident,AllocaInst* alloca){
-
-    //currentSymTable[ident]->lineno = variableInfo.
-
-    if(debugging)
-    cout << "Update Table: " << ident << endl;
+  
+     if(debugging)
+    cout << "Update Table: " << endl;
 
     (*currentSymTable)[ident] = alloca;
-    //symbol_table *yes = symtbl_list.front();
-
-    //cout << (*yes)[ident]->location << endl;
-    //cout << currentSymTable[ident]->varname << endl;
-    //cout << currentSymTable[ident]->type << endl;
-    //cout << currentSymTable[ident]->lineno << endl;
 }
 
 
-
-
-
+// Helper function for generating LLVM IR for variables
 AllocaInst *defineVariable(Type *llvmTy, string ident)
 {
- AllocaInst *Alloca =
-    Builder.CreateAlloca(llvmTy, 0, ident.c_str());
+ AllocaInst *Alloca = Builder.CreateAlloca(llvmTy, 0, ident.c_str());
  updateSymTable(ident, Alloca);
 
  return Alloca;
@@ -121,7 +110,6 @@ Function *gen_main_def(Value *RetVal, Function *print_int) {
   Builder.SetInsertPoint(BB);
 
 
-  
   Function *CalleeF = TheModule->getFunction(print_int->getName());
   if (CalleeF == 0) {
     throw runtime_error("could not find the function print_int\n");
@@ -181,10 +169,10 @@ program: extern_list decafclass
   
         ProgramAST *prog = new ProgramAST((decafStmtList *)$1, (ClassAST *)$2); 
 
-        /*
+        
         if (printAST) {
             cout << getString(prog) << endl;
-        }*/
+        }
 
         // IRBuilder does constant folding by default so all the
        // addition and subtraction operations are computed and always result in
@@ -192,7 +180,7 @@ program: extern_list decafclass
 
        Value *RetVal = prog->Codegen();
        delete $1; // get rid of abstract syntax tree    
-       //delete $2; // get rid of abstract syntax tree   
+       delete $2; // get rid of abstract syntax tree   
 
        // we create an implicit print_int function call to print
        // out the value of the expression.
@@ -421,13 +409,14 @@ bool_constant: T_TRUE
 
 Value *ProgramAST::Codegen(){
 
- 
+ // Traverse each prototype declaration and generate LLVM IR for each
  for (list<decafAST*>::iterator it = ExternList->stmts.begin(); 
       it != ExternList->stmts.end(); 
       it++) {
                (*it)->Codegen();
             }
 
+  // Generate LLVM IR for Class AST
   Value* classDef = ClassDef->Codegen();
 
   return classDef;
@@ -436,12 +425,15 @@ Value *ProgramAST::Codegen(){
 
 Function *ExternAST::Codegen(){
 
- Type *returnType = getLLVMType(ReturnType);
+// Gets the LLVM IR type
+Type *returnType = getLLVMType(ReturnType);
 
 FunctionType *FT;
 
-// there are parameters
+// parameters exist
  if(FunctionArgs != NULL){
+
+  // Creates a vector of N int arguments
   vector<Type*> Ints(FunctionArgs->arglist.size(),
                              Type::getInt32Ty(getGlobalContext()));
 
@@ -453,6 +445,7 @@ else{
  FT = FunctionType::get(returnType, false);
 }
 
+  // Creates LLVM function
   Function *F =
     Function::Create(FT, Function::ExternalLinkage, Name, TheModule);
 
@@ -462,6 +455,7 @@ else{
 Value *ClassAST::Codegen(){
  Value *val = ConstantInt::get(getGlobalContext(),APInt(32,0));
 
+// Traverses each method declaration and generates LLVM IR code
 for (list<decafAST*>::iterator it = MethodDeclList->stmts.begin(); 
       it != MethodDeclList->stmts.end(); 
       it++) {
@@ -475,108 +469,99 @@ Function *MethodDeclAST::Codegen(){
   if(debugging)
   cout << "method declaration node" << endl;
 
-  // ****************initialize return type
-
-  Type *returnType = getLLVMType(ReturnType);
-
-  // **************initialize arguments
-
-  vector<string> parameterNames;
-  vector<string> parameterTypes;
-  Value * initialValue;
-  vector <Type *> arguments;
+  // Push new symbol table
   symbol_table* newSymTable = new symbol_table();
   symtbl_list.push_front(newSymTable);
   currentSymTable = symtbl_list.front();
 
+  // ****************initialize return type
 
-  //cout << "Method declaration node" << endl;
+  Type *returnType = getLLVMType(ReturnType);
+
+  vector <Type *> arguments;
 
  // cout << "arg list size: " << FunctionArgs->arglist.size() << endl;
 
-
+  // Parameters Exist
   if(FunctionArgs!=NULL){
-  for (list <TypedSymbol*>::iterator it = FunctionArgs->arglist.begin(); it != FunctionArgs->arglist.end(); it++) {
 
-    // insert arguments into symbol table
-     AllocaInst* alloca = defineVariable(getLLVMType(((*it)->Ty)),(*it)->Sym);
+  // Traverses each function parameter and pushes Type* object inside vector  
+  for (list <TypedSymbol*>::iterator it = FunctionArgs->arglist.begin(); it != FunctionArgs->arglist.end(); it++) {
 
      if(TyString((*it)->Ty) == "IntType"){
         arguments.push_back(getLLVMType((*it)->Ty));
-        parameterTypes.push_back("int");
- 
-     }
-     else if( TyString((*it)->Ty) == "BoolType"){
-         arguments.push_back(getLLVMType((*it)->Ty));
-         parameterTypes.push_back("bool");
      }
 
+     else if( TyString((*it)->Ty) == "BoolType"){
+         arguments.push_back(getLLVMType((*it)->Ty));
+     }
+
+     // Error: Function parameter should be int or bool
      else{
       return 0;
      }
-
-     parameterNames.push_back((*it)->Sym);
 }
 }
 
-
- 
-  FunctionType *FT = FunctionType::get(returnType,arguments, false);
+  // Function Creation
+  FunctionType *FT = FunctionType::get(returnType, arguments, false);
   Function *TheFunction = Function::Create(FT, Function::ExternalLinkage, Name, TheModule);
-
-if (FunctionArgs !=NULL){
-unsigned Idx = 0;
-
-  // Set names for all arguments.
-  for (Function::arg_iterator AI = TheFunction->arg_begin(); Idx != parameterNames.size();
-       ++AI, ++Idx) {
-        AI->setName(parameterNames[Idx]);
-    }
-}
 
   if (TheFunction == 0) {
     throw runtime_error("empty function block"); 
   }
-
 
   BasicBlock *BB = BasicBlock::Create(getGlobalContext(), "entry", TheFunction);
 
   // All subsequent calls to IRBuilder will place instructions in this location
   Builder.SetInsertPoint(BB);
 
-  if(debugging)
+
+if (FunctionArgs !=NULL){
+unsigned Idx = 0;
+list <TypedSymbol*>::iterator it = FunctionArgs->arglist.begin(); 
+
+  // Set names for all arguments EXAMPLE: define void @test1(i1 %a)
+  for (Function::arg_iterator AI = TheFunction->arg_begin(); Idx != FunctionArgs->arglist.size();
+       ++AI, ++Idx) {
+        AI->setName((*it)->Sym);
+        ++it;
+    }
+}
+
+ if(debugging)
   cout << "allocating instructions"<<endl;
 
 
-   unsigned Idx = 0;
- AllocaInst * allocaa;
-
+// Allocates each function parameter
 if (FunctionArgs != NULL){
-for (llvm::Function::arg_iterator AI = TheFunction->arg_begin(); Idx != parameterNames.size(); ++AI, ++Idx) { 
 
-            if(parameterTypes[Idx] == "int"){
-             allocaa =  Builder.CreateAlloca(Type::getInt32Ty(getGlobalContext()), 0, parameterNames[Idx].c_str());
+unsigned Idx = 0;
+list <TypedSymbol*>::iterator it = FunctionArgs->arglist.begin(); 
+AllocaInst * allocaa;
+
+for (Function::arg_iterator AI = TheFunction->arg_begin(); Idx != FunctionArgs->arglist.size(); ++AI, ++Idx) { 
+
+            if(TyString((*it)->Ty) == "IntType"){
+             allocaa =  Builder.CreateAlloca(Type::getInt32Ty(getGlobalContext()), 0, (*it)->Sym.c_str());
             }
-            else if(parameterTypes[Idx] == "bool"){
-              allocaa =  Builder.CreateAlloca(Type::getInt1Ty(getGlobalContext()), 0, parameterNames[Idx].c_str());
+            else if(TyString((*it)->Ty) == "BoolType"){
+              allocaa =  Builder.CreateAlloca(Type::getInt1Ty(getGlobalContext()), 0, (*it)->Sym.c_str());
 
             }
             
-           Builder.CreateStore(AI, allocaa);
+          Builder.CreateStore(AI, allocaa);
 
 
-          updateSymTable(parameterNames[Idx],allocaa);
+          updateSymTable((*it)->Sym,allocaa);
 
-            
+           ++it;
        }
 }
 
-
    Value* ret = Block->Codegen();
 
-
-  //verifyFunction(*TheFunction); 
-
+   // Create default LLVM IR method return instruction 
 
    if(TyString(ReturnType) == "VoidType"){
     Builder.CreateRetVoid();
@@ -611,7 +596,7 @@ Value *UnaryExprAST::Codegen(){
 }
 
 Value *BoolExprAST::Codegen(){
-      if(Val == 1)
+    if(Val == 1)
     return ConstantInt::get(getGlobalContext(),APInt(1,1));
     else if(Val ==0)
     return ConstantInt::get(getGlobalContext(),APInt(1,0));
@@ -721,7 +706,6 @@ Value *AssignVarAST::Codegen(){
 
 }
 
-// argument type checking later on
 Value *MethodCallAST::Codegen(){
     if(debugging)
   cout << "generating method call .." << endl;
@@ -733,41 +717,43 @@ Value *MethodCallAST::Codegen(){
     return NULL;
   }
 
-if(CalleeF->arg_size() > 0){
-Value *promo;
+  vector<Value*> newArguments;
 
-// check argument types
+
+ 
+if(CalleeF->arg_size() > 0){
+
+
 unsigned Idx = 0;
 vector<Value*> arguments1;
 
-  // Set names for all arguments.
+  // Inserts Value* argument objects into vector for type checking later
   for (Function::arg_iterator AI = CalleeF->arg_begin(); Idx != CalleeF->arg_size();
        ++AI, ++Idx) {
         arguments1.push_back(AI);
     }
 
-
+Value *promo;
 vector<Value*> arguments;
 unsigned Idx1 = 0;
-vector<Value*> newArguments;
 
    for (list<decafAST *>::iterator it = Args->stmts.begin(); it != Args->stmts.end(); it++) { 
-      arguments.push_back((*it)->Codegen());
+     Value* currentExpr = (*it)->Codegen();
 
-      if(arguments[Idx1]->getType() != arguments1[Idx1]->getType()){
-         promo = Builder.CreateZExt((*it)->Codegen(), Builder.getInt32Ty(), "zexttmp");
+      // Checks if function argument type and method argument type dont match (Type Checking)
+      if(currentExpr->getType() != arguments1[Idx1++]->getType()){
+         promo = Builder.CreateZExt(currentExpr, Builder.getInt32Ty(), "zexttmp");
          newArguments.push_back(promo);
       }
       
       else{      
-       newArguments.push_back((*it)->Codegen());
-       }
+       newArguments.push_back(currentExpr);   
   }
     
-
+}
   return Builder.CreateCall(CalleeF,newArguments);
-  }
-
+  
+}
 
   return Builder.CreateCall(CalleeF);
 }
