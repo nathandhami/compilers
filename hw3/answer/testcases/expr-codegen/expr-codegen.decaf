@@ -1,0 +1,17 @@
+extern void print_int(int);
+class Test {
+	int main()
+	{
+		int x, y;
+		x = 1;
+		y = 100;
+		print_int(x);
+		print_int(y);
+		{
+			int x;
+			x = 2;
+			print_int(x+y);
+			print_int(y-x);
+		}
+	}
+}

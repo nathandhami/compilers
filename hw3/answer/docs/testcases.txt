@@ -1,0 +1,5 @@
+decaf-sym:
+- Testing redelcaring multiple shadowing variables in a single block.
+
+expr-codegen:
+- Testing that shadowed variables are correctly used in other operterations
