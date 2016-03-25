@@ -212,15 +212,16 @@ public:
 	string str() { return buildString1("Number", convertInt(Val)); }
 	virtual Value *Codegen();
 };
-/*
+
 /// StringConstAST - string constant
 class StringConstAST : public decafAST {
 	string StringConst;
 public:
 	StringConstAST(string s) : StringConst(s) {}
 	string str() { return buildString1("StringConstant", "\"" + StringConst + "\""); }
+	virtual Value *Codegen();
 };
-*/
+
 
 /// BoolExprAST - Expression class for boolean literals: "true" and "false".
 class BoolExprAST : public decafAST {
@@ -392,14 +393,14 @@ public:
 
 /// ReturnStmtAST - return statement
 class ReturnStmtAST : public decafAST {
-	decafAST *Value;
+	decafAST *Rval;
 public:
-	ReturnStmtAST(decafAST *value) : Value(value) {}
+	ReturnStmtAST(decafAST *rval) : Rval(rval) {}
 	~ReturnStmtAST() { 
-		if (Value != NULL) { delete Value; }
+		if (Rval != NULL) { delete Rval; }
 	}
-	string str() { return buildString1("ReturnStmt", Value); }
-	virtual Function* Codegen();
+	string str() { return buildString1("ReturnStmt", Rval); }
+	virtual Value* Codegen();
 };
 /*
 /// BreakStmtAST - break statement
