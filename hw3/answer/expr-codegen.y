@@ -56,6 +56,7 @@ static AllocaInst *CreateEntryBlockAlloca(Function *TheFunction, const string &V
 }
 
 Value* access_symtbl(string ident) {
+
 for (symbol_table_list::iterator i = symtbl_list.begin(); i != symtbl_list.end(); ++i) {
 symbol_table::iterator find_ident;
 if ((find_ident = (*i)->find(ident)) != (*i)->end())
@@ -68,6 +69,9 @@ void updateSymTable(string ident,AllocaInst* alloca){
 
     //currentSymTable[ident]->lineno = variableInfo.
 
+    if(debugging)
+    cout << "Update Table: " << ident << endl;
+
     (*currentSymTable)[ident] = alloca;
     //symbol_table *yes = symtbl_list.front();
 
@@ -76,6 +80,9 @@ void updateSymTable(string ident,AllocaInst* alloca){
     //cout << currentSymTable[ident]->type << endl;
     //cout << currentSymTable[ident]->lineno << endl;
 }
+
+
+
 
 
 AllocaInst *defineVariable(Type *llvmTy, string ident)
@@ -352,21 +359,23 @@ expr:
     rvalue 
   { $$ = $1;}
   | constant
-	{ $$ = $1; }
-	| expr T_PLUS expr 
-	{ $$ = new BinaryExprAST(T_PLUS, $1, $3); }
-	| expr T_MINUS expr 
-	{  $$ = new BinaryExprAST(T_MINUS, $1, $3); }
-	| expr T_MULT expr 
-	{  $$ = new BinaryExprAST(T_MULT, $1, $3); }
-	| expr T_DIV expr 
-	{  $$ = new BinaryExprAST(T_DIV, $1, $3); }
-	| expr T_LEFTSHIFT expr 
-	{  $$ = new BinaryExprAST(T_LEFTSHIFT, $1, $3); }
-	| expr T_RIGHTSHIFT expr 
-	{  $$ = new BinaryExprAST(T_RIGHTSHIFT, $1, $3); }
-	| expr T_MOD expr 
-	{  $$ = new BinaryExprAST(T_MOD, $1, $3); }
+  { $$ = $1; }
+  | method_call
+  { $$ = $1; }
+  | expr T_PLUS expr 
+  { $$ = new BinaryExprAST(T_PLUS, $1, $3); }
+  | expr T_MINUS expr 
+  {  $$ = new BinaryExprAST(T_MINUS, $1, $3); }
+  | expr T_MULT expr 
+  {  $$ = new BinaryExprAST(T_MULT, $1, $3); }
+  | expr T_DIV expr 
+  {  $$ = new BinaryExprAST(T_DIV, $1, $3); }
+  | expr T_LEFTSHIFT expr 
+  {  $$ = new BinaryExprAST(T_LEFTSHIFT, $1, $3); }
+  | expr T_RIGHTSHIFT expr 
+  {  $$ = new BinaryExprAST(T_RIGHTSHIFT, $1, $3); }
+  | expr T_MOD expr 
+  {  $$ = new BinaryExprAST(T_MOD, $1, $3); }
   | expr T_LT expr
   { $$ = new BinaryExprAST(T_LT, $1, $3); }
   | expr T_GT expr
@@ -392,12 +401,12 @@ expr:
   ;
 
 constant: T_INTCONSTANT
-    	{ $$ = new NumberExprAST($1); }
+      { $$ = new NumberExprAST($1); }
       | T_CHARCONSTANT
     { $$ = new NumberExprAST($1); }
       | bool_constant
     { $$ = $1; }
-	;
+  ;
 
 
 bool_constant: T_TRUE
@@ -427,10 +436,22 @@ Value *ProgramAST::Codegen(){
 
 Function *ExternAST::Codegen(){
 
+ Type *returnType = getLLVMType(ReturnType);
+
+FunctionType *FT;
+
+// there are parameters
+ if(FunctionArgs != NULL){
   vector<Type*> Ints(FunctionArgs->arglist.size(),
                              Type::getInt32Ty(getGlobalContext()));
-  FunctionType *FT =
-    FunctionType::get(Type::getVoidTy(getGlobalContext()), Ints, false);
+
+  FT = FunctionType::get(returnType, Ints, false);
+}
+
+// no parameters
+else{
+ FT = FunctionType::get(returnType, false);
+}
 
   Function *F =
     Function::Create(FT, Function::ExternalLinkage, Name, TheModule);
@@ -450,13 +471,68 @@ for (list<decafAST*>::iterator it = MethodDeclList->stmts.begin();
 }
 
 Function *MethodDeclAST::Codegen(){
+
   if(debugging)
   cout << "method declaration node" << endl;
-  //vector<Type *> argTypes;
-  //vector<string> argNames;
 
-  FunctionType *FT = FunctionType::get(IntegerType::get(getGlobalContext(), 32), false);
+  // ****************initialize return type
+
+  Type *returnType = getLLVMType(ReturnType);
+
+  // **************initialize arguments
+
+  vector<string> parameterNames;
+  vector<string> parameterTypes;
+  Value * initialValue;
+  vector <Type *> arguments;
+  symbol_table* newSymTable = new symbol_table();
+  symtbl_list.push_front(newSymTable);
+  currentSymTable = symtbl_list.front();
+
+
+  //cout << "Method declaration node" << endl;
+
+ // cout << "arg list size: " << FunctionArgs->arglist.size() << endl;
+
+
+  if(FunctionArgs!=NULL){
+  for (list <TypedSymbol*>::iterator it = FunctionArgs->arglist.begin(); it != FunctionArgs->arglist.end(); it++) {
+
+    // insert arguments into symbol table
+     AllocaInst* alloca = defineVariable(getLLVMType(((*it)->Ty)),(*it)->Sym);
+
+     if(TyString((*it)->Ty) == "IntType"){
+        arguments.push_back(getLLVMType((*it)->Ty));
+        parameterTypes.push_back("int");
+ 
+     }
+     else if( TyString((*it)->Ty) == "BoolType"){
+         arguments.push_back(getLLVMType((*it)->Ty));
+         parameterTypes.push_back("bool");
+     }
+
+     else{
+      return 0;
+     }
+
+     parameterNames.push_back((*it)->Sym);
+}
+}
+
+
+ 
+  FunctionType *FT = FunctionType::get(returnType,arguments, false);
   Function *TheFunction = Function::Create(FT, Function::ExternalLinkage, Name, TheModule);
+
+if (FunctionArgs !=NULL){
+unsigned Idx = 0;
+
+  // Set names for all arguments.
+  for (Function::arg_iterator AI = TheFunction->arg_begin(); Idx != parameterNames.size();
+       ++AI, ++Idx) {
+        AI->setName(parameterNames[Idx]);
+    }
+}
 
   if (TheFunction == 0) {
     throw runtime_error("empty function block"); 
@@ -472,26 +548,52 @@ Function *MethodDeclAST::Codegen(){
   cout << "allocating instructions"<<endl;
 
 
-   Block->Codegen();
+   unsigned Idx = 0;
+ AllocaInst * allocaa;
+
+if (FunctionArgs != NULL){
+for (llvm::Function::arg_iterator AI = TheFunction->arg_begin(); Idx != parameterNames.size(); ++AI, ++Idx) { 
+
+            if(parameterTypes[Idx] == "int"){
+             allocaa =  Builder.CreateAlloca(Type::getInt32Ty(getGlobalContext()), 0, parameterNames[Idx].c_str());
+            }
+            else if(parameterTypes[Idx] == "bool"){
+              allocaa =  Builder.CreateAlloca(Type::getInt1Ty(getGlobalContext()), 0, parameterNames[Idx].c_str());
+
+            }
+            
+           Builder.CreateStore(AI, allocaa);
 
 
-  //Builder.CreateRet(returnValue);
+          updateSymTable(parameterNames[Idx],allocaa);
+
+            
+       }
+}
+
+
+   Value* ret = Block->Codegen();
 
 
   //verifyFunction(*TheFunction); 
 
 
- // return TheFunction;
+   if(TyString(ReturnType) == "VoidType"){
+    Builder.CreateRetVoid();
+   }
 
+   else if(TyString(ReturnType) == "BoolType"){
+    Builder.CreateRet(ConstantInt::get(getGlobalContext(), APInt(1, 0)));
+   }
 
-  //Function *func = Function::Create(FunctionType::)
+   else{
+    Builder.CreateRet(ConstantInt::get(getGlobalContext(), APInt(32, 0)));
+   }
 
+   return TheFunction;
 
-   Builder.CreateRet(ConstantInt::get(getGlobalContext(), APInt(32, 0)));
-
- // func->dump();
-  //for(list<TypedSymbolListAST*> it = )
 }
+
 
 Value *UnaryExprAST::Codegen(){
   Value *val = Expr->Codegen();
@@ -521,26 +623,10 @@ Value *val = ConstantInt::get(getGlobalContext(),APInt(32,1));
 Value *initialValue;
 if(debugging)
 cout << "allocating variables.."<<endl;
- //Function *TheFunction = Builder.GetInsertBlock()->getParent();
- // TypedSymbol *symbol = arglist.front();
+
   for (list <TypedSymbol*>::iterator it = arglist.begin(); it != arglist.end(); it++) {
      AllocaInst* alloca = defineVariable(getLLVMType(((*it)->Ty)),(*it)->Sym);
-/*
-     if(TyString((*it)->Ty) == "IntType"){
-        initialValue = ConstantInt::get(getGlobalContext(),APInt(32,0));
-     }
-
-     else if( TyString((*it)->Ty) == "BoolType"){
-        initialValue = ConstantInt::get(getGlobalContext(),APInt(32,0));
-     }
-
-
-     Builder.CreateStore(initialValue, alloca);
-     */
   }
-// Value* definedvar = defineVariable(Builder.getInt32Ty(),arglist.front()->Sym);
- //cout << arglist.fron
-
 
    return val;
 }
@@ -597,14 +683,26 @@ Value *MethodBlockAST::Codegen(){
               val = (*it)->Codegen();
             }
 
+
+
+   currentSymTable->clear();
+
+   symtbl_list.pop_front();
+
+   currentSymTable = symtbl_list.front();
+
   return val;
 }
 
 Value *ReturnStmtAST::Codegen(){
 
+
+Function *currentFunc = Builder.GetInsertBlock()->getParent();
+
     if(Rval != NULL ){
         return Builder.CreateRet(Rval->Codegen());
     }
+
 
 }
 
@@ -638,27 +736,44 @@ Value *MethodCallAST::Codegen(){
 if(CalleeF->arg_size() > 0){
 Value *promo;
 
+// check argument types
+unsigned Idx = 0;
+vector<Value*> arguments1;
 
-   vector<Value*> arguments;
-   
+  // Set names for all arguments.
+  for (Function::arg_iterator AI = CalleeF->arg_begin(); Idx != CalleeF->arg_size();
+       ++AI, ++Idx) {
+        arguments1.push_back(AI);
+    }
+
+
+vector<Value*> arguments;
+unsigned Idx1 = 0;
+vector<Value*> newArguments;
+
    for (list<decafAST *>::iterator it = Args->stmts.begin(); it != Args->stmts.end(); it++) { 
-      promo = Builder.CreateZExt((*it)->Codegen(), Builder.getInt32Ty(), "zexttmp");
-      arguments.push_back(promo);
+      arguments.push_back((*it)->Codegen());
+
+      if(arguments[Idx1]->getType() != arguments1[Idx1]->getType()){
+         promo = Builder.CreateZExt((*it)->Codegen(), Builder.getInt32Ty(), "zexttmp");
+         newArguments.push_back(promo);
+      }
+      
+      else{      
+       newArguments.push_back((*it)->Codegen());
+       }
+  }
+    
+
+  return Builder.CreateCall(CalleeF,newArguments);
+  }
 
 
-      //arguments.push_back((*it)->Codegen());
-
-     }
-
-  return Builder.CreateCall(CalleeF,arguments);
-}
-
-  return Builder.CreateCall(CalleeF,"calltmp");
+  return Builder.CreateCall(CalleeF);
 }
 
 
 Value *VariableExprAST::Codegen() {
-  //Value* definedvar = defineVariable(type,ident);
   Value *getvar = access_symtbl(Name);
  return Builder.CreateLoad(getvar, Name.c_str());
 }
