@@ -6,7 +6,7 @@
 #include <sstream>
 
 #ifndef YYTOKENTYPE
-#include "expr-codegen.tab.h"
+#include "decaf-llvm.tab.h"
 #endif
 
 using namespace std;
