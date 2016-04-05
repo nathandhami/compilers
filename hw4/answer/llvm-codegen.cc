@@ -328,16 +328,64 @@ llvm::Value *MethodBlockAST::Codegen() {
 	return val;
 }
 
-llvm::Value *IfStmtAST::Codegen() { 
-	return NULL; 
+llvm::Value *IfStmtAST::Codegen() {
+	llvm::Function *func = Builder.GetInsertBlock()->getParent();
+
+	llvm::Value *val = NULL;
+	if (Cond != NULL) val = Cond->Codegen();
+    llvm::BasicBlock *CondBB = llvm::BasicBlock::Create(llvm::getGlobalContext(), "ifstart", func);
+	llvm::BasicBlock *TrueBB = llvm::BasicBlock::Create(llvm::getGlobalContext(), "iftrue", func);
+    llvm::BasicBlock *EndBB = llvm::BasicBlock::Create(llvm::getGlobalContext(), "end", func);
+ 	llvm::BasicBlock *FalseBB;
+    Builder.CreateBr(CondBB);
+    Builder.SetInsertPoint(CondBB);  
+
+    if (ElseBlock != NULL) {
+    	FalseBB = llvm::BasicBlock::Create(llvm::getGlobalContext(), "iffalse", func);
+    	Builder.CreateCondBr(val, TrueBB, FalseBB);
+    } else {
+    	Builder.CreateCondBr(val, TrueBB, EndBB);
+    }    
+    Builder.SetInsertPoint(TrueBB);
+	if (IfTrueBlock != NULL) val = IfTrueBlock->Codegen();
+	Builder.CreateBr(EndBB);
+	if (ElseBlock != NULL) {
+    	Builder.SetInsertPoint(FalseBB); 
+		val = ElseBlock->Codegen();
+		Builder.CreateBr(EndBB);
+	}
+	Builder.SetInsertPoint(EndBB);
+	return val; 
 }
 
-llvm::Value *WhileStmtAST::Codegen() { 
-	return NULL; 
+llvm::Value *WhileStmtAST::Codegen() {
+	llvm::Value *val = NULL;
+	if (Cond != NULL) val = Cond->Codegen();
+	if (Body != NULL) val = Body->Codegen(); 
+	return val; 
 }
 
 llvm::Value *ForStmtAST::Codegen() { 
-	return NULL; 
+	llvm::Function *func = Builder.GetInsertBlock()->getParent();
+	llvm::Value *val = NULL;
+	llvm::BasicBlock *LoopBB = llvm::BasicBlock::Create(llvm::getGlobalContext(), "loop", func);
+	llvm::BasicBlock *BodyBB = llvm::BasicBlock::Create(llvm::getGlobalContext(), "body", func);
+    llvm::BasicBlock *NextBB = llvm::BasicBlock::Create(llvm::getGlobalContext(), "next", func);
+    llvm::BasicBlock *EndBB = llvm::BasicBlock::Create(llvm::getGlobalContext(), "end", func);
+
+	if (InitList != NULL) val = InitList->Codegen();
+	Builder.CreateBr(LoopBB);
+    Builder.SetInsertPoint(LoopBB);
+	if (Cond != NULL) val = Cond->Codegen();
+	Builder.CreateCondBr(val, BodyBB, EndBB);
+	Builder.SetInsertPoint(BodyBB);
+	if (Body != NULL) val = Body->Codegen(); 
+	Builder.CreateBr(NextBB);
+	Builder.SetInsertPoint(NextBB);
+	if (LoopEndList != NULL) val = LoopEndList->Codegen();
+	Builder.CreateBr(LoopBB);
+	Builder.SetInsertPoint(EndBB);
+	return val; 
 }
 
 llvm::Value *ReturnStmtAST::Codegen() { 

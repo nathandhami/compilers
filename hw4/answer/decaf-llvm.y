@@ -58,6 +58,7 @@ void enter_symtbl(string ident, int typesize) {
 %type <ast> block method_block statement statement_list var_decl_list var_decl var_list param_list param_comma_list 
 %type <ast> method_decl method_decl_list field_decl_list field_decl field_list extern_type_list extern_defn
 %type <ast> extern_list decafclass
+//%type <ast> GVexpr
 
 %left T_OR
 %left T_AND
@@ -278,6 +279,14 @@ rvalue: T_ID
     | T_ID T_LSB expr T_RSB
     { $$ = new ArrayLocExprAST(*$1, $3); delete $1; }
     ;
+
+/*
+GVexpr: T_ID
+    { $$ = new VariableExprAST(*$1); delete $1; }
+    | T_ID T_LSB GVexpr T_RSB
+    { $$ = new ArrayLocExprAST(*$1, $3); delete $1; }
+    ;
+*/
 
 expr: rvalue
     { $$ = $1; }
